@@ -1,0 +1,4 @@
+-r requirements.deploy.txt
+-r requirements.test.txt
+opencv-python-headless
+numpy
