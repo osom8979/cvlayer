@@ -4,7 +4,7 @@ from enum import Enum, unique
 
 import cv2
 
-from cvlayer.types.np import ImageType
+from cvlayer.types.np import Image
 
 
 @unique
@@ -19,7 +19,7 @@ class CvtColorCode(Enum):
     YUV2BGR = cv2.COLOR_YUV2BGR
 
 
-def cvt_color(image: ImageType, code: CvtColorCode) -> ImageType:
+def cvt_color(image: Image, code: CvtColorCode) -> Image:
     return cv2.cvtColor(image, code.value)
 
 
@@ -27,29 +27,29 @@ class CvlCvtColor:
     CvtColorCodeType = CvtColorCode
 
     @staticmethod
-    def cvl_cvt_color(image: ImageType, code: CvtColorCode) -> ImageType:
+    def cvl_cvt_color(image: Image, code: CvtColorCode) -> Image:
         return cvt_color(image, code)
 
     @staticmethod
-    def cvl_cvt_color_bgr2gray(image: ImageType) -> ImageType:
+    def cvl_cvt_color_bgr2gray(image: Image) -> Image:
         return CvlCvtColor.cvl_cvt_color(image, CvtColorCode.BGR2GRAY)
 
     @staticmethod
-    def cvl_cvt_color_gray2bgr(image: ImageType) -> ImageType:
+    def cvl_cvt_color_gray2bgr(image: Image) -> Image:
         return CvlCvtColor.cvl_cvt_color(image, CvtColorCode.GRAY2BGR)
 
     @staticmethod
-    def cvl_cvt_color_bgr2hsv(image: ImageType) -> ImageType:
+    def cvl_cvt_color_bgr2hsv(image: Image) -> Image:
         return CvlCvtColor.cvl_cvt_color(image, CvtColorCode.BGR2HSV)
 
     @staticmethod
-    def cvl_cvt_color_hsv2bgr(image: ImageType) -> ImageType:
+    def cvl_cvt_color_hsv2bgr(image: Image) -> Image:
         return CvlCvtColor.cvl_cvt_color(image, CvtColorCode.HSV2BGR)
 
     @staticmethod
-    def cvl_cvt_color_bgr2yuv(image: ImageType) -> ImageType:
+    def cvl_cvt_color_bgr2yuv(image: Image) -> Image:
         return CvlCvtColor.cvl_cvt_color(image, CvtColorCode.BGR2YUV)
 
     @staticmethod
-    def cvl_cvt_color_yuv2bgr(image: ImageType) -> ImageType:
+    def cvl_cvt_color_yuv2bgr(image: Image) -> Image:
         return CvlCvtColor.cvl_cvt_color(image, CvtColorCode.YUV2BGR)

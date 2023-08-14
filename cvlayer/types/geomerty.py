@@ -5,5 +5,16 @@ from typing import List, Tuple, TypeVar, Union
 Number = Union[int, float]
 NumberT = TypeVar("NumberT", int, float)
 
-Point = Tuple[NumberT, NumberT]
+Point = Tuple[
+    NumberT,  # X
+    NumberT,  # Y
+]
+
 Polygon = List[Point]
+
+Rect = Tuple[
+    NumberT,  # X1 - Left
+    NumberT,  # Y1 - Top
+    NumberT,  # X2 - Right
+    NumberT,  # Y2 - Bottom
+]

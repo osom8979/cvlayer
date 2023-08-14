@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.types.geomerty import Number, NumberT, Point, Polygon
-from cvlayer.types.np import ImageType
+from cvlayer.types.color import Color
+from cvlayer.types.geomerty import Number, NumberT, Point, Polygon, Rect
+from cvlayer.types.np import Image, ImageShape
 
 __all__ = [
-    "ImageType",
+    "Color",
+    "Image",
+    "ImageShape",
     "Number",
     "NumberT",
     "Point",
     "Polygon",
+    "Rect",
 ]
