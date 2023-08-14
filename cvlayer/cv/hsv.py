@@ -3,9 +3,6 @@
 from math import floor
 from typing import Final
 
-PIXEL_8BIT_MAX: Final[int] = 255
-PIXEL_8BIT_HALF: Final[int] = PIXEL_8BIT_MAX // 2
-
 HSV_HUE_MIN: Final[int] = 0
 HSV_HUE_MAX: Final[int] = 179
 

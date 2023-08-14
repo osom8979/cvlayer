@@ -5,10 +5,15 @@ from cvlayer.types.geomerty import (
     Number,
     NumberT,
     Point,
+    PointFloat,
+    PointInt,
     Polygon,
     Rect,
     RectFloat,
     RectInt,
+    Size,
+    SizeFloat,
+    SizeInt,
 )
 from cvlayer.types.np import Image, ImageShape
 
@@ -19,8 +24,13 @@ __all__ = [
     "Number",
     "NumberT",
     "Point",
+    "PointFloat",
+    "PointInt",
     "Polygon",
     "Rect",
     "RectFloat",
     "RectInt",
+    "Size",
+    "SizeFloat",
+    "SizeInt",
 ]

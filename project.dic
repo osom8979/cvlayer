@@ -12,10 +12,12 @@ cvlayer
 dasiamrpn
 datefmt
 dblclk
+ddepth
 divx
 goturn
 hwheel
 kcos
+ksize
 lbutton
 levelname
 mbutton
@@ -24,9 +26,11 @@ meipass
 mjpg
 mosse
 nocov
+otsu's
 pythonpath
 rbutton
 retr
 shiftkey
 strftime
+tozero
 xvid

@@ -9,6 +9,15 @@ Point = Tuple[
     NumberT,  # X
     NumberT,  # Y
 ]
+PointInt = Tuple[int, int]
+PointFloat = Tuple[float, float]
+
+Size = Tuple[
+    NumberT,  # Width
+    NumberT,  # Height
+]
+SizeInt = Tuple[int, int]
+SizeFloat = Tuple[float, float]
 
 Polygon = List[Point]
 
@@ -18,6 +27,5 @@ Rect = Tuple[
     NumberT,  # X2 - Right
     NumberT,  # Y2 - Bottom
 ]
-
 RectInt = Tuple[int, int, int, int]
 RectFloat = Tuple[float, float, float, float]

@@ -6,9 +6,12 @@ from cvlayer.cvl.contours import CvlContours
 from cvlayer.cvl.contours_edge import CvlContoursEdge
 from cvlayer.cvl.cvt_color import CvlCvtColor
 from cvlayer.cvl.drawable import CvlDrawable
+from cvlayer.cvl.edge_detector import CvlEdgeDetector
 from cvlayer.cvl.fourcc import CvlFourcc
 from cvlayer.cvl.hsv import CvlHsv
+from cvlayer.cvl.morphology import CvlMorphology
 from cvlayer.cvl.palette import CvlPalette
+from cvlayer.cvl.threshold import CvlThreshold
 from cvlayer.cvl.tracker import CvlTracker
 
 
@@ -19,9 +22,12 @@ class CvLayer(
     CvlContoursEdge,
     CvlCvtColor,
     CvlDrawable,
+    CvlEdgeDetector,
     CvlFourcc,
     CvlHsv,
+    CvlMorphology,
     CvlPalette,
+    CvlThreshold,
     CvlTracker,
 ):
     pass
