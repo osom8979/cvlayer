@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.colors import CvlColors
 from cvlayer.cv.cvt_color import CvlCvtColor
+from cvlayer.palette import CvlPalette
 
 
 class CvLayer(
-    CvlColors,
+    CvlPalette,
     CvlCvtColor,
 ):
     pass
