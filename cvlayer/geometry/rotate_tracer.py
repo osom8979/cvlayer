@@ -1,0 +1,175 @@
+# -*- coding: utf-8 -*-
+
+from typing import Optional, Tuple
+
+import cv2
+
+from cvlayer.geometry.find_nearset_point import find_nearest_point
+from cvlayer.math.angle import degrees_point3
+from cvlayer.types import Point, Polygon
+
+
+def normalize_point(pivot: Point, center: Point) -> Point:
+    x1, y1 = pivot
+    x2, y2 = center
+    return x2 - x1, y2 - y1
+
+
+def calc_degrees(
+    prev_point0: Point,
+    prev_center: Point,
+    next_point0: Point,
+    next_center: Point,
+) -> float:
+    n0 = normalize_point(prev_point0, prev_center)
+    n1 = normalize_point(next_point0, next_center)
+    return degrees_point3(n0, (0.0, 0.0), n1)
+
+
+def measure_center_point(contour) -> Point:
+    m = cv2.moments(contour)
+    cx = m["m10"] / m["m00"]
+    cy = m["m01"] / m["m00"]
+    return cx, cy
+
+
+class RotateTracer:
+    _first_polygon: Optional[Polygon]
+    _first_center: Optional[Point]
+    _first_point0: Optional[Point]
+
+    _current_polygon: Optional[Polygon]
+    _current_center: Optional[Point]
+    _current_point0: Optional[Point]
+
+    def __init__(self, max_missing_count=10):
+        self._max_missing_count = max_missing_count
+
+        self._missing_count = 0
+        self._weighted_rotate = 0.0
+        self._current_rotate = 0.0
+
+        self._first_polygon = None
+        self._first_center = None
+        self._first_point0 = None
+
+        self._current_polygon = None
+        self._current_center = None
+        self._current_point0 = None
+
+    @property
+    def has_first_polygon(self) -> bool:
+        return self._first_polygon is not None
+
+    @property
+    def overflow_missing_count(self) -> bool:
+        return self._missing_count >= self._max_missing_count
+
+    @property
+    def current_center(self) -> Optional[Tuple[float, float]]:
+        return self._current_center
+
+    @property
+    def current_point0(self) -> Optional[Tuple[float, float]]:
+        return self._current_point0
+
+    @property
+    def current_rotate_delta(self) -> float:
+        current_rotate = self._current_rotate
+        if current_rotate > 180:
+            return current_rotate - 360
+        else:
+            return current_rotate
+
+    @property
+    def rotate_degrees(self) -> float:
+        return self.current_rotate_delta + self._weighted_rotate
+
+    def clear(self) -> None:
+        self._missing_count = 0
+        self._weighted_rotate = 0.0
+        self._current_rotate = 0.0
+
+        self._first_polygon = None
+        self._first_center = None
+        self._first_point0 = None
+
+        self._current_polygon = None
+        self._current_center = None
+        self._current_point0 = None
+
+    def reset_missing_count(self) -> None:
+        self._missing_count = 0
+
+    def increase_missing_count(self) -> None:
+        self._missing_count += 1
+
+    def on_missing(self) -> None:
+        self.increase_missing_count()
+        if self.overflow_missing_count:
+            self.clear()
+
+    def on_trace_first_angle(self, polygon: Polygon, center: Point) -> None:
+        assert polygon
+        assert center
+        assert isinstance(polygon, list)
+        assert isinstance(center, tuple)
+
+        self._weighted_rotate = 0.0
+        self._current_rotate = 0.0
+
+        self._first_polygon = polygon
+        self._first_center = center
+        self._first_point0 = (polygon[0][0], polygon[0][1])
+
+        self._current_polygon = self._first_polygon
+        self._current_center = self._first_center
+        self._current_point0 = self._first_point0
+
+    def on_trace_next_angle(self, polygon: Polygon, center: Point) -> None:
+        assert polygon
+        assert center
+        assert isinstance(polygon, list)
+        assert isinstance(center, tuple)
+
+        first_point0 = self._first_point0
+        first_center = self._first_center
+        current_point0 = self._current_point0
+        assert first_point0 is not None
+        assert first_center is not None
+        assert current_point0 is not None
+
+        next_point0 = find_nearest_point(current_point0, *polygon)
+        next_center = center
+        next_degrees = calc_degrees(
+            first_point0,
+            first_center,
+            next_point0,
+            next_center,
+        )
+        self._current_polygon = polygon
+        self._current_center = next_center
+        self._current_point0 = next_point0
+        self._current_rotate = next_degrees
+
+    def on_detected(self, polygon: Polygon, center: Point) -> None:
+        self.reset_missing_count()
+        if self.has_first_polygon:
+            self.on_trace_next_angle(polygon, center)
+        else:
+            self.on_trace_first_angle(polygon, center)
+
+    def run(
+        self,
+        detect: bool,
+        polygon: Optional[Polygon] = None,
+        center: Optional[Point] = None,
+    ) -> None:
+        if detect:
+            assert polygon
+            assert center
+            assert isinstance(polygon, list)
+            assert isinstance(center, tuple)
+            self.on_detected(polygon, center)
+        else:
+            self.on_missing()

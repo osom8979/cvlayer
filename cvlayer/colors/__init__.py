@@ -70,3 +70,29 @@ def tableau_colors():
 @lru_cache
 def xkcd_colors():
     return _load_colors_from_module_name("xkcd")
+
+
+class CvlColors:
+    @staticmethod
+    def colors_basic():
+        return basic_colors()
+
+    @staticmethod
+    def colors_css4():
+        return css4_colors()
+
+    @staticmethod
+    def colors_extended():
+        return extended_colors()
+
+    @staticmethod
+    def colors_flat():
+        return flat_colors()
+
+    @staticmethod
+    def colors_tableau():
+        return tableau_colors()
+
+    @staticmethod
+    def colors_xkcd():
+        return xkcd_colors()
