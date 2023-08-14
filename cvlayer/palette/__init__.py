@@ -70,29 +70,3 @@ def tableau_palette():
 @lru_cache
 def xkcd_palette():
     return _load_palette_from_module_name("xkcd")
-
-
-class CvlPalette:
-    @staticmethod
-    def palette_basic():
-        return basic_palette()
-
-    @staticmethod
-    def palette_css4():
-        return css4_palette()
-
-    @staticmethod
-    def palette_extended():
-        return extended_palette()
-
-    @staticmethod
-    def palette_flat():
-        return flat_palette()
-
-    @staticmethod
-    def palette_tableau():
-        return tableau_palette()
-
-    @staticmethod
-    def palette_xkcd():
-        return xkcd_palette()

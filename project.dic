@@ -1,12 +1,32 @@
 # IDEA plugin: Dictionary
 # https://plugins.jetbrains.com/plugin/12089-dictionary
 
+altkey
 asctime
 bgra
+bgsegm
+ccomp
+csrt
+ctrlkey
 cvlayer
+dasiamrpn
 datefmt
+dblclk
+divx
+goturn
+hwheel
+kcos
+lbutton
 levelname
+mbutton
+medianflow
 meipass
+mjpg
+mosse
 nocov
 pythonpath
+rbutton
+retr
+shiftkey
 strftime
+xvid

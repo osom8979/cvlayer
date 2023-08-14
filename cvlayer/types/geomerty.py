@@ -18,3 +18,6 @@ Rect = Tuple[
     NumberT,  # X2 - Right
     NumberT,  # Y2 - Bottom
 ]
+
+RectInt = Tuple[int, int, int, int]
+RectFloat = Tuple[float, float, float, float]
