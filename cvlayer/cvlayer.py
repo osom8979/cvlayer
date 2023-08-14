@@ -9,6 +9,7 @@ from cvlayer.cvl.drawable import CvlDrawable
 from cvlayer.cvl.edge_detector import CvlEdgeDetector
 from cvlayer.cvl.fourcc import CvlFourcc
 from cvlayer.cvl.hsv import CvlHsv
+from cvlayer.cvl.image import CvlImage
 from cvlayer.cvl.morphology import CvlMorphology
 from cvlayer.cvl.palette import CvlPalette
 from cvlayer.cvl.threshold import CvlThreshold
@@ -25,6 +26,7 @@ class CvLayer(
     CvlEdgeDetector,
     CvlFourcc,
     CvlHsv,
+    CvlImage,
     CvlMorphology,
     CvlPalette,
     CvlThreshold,
