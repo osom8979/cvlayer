@@ -6,6 +6,19 @@
 
 OpenCV Layer Helper
 
+## Usage
+
+Just inherit `cvlayer.CvLayer`.
+
+```python
+from cvlayer import CvLayer
+
+
+class YourApp(CvLayer):
+    def func(self, image):
+        self.cvl_cvt_color_bgr2hsv(image)
+```
+
 ## License
 
 See the [LICENSE](./LICENSE) file for details. In summary,

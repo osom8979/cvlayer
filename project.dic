@@ -20,13 +20,16 @@ kcos
 ksize
 lbutton
 levelname
+maxval
 mbutton
 medianflow
 meipass
+minval
 mjpg
 mosse
 nocov
 otsu's
+printonly
 pythonpath
 rbutton
 retr

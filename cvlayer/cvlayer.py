@@ -13,6 +13,7 @@ from cvlayer.cvl.image import CvlImage
 from cvlayer.cvl.in_range import CvlInRange
 from cvlayer.cvl.morphology import CvlMorphology
 from cvlayer.cvl.palette import CvlPalette
+from cvlayer.cvl.rotate_tracer import CvlRotateTracer
 from cvlayer.cvl.threshold import CvlThreshold
 from cvlayer.cvl.tracker import CvlTracker
 
@@ -31,6 +32,7 @@ class CvLayer(
     CvlInRange,
     CvlMorphology,
     CvlPalette,
+    CvlRotateTracer,
     CvlThreshold,
     CvlTracker,
 ):

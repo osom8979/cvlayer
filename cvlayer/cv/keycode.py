@@ -10,7 +10,9 @@ from cvlayer.cv.backend import (
     highgui_backend_type,
 )
 
-NO_KEYCODE: Final[int] = -1
+KEYCODE_NULL: Final[int] = -1
+KEYCODE_ESC: Final[int] = 27
+KEYCODE_ENTER: Final[int] = 13
 
 
 @unique

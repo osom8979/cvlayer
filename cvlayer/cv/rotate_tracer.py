@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Tuple
+from typing import Final, Optional, Tuple
 
 import cv2
 
 from cvlayer.geometry.find_nearset_point import find_nearest_point
 from cvlayer.math.angle import degrees_point3
 from cvlayer.types import Point, Polygon
+
+DEFAULT_MAX_MISSING_COUNT: Final[int] = 10
 
 
 def normalize_point(pivot: Point, center: Point) -> Point:
@@ -42,7 +44,7 @@ class RotateTracer:
     _current_center: Optional[Point]
     _current_point0: Optional[Point]
 
-    def __init__(self, max_missing_count=10):
+    def __init__(self, max_missing_count=DEFAULT_MAX_MISSING_COUNT):
         self._max_missing_count = max_missing_count
 
         self._missing_count = 0
