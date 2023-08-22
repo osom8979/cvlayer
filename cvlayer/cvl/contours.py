@@ -3,6 +3,8 @@
 from numpy.typing import NDArray
 
 from cvlayer.cv.contours import (
+    FindContoursMethod,
+    FindContoursMode,
     MinAreaRectResult,
     approx_poly_dp,
     arc_length,
@@ -10,14 +12,25 @@ from cvlayer.cv.contours import (
     contour_area,
     convert_roi2contour,
     convex_hull,
+    find_contours,
     find_largest_contour_index,
     min_area_rect,
 )
-from cvlayer.types import Rect
+from cvlayer.types import Image, Rect
 
 
 class CvlContours:
+    FindContoursMethodType = FindContoursMethod
+    FindContoursModeType = FindContoursMode
     MinAreaRectResultType = MinAreaRectResult
+
+    @staticmethod
+    def cvl_find_contours(
+        image: Image,
+        mode=FindContoursMode.TREE,
+        method=FindContoursMethod.SIMPLE,
+    ):
+        return find_contours(image, mode, method)
 
     @staticmethod
     def cvl_find_largest_contour_index(contour: NDArray, oriented=False) -> int:

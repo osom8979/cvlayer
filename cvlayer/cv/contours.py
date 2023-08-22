@@ -7,7 +7,7 @@ import cv2
 from numpy import array, logical_and, ndarray, zeros
 from numpy.typing import NDArray
 
-from cvlayer.types import PointFloat, Rect, SizeFloat
+from cvlayer.types import Image, PointFloat, Rect, SizeFloat
 
 
 @unique
@@ -31,6 +31,14 @@ class MinAreaRectResult(NamedTuple):
     center: PointFloat
     size: SizeFloat
     rotation: float
+
+
+def find_contours(
+    image: Image,
+    mode=FindContoursMode.TREE,
+    method=FindContoursMethod.SIMPLE,
+):
+    return cv2.findContours(image, mode.value, method.value)
 
 
 def find_largest_contour_index(contours: Iterable[NDArray], oriented=False) -> int:
