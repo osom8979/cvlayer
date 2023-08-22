@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from typing import Final, Optional, Sequence, Tuple
+from typing import Final, Optional, Tuple
 
 import cv2
-from numpy.typing import NDArray
 
 from cvlayer.types import Color, Image, Number, Point, Rect
 
@@ -17,8 +16,6 @@ RADIUS: Final[int] = 4
 THICKNESS: Final[int] = 2
 COLOR: Final[Color] = (0, 0, 0)
 LINE_TYPE: Final[int] = LINE_AA
-
-CONTOURS_ALL: Final[int] = -1
 
 FONT: Final[int] = cv2.FONT_HERSHEY_SIMPLEX
 FONT_SCALE: Final[float] = 1.0
@@ -83,37 +80,6 @@ def draw_circle(
 ) -> None:
     center = int(x), int(y)
     cv2.circle(image, center, radius, color, thickness, line_type)
-
-
-def draw_contour(
-    image: Image,
-    contour: NDArray,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
-    hierarchy: Optional[NDArray] = None,
-) -> None:
-    cv2.drawContours(image, [contour], 0, color, thickness, line_type, hierarchy)
-
-
-def draw_contours(
-    image: Image,
-    contours: Sequence[NDArray],
-    contour_index=CONTOURS_ALL,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
-    hierarchy: Optional[NDArray] = None,
-) -> None:
-    cv2.drawContours(
-        image,
-        contours,
-        contour_index,
-        color,
-        thickness,
-        line_type,
-        hierarchy,
-    )
 
 
 def draw_outline_text(

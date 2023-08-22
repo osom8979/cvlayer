@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Sequence, Tuple
-
-from numpy.typing import NDArray
+from typing import Optional, Tuple
 
 from cvlayer.cv.drawable import (
     COLOR,
-    CONTOURS_ALL,
     FILLED,
     FONT,
     FONT_SCALE,
@@ -23,8 +20,6 @@ from cvlayer.cv.drawable import (
     RADIUS,
     THICKNESS,
     draw_circle,
-    draw_contour,
-    draw_contours,
     draw_line,
     draw_multiline_text,
     draw_outline_text,
@@ -80,37 +75,6 @@ class CvlDrawable:
         line_type=LINE_TYPE,
     ) -> None:
         draw_circle(image, x, y, radius, color, thickness, line_type)
-
-    @staticmethod
-    def cvl_draw_contour(
-        image: Image,
-        contour: NDArray,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
-        hierarchy: Optional[NDArray] = None,
-    ) -> None:
-        draw_contour(image, contour, color, thickness, line_type, hierarchy)
-
-    @staticmethod
-    def cvl_draw_contours(
-        image: Image,
-        contours: Sequence[NDArray],
-        contour_index=CONTOURS_ALL,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
-        hierarchy: Optional[NDArray] = None,
-    ) -> None:
-        draw_contours(
-            image,
-            contours,
-            contour_index,
-            color,
-            thickness,
-            line_type,
-            hierarchy,
-        )
 
     @staticmethod
     def cvl_draw_outline_text(
