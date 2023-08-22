@@ -14,9 +14,11 @@ datefmt
 dblclk
 ddepth
 divx
+freeratio
 goturn
 hwheel
 kcos
+keepratio
 ksize
 lbutton
 levelname
@@ -36,4 +38,6 @@ retr
 shiftkey
 strftime
 tozero
+trackbarname
+winname
 xvid

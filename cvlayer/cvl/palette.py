@@ -12,25 +12,25 @@ from cvlayer.palette import (
 
 class CvlPalette:
     @staticmethod
-    def palette_basic():
+    def cvl_palette_basic():
         return basic_palette()
 
     @staticmethod
-    def palette_css4():
+    def cvl_palette_css4():
         return css4_palette()
 
     @staticmethod
-    def palette_extended():
+    def cvl_palette_extended():
         return extended_palette()
 
     @staticmethod
-    def palette_flat():
+    def cvl_palette_flat():
         return flat_palette()
 
     @staticmethod
-    def palette_tableau():
+    def cvl_palette_tableau():
         return tableau_palette()
 
     @staticmethod
-    def palette_xkcd():
+    def cvl_palette_xkcd():
         return xkcd_palette()

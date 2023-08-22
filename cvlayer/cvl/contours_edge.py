@@ -12,17 +12,17 @@ from cvlayer.cv.contours_edge import (
 
 class CvlContoursEdge:
     @staticmethod
-    def find_leftmost_contour(contours: List[NDArray]):
+    def cvl_find_leftmost_contour(contours: List[NDArray]):
         return find_best_contour_edge_points(FindContourEdgeMethod.LEFT, contours)
 
     @staticmethod
-    def find_rightmost_contour(contours: List[NDArray]):
+    def cvl_find_rightmost_contour(contours: List[NDArray]):
         return find_best_contour_edge_points(FindContourEdgeMethod.RIGHT, contours)
 
     @staticmethod
-    def find_topmost_contour(contours: List[NDArray]):
+    def cvl_find_topmost_contour(contours: List[NDArray]):
         return find_best_contour_edge_points(FindContourEdgeMethod.TOP, contours)
 
     @staticmethod
-    def find_bottommost_contour(contours: List[NDArray]):
+    def cvl_find_bottommost_contour(contours: List[NDArray]):
         return find_best_contour_edge_points(FindContourEdgeMethod.BOTTOM, contours)
