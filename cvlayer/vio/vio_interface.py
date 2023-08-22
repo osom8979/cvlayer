@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 
 
-class VideoIoInterface(metaclass=ABCMeta):
+class VioInterface(metaclass=ABCMeta):
     @abstractmethod
     def on_create(self) -> None:
         raise NotImplementedError

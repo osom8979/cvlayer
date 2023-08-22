@@ -13,7 +13,6 @@ from overrides import overrides
 
 from cvlayer.cv.drawable import draw_multiline_text
 from cvlayer.cv.fourcc import FOURCC_MP4V
-from cvlayer.cv.highgui.video_io_interface import VideoIoInterface
 from cvlayer.cv.keycode import (
     KEYCODE_ENTER,
     KEYCODE_ESC,
@@ -30,6 +29,7 @@ from cvlayer.keymap.create import (
 )
 from cvlayer.layers.base.layer_manager import LayerManager
 from cvlayer.np.image import make_image_empty
+from cvlayer.vio.vio_interface import VioInterface
 
 
 @lru_cache
@@ -54,7 +54,7 @@ def get_default_keymap():
     }
 
 
-class VideoIo(LayerManager, VideoIoInterface):
+class Vio(LayerManager, VioInterface):
     _capture: Optional[cv2.VideoCapture]
     _writer: Optional[cv2.VideoWriter]
 
