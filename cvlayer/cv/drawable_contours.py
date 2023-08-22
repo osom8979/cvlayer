@@ -43,7 +43,19 @@ def draw_contours(
     )
 
 
-def draw_min_area_rect(image: Image, box: MinAreaRectResult) -> None:
+def draw_min_area_rect(
+    image: Image,
+    box: MinAreaRectResult,
+    color=COLOR,
+    thickness=THICKNESS,
+    line_type=LINE_TYPE,
+) -> None:
     points = box_points(box)
     int64_points = int64(points)
-    draw_contour(image, int64_points)  # type: ignore[arg-type]
+    draw_contour(
+        image,
+        int64_points,  # type: ignore[arg-type]
+        color,
+        thickness,
+        line_type,
+    )

@@ -52,5 +52,8 @@ class CvlDrawableContours:
     def cvl_draw_min_box_area(
         image: Image,
         box: MinAreaRectResult,
+        color=COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
     ) -> None:
-        draw_min_area_rect(image, box)
+        draw_min_area_rect(image, box, color, thickness, line_type)
