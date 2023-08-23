@@ -6,29 +6,29 @@ import cv2
 
 from cvlayer.geometry.find_nearset_point import find_nearest_point
 from cvlayer.math.angle import degrees_point3
-from cvlayer.types import Point, Polygon
+from cvlayer.types import PointT, PolygonT
 
 DEFAULT_MAX_MISSING_COUNT: Final[int] = 10
 
 
-def normalize_point(pivot: Point, center: Point) -> Point:
+def normalize_point(pivot: PointT, center: PointT) -> PointT:
     x1, y1 = pivot
     x2, y2 = center
     return x2 - x1, y2 - y1
 
 
 def calc_degrees(
-    prev_point0: Point,
-    prev_center: Point,
-    next_point0: Point,
-    next_center: Point,
+    prev_point0: PointT,
+    prev_center: PointT,
+    next_point0: PointT,
+    next_center: PointT,
 ) -> float:
     n0 = normalize_point(prev_point0, prev_center)
     n1 = normalize_point(next_point0, next_center)
     return degrees_point3(n0, (0.0, 0.0), n1)
 
 
-def measure_center_point(contour) -> Point:
+def measure_center_point(contour) -> PointT:
     m = cv2.moments(contour)
     cx = m["m10"] / m["m00"]
     cy = m["m01"] / m["m00"]
@@ -36,13 +36,13 @@ def measure_center_point(contour) -> Point:
 
 
 class RotateTracer:
-    _first_polygon: Optional[Polygon]
-    _first_center: Optional[Point]
-    _first_point0: Optional[Point]
+    _first_polygon: Optional[PolygonT]
+    _first_center: Optional[PointT]
+    _first_point0: Optional[PointT]
 
-    _current_polygon: Optional[Polygon]
-    _current_center: Optional[Point]
-    _current_point0: Optional[Point]
+    _current_polygon: Optional[PolygonT]
+    _current_center: Optional[PointT]
+    _current_point0: Optional[PointT]
 
     def __init__(self, max_missing_count=DEFAULT_MAX_MISSING_COUNT):
         self._max_missing_count = max_missing_count
@@ -111,7 +111,7 @@ class RotateTracer:
         if self.overflow_missing_count:
             self.clear()
 
-    def on_trace_first_angle(self, polygon: Polygon, center: Point) -> None:
+    def on_trace_first_angle(self, polygon: PolygonT, center: PointT) -> None:
         assert polygon
         assert center
         assert isinstance(polygon, list)
@@ -128,7 +128,7 @@ class RotateTracer:
         self._current_center = self._first_center
         self._current_point0 = self._first_point0
 
-    def on_trace_next_angle(self, polygon: Polygon, center: Point) -> None:
+    def on_trace_next_angle(self, polygon: PolygonT, center: PointT) -> None:
         assert polygon
         assert center
         assert isinstance(polygon, list)
@@ -154,7 +154,7 @@ class RotateTracer:
         self._current_point0 = next_point0
         self._current_rotate = next_degrees
 
-    def on_detected(self, polygon: Polygon, center: Point) -> None:
+    def on_detected(self, polygon: PolygonT, center: PointT) -> None:
         self.reset_missing_count()
         if self.has_first_polygon:
             self.on_trace_next_angle(polygon, center)
@@ -164,8 +164,8 @@ class RotateTracer:
     def run(
         self,
         detect: bool,
-        polygon: Optional[Polygon] = None,
-        center: Optional[Point] = None,
+        polygon: Optional[PolygonT] = None,
+        center: Optional[PointT] = None,
     ) -> None:
         if detect:
             assert polygon

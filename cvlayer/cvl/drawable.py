@@ -27,7 +27,7 @@ from cvlayer.cv.drawable import (
     draw_rectangle,
     measure_multiline_text_box_size,
 )
-from cvlayer.types import Image, Number, Point, Rect
+from cvlayer.types import Image, Number, PointT, RectT
 
 
 class CvlDrawable:
@@ -46,8 +46,8 @@ class CvlDrawable:
     @staticmethod
     def cvl_draw_line(
         image: Image,
-        point1: Point,
-        point2: Point,
+        point1: PointT,
+        point2: PointT,
         color=COLOR,
         thickness=THICKNESS,
         line_type=LINE_TYPE,
@@ -57,7 +57,7 @@ class CvlDrawable:
     @staticmethod
     def cvl_draw_rectangle(
         image: Image,
-        roi: Rect,
+        roi: RectT,
         color=COLOR,
         thickness=THICKNESS,
         line_type=LINE_TYPE,

@@ -4,10 +4,10 @@ from enum import Enum, unique
 from typing import Iterable, NamedTuple
 
 import cv2
-from numpy import array, logical_and, ndarray, zeros
+from numpy import logical_and, zeros
 from numpy.typing import NDArray
 
-from cvlayer.types import Image, PointFloat, Rect, SizeFloat
+from cvlayer.types import Image, PointFloat, SizeFloat
 
 
 @unique
@@ -44,21 +44,6 @@ def find_contours(
 def find_largest_contour_index(contours: Iterable[NDArray], oriented=False) -> int:
     areas = list(map(lambda c: cv2.contourArea(c, oriented), contours))
     return areas.index(max(areas))
-
-
-def convert_roi2contour(roi: Rect) -> NDArray:
-    x1, y1, x2, y2 = [v for v in roi]
-    shell = (x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)
-    raw = [p for xy in shell for p in xy]
-    contour = array(raw).reshape((5, 1, 2))
-
-    assert isinstance(contour, ndarray)
-    assert len(contour.shape) == 3
-    assert contour.shape[0] == 5
-    assert contour.shape[1] == 1
-    assert contour.shape[2] == 2
-
-    return contour
 
 
 def bitwise_intersection_contours(

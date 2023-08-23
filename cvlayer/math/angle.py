@@ -3,7 +3,7 @@
 from math import atan2, degrees
 
 from cvlayer.math.constant import DOUBLE_PI
-from cvlayer.types import Point
+from cvlayer.types import PointT
 
 
 def radians_angle(x: float, y: float) -> float:
@@ -17,23 +17,23 @@ def degrees_angle(x: float, y: float) -> float:
     return degrees(radians_angle(x, y))
 
 
-def radians_point1(p: Point) -> float:
+def radians_point1(p: PointT) -> float:
     return radians_angle(p[0], p[1])
 
 
-def degrees_point1(p: Point) -> float:
+def degrees_point1(p: PointT) -> float:
     return degrees(radians_point1(p))
 
 
-def radians_point2(p1: Point, p2: Point) -> float:
+def radians_point2(p1: PointT, p2: PointT) -> float:
     return radians_angle(p2[0] - p1[0], p2[1] - p1[1])
 
 
-def degrees_point2(p1: Point, p2: Point) -> float:
+def degrees_point2(p1: PointT, p2: PointT) -> float:
     return degrees(radians_point2(p1, p2))
 
 
-def radians_point3(a: Point, b: Point, c: Point) -> float:
+def radians_point3(a: PointT, b: PointT, c: PointT) -> float:
     ##############
     #       a    #
     #      *     #
@@ -52,15 +52,15 @@ def radians_point3(a: Point, b: Point, c: Point) -> float:
     return result
 
 
-def degrees_point3(a: Point, b: Point, c: Point) -> float:
+def degrees_point3(a: PointT, b: PointT, c: PointT) -> float:
     return degrees(radians_point3(a, b, c))
 
 
-def clockwise_radians_point3(a: Point, b: Point, c: Point) -> float:
+def clockwise_radians_point3(a: PointT, b: PointT, c: PointT) -> float:
     result = (DOUBLE_PI - radians_point3(a, b, c)) % DOUBLE_PI
     assert 0 <= result < DOUBLE_PI
     return result
 
 
-def clockwise_degrees_point3(a: Point, b: Point, c: Point) -> float:
+def clockwise_degrees_point3(a: PointT, b: PointT, c: PointT) -> float:
     return degrees(clockwise_radians_point3(a, b, c))

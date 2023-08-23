@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.types import Rect
+from cvlayer.types import RectT
 
 
-def calculate_iou(rect1: Rect, rect2: Rect) -> float:
+def calculate_iou(rect1: RectT, rect2: RectT) -> float:
     """
     Intersection over Union
     """

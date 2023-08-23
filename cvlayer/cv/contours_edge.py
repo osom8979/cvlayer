@@ -6,7 +6,7 @@ from typing import Callable, List, NamedTuple, Tuple
 from numpy import int32, ndarray
 from numpy.typing import NDArray
 
-from cvlayer.types import Polygon
+from cvlayer.types import PolygonT
 
 
 @unique
@@ -20,13 +20,13 @@ class FindContourEdgeMethod(Enum):
 class ContourEdgePoints(NamedTuple):
     score: int
     contour: NDArray
-    points: Polygon
+    points: PolygonT
 
 
 def _find_edge(
     filter_callable: Callable[[NDArray], NDArray],
     contour: NDArray,
-) -> Polygon:
+) -> PolygonT:
     points = filter_callable(contour)[:, 0, :].tolist()
     assert isinstance(points, list)
     return [(p[0], p[1]) for p in points] if points else []
@@ -52,26 +52,26 @@ def _bottom_edge_filter(contour: NDArray) -> NDArray:
     return contour[contour[:, 0, 1] == value]
 
 
-def find_left_edge(contour: NDArray) -> Polygon:
+def find_left_edge(contour: NDArray) -> PolygonT:
     return _find_edge(_left_edge_filter, contour)
 
 
-def find_right_edge(contour: NDArray) -> Polygon:
+def find_right_edge(contour: NDArray) -> PolygonT:
     return _find_edge(_right_edge_filter, contour)
 
 
-def find_top_edge(contour: NDArray) -> Polygon:
+def find_top_edge(contour: NDArray) -> PolygonT:
     return _find_edge(_top_edge_filter, contour)
 
 
-def find_bottom_edge(contour: NDArray) -> Polygon:
+def find_bottom_edge(contour: NDArray) -> PolygonT:
     return _find_edge(_bottom_edge_filter, contour)
 
 
 def find_edge_points(
     method: FindContourEdgeMethod,
     contour: NDArray,
-) -> Polygon:
+) -> PolygonT:
     assert isinstance(contour, ndarray)
     assert contour.dtype == int32
     assert len(contour.shape) == 3
@@ -93,7 +93,7 @@ def find_edge_points(
 
 def _validate_edge_scores(
     method: FindContourEdgeMethod,
-    edge_points: Polygon,
+    edge_points: PolygonT,
 ) -> None:
     if not edge_points:
         return
@@ -112,7 +112,7 @@ def _validate_edge_scores(
 
 def get_edge_score(
     method: FindContourEdgeMethod,
-    edge_points: Polygon,
+    edge_points: PolygonT,
 ) -> int:
     _validate_edge_scores(method, edge_points)
 

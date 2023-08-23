@@ -10,13 +10,12 @@ from cvlayer.cv.contours import (
     arc_length,
     box_points,
     contour_area,
-    convert_roi2contour,
     convex_hull,
     find_contours,
     find_largest_contour_index,
     min_area_rect,
 )
-from cvlayer.types import Image, Rect
+from cvlayer.types import Image
 
 
 class CvlContours:
@@ -35,10 +34,6 @@ class CvlContours:
     @staticmethod
     def cvl_find_largest_contour_index(contour: NDArray, oriented=False) -> int:
         return find_largest_contour_index(contour, oriented)
-
-    @staticmethod
-    def cvl_convert_roi2contour(roi: Rect) -> NDArray:
-        return convert_roi2contour(roi)
 
     @staticmethod
     def cvl_contour_area(contour: NDArray, oriented=False) -> float:

@@ -4,7 +4,7 @@ from typing import Final, Optional, Tuple
 
 import cv2
 
-from cvlayer.types import Color, Image, Number, Point, Rect
+from cvlayer.types import Color, Image, Number, PointT, RectT
 
 FILLED: Final[int] = cv2.FILLED
 
@@ -46,8 +46,8 @@ def draw_point(
 
 def draw_line(
     image: Image,
-    point1: Point,
-    point2: Point,
+    point1: PointT,
+    point2: PointT,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
@@ -59,7 +59,7 @@ def draw_line(
 
 def draw_rectangle(
     image: Image,
-    roi: Rect,
+    roi: RectT,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
