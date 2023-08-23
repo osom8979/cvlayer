@@ -26,9 +26,11 @@ class ContoursIntersectionTestCase(TestCase):
         # =============================
         ps1 = (-1, 1), (1, 1), (1, -1), (-1, -1)
         ps2 = (0, 0), (2, 0), (2, -2), (0, -2)
+
         polygon1 = Polygon(ps1)
         polygon2 = Polygon(ps2)
         self.assertEqual("Polygon", polygon1.intersection(polygon2).geom_type)
+
         result = intersection_polygon_and_polygon(polygon1, polygon2)
         self.assertEqual(1, len(result))
         self.assertEqual("Polygon", result[0].geom_type)
@@ -53,9 +55,11 @@ class ContoursIntersectionTestCase(TestCase):
         # =============================
         ps1 = (-2, 2), (0, 2), (0, 0), (-2, 0)
         ps2 = (0, 0), (2, 0), (2, -2), (0, -2)
+
         polygon1 = Polygon(ps1)
         polygon2 = Polygon(ps2)
         self.assertEqual("Point", polygon1.intersection(polygon2).geom_type)
+
         result = intersection_polygon_and_polygon(polygon1, polygon2)
         self.assertEqual(0, len(result))
 
@@ -77,9 +81,11 @@ class ContoursIntersectionTestCase(TestCase):
         # =============================
         ps1 = (-2, 2), (2, 2), (2, 0), (1, 1), (0, 0), (-2, 0)
         ps2 = (0, 0), (2, 0), (2, -2), (0, -2)
+
         polygon1 = Polygon(ps1)
         polygon2 = Polygon(ps2)
         self.assertEqual("MultiPoint", polygon1.intersection(polygon2).geom_type)
+
         result = intersection_polygon_and_polygon(polygon1, polygon2)
         self.assertEqual(0, len(result))
 
@@ -101,9 +107,11 @@ class ContoursIntersectionTestCase(TestCase):
         # =============================
         ps1 = (0, 2), (2, 2), (2, 0), (0, 0)
         ps2 = (0, 0), (2, 0), (2, -2), (0, -2)
+
         polygon1 = Polygon(ps1)
         polygon2 = Polygon(ps2)
         self.assertEqual("LineString", polygon1.intersection(polygon2).geom_type)
+
         result = intersection_polygon_and_polygon(polygon1, polygon2)
         self.assertEqual(0, len(result))
 
@@ -125,9 +133,11 @@ class ContoursIntersectionTestCase(TestCase):
         # ===============================
         ps1 = (-2, 2), (2, 2), (2, -1), (1, -1), (1, 1), (-1, 1), (-1, -1), (-2, -1)
         ps2 = (-3, 0), (3, 0), (3, -2), (-3, -2)
+
         polygon1 = Polygon(ps1)
         polygon2 = Polygon(ps2)
         self.assertEqual("MultiPolygon", polygon1.intersection(polygon2).geom_type)
+
         result = intersection_polygon_and_polygon(polygon1, polygon2)
         self.assertEqual(2, len(result))
         self.assertEqual("Polygon", result[0].geom_type)
