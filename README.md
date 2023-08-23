@@ -6,6 +6,23 @@
 
 OpenCV Layer Helper
 
+## Install
+
+Install `cvlayer`:
+```shell
+pip install cvlayer
+```
+
+Install `cvlayer` with `opencv-python`:
+```shell
+pip install cvlayer[opencv]
+```
+
+Install `cvlayer` with `opencv-python-headless`:
+```shell
+pip install cvlayer[headless]
+```
+
 ## Usage
 
 Just inherit `cvlayer.CvLayer`.
