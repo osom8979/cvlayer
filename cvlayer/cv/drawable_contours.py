@@ -10,7 +10,7 @@ from cvlayer.cv.contours import MinAreaRectResult, box_points
 from cvlayer.cv.drawable import COLOR, LINE_TYPE, THICKNESS
 from cvlayer.types import Image
 
-CONTOURS_ALL: Final[int] = -1
+DRAW_ALL_CONTOURS: Final[int] = -1
 
 
 def draw_contour(
@@ -26,7 +26,7 @@ def draw_contour(
 def draw_contours(
     image: Image,
     contours: Sequence[NDArray],
-    contour_index=CONTOURS_ALL,
+    contour_index=DRAW_ALL_CONTOURS,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,

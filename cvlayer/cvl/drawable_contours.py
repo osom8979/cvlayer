@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.drawable_contours import (
     COLOR,
-    CONTOURS_ALL,
+    DRAW_ALL_CONTOURS,
     LINE_TYPE,
     THICKNESS,
     MinAreaRectResult,
@@ -32,7 +32,7 @@ class CvlDrawableContours:
     def cvl_draw_contours(
         image: Image,
         contours: Sequence[NDArray],
-        contour_index=CONTOURS_ALL,
+        contour_index=DRAW_ALL_CONTOURS,
         color=COLOR,
         thickness=THICKNESS,
         line_type=LINE_TYPE,
