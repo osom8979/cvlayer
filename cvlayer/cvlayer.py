@@ -2,6 +2,7 @@
 
 from cvlayer.cvl.backend import CvlBackend
 from cvlayer.cvl.bgsub import CvlBackgroundSubtractor
+from cvlayer.cvl.bitwise import CvlBitwise
 from cvlayer.cvl.contours import CvlContours
 from cvlayer.cvl.contours_edge import CvlContoursEdge
 from cvlayer.cvl.cvt_color import CvlCvtColor
@@ -24,6 +25,7 @@ from cvlayer.cvl.window import CvlWindow
 class CvLayer(
     CvlBackend,
     CvlBackgroundSubtractor,
+    CvlBitwise,
     CvlContours,
     CvlContoursEdge,
     CvlCvtColor,
