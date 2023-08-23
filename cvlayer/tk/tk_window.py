@@ -66,10 +66,21 @@ class TkWindow:
             self._exception = e
             self._tk.quit()
 
+    def _read(self) -> NDArray:
+        image0 = self.on_grab()
+        image1 = cv2.resize(image0, self.size)
+
+        if len(image1.shape) == 2:
+            image2 = cv2.cvtColor(image1, cv2.COLOR_GRAY2BGR)
+        else:
+            image2 = image1
+
+        return image2[:, :, ::-1]
+
     def _update(self) -> None:
         assert self._exception is None
         try:
-            self._image = cv2.resize(self.on_grab(), self.size)[:, :, ::-1]
+            self._image = self._read()
             self._photo = PhotoImage(image=fromarray(self._image, mode="RGB"))
             self._canvas.create_image(0, 0, image=self._photo, anchor=NW)
         except BaseException as e:
