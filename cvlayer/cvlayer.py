@@ -17,6 +17,7 @@ from cvlayer.cvl.palette import CvlPalette
 from cvlayer.cvl.rotate_tracer import CvlRotateTracer
 from cvlayer.cvl.threshold import CvlThreshold
 from cvlayer.cvl.tracker import CvlTracker
+from cvlayer.cvl.video_capture import CvlVideoCapture
 from cvlayer.cvl.window import CvlWindow
 
 
@@ -38,6 +39,7 @@ class CvLayer(
     CvlRotateTracer,
     CvlThreshold,
     CvlTracker,
+    CvlVideoCapture,
     CvlWindow,
 ):
     pass
