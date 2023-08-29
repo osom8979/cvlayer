@@ -11,10 +11,11 @@ from cvlayer.cvl.drawable_contours import CvlDrawableContours
 from cvlayer.cvl.edge_detector import CvlEdgeDetector
 from cvlayer.cvl.fourcc import CvlFourcc
 from cvlayer.cvl.hsv import CvlHsv
-from cvlayer.cvl.image import CvlImage
 from cvlayer.cvl.in_range import CvlInRange
+from cvlayer.cvl.make_image import CvlMakeImage
 from cvlayer.cvl.morphology import CvlMorphology
 from cvlayer.cvl.palette import CvlPalette
+from cvlayer.cvl.resize import CvlResize
 from cvlayer.cvl.rotate_tracer import CvlRotateTracer
 from cvlayer.cvl.threshold import CvlThreshold
 from cvlayer.cvl.tracker import CvlTracker
@@ -34,10 +35,11 @@ class CvLayer(
     CvlEdgeDetector,
     CvlFourcc,
     CvlHsv,
-    CvlImage,
+    CvlMakeImage,
     CvlInRange,
     CvlMorphology,
     CvlPalette,
+    CvlResize,
     CvlRotateTracer,
     CvlThreshold,
     CvlTracker,

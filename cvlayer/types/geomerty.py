@@ -24,3 +24,5 @@ RectFloat = Tuple[float, float, float, float]
 PolygonT = List[PointT]
 PolygonInt = List[PointInt]
 PolygonFloat = List[PointFloat]
+
+Scalar = Tuple[float, float, float, float]

@@ -22,7 +22,7 @@ class Interpolation(Enum):
 DEFAULT_INTERPOLATION: Final[Interpolation] = Interpolation.INTER_NEAREST
 
 
-def scale_image(
+def resize(
     src: NDArray,
     scale: float,
     interpolation=DEFAULT_INTERPOLATION,
