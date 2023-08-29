@@ -21,3 +21,33 @@ class CvtColorCode(Enum):
 
 def cvt_color(image: Image, code: CvtColorCode) -> Image:
     return cv2.cvtColor(image, code.value)
+
+
+class CvlCvtColor:
+    @staticmethod
+    def cvl_cvt_color(image: Image, code: CvtColorCode):
+        return cvt_color(image, code)
+
+    @staticmethod
+    def cvl_cvt_color_bgr2gray(image: Image):
+        return cvt_color(image, CvtColorCode.BGR2GRAY)
+
+    @staticmethod
+    def cvl_cvt_color_gray2bgr(image: Image):
+        return cvt_color(image, CvtColorCode.GRAY2BGR)
+
+    @staticmethod
+    def cvl_cvt_color_bgr2hsv(image: Image):
+        return cvt_color(image, CvtColorCode.BGR2HSV)
+
+    @staticmethod
+    def cvl_cvt_color_hsv2bgr(image: Image):
+        return cvt_color(image, CvtColorCode.HSV2BGR)
+
+    @staticmethod
+    def cvl_cvt_color_bgr2yuv(image: Image):
+        return cvt_color(image, CvtColorCode.BGR2YUV)
+
+    @staticmethod
+    def cvl_cvt_color_yuv2bgr(image: Image):
+        return cvt_color(image, CvtColorCode.YUV2BGR)

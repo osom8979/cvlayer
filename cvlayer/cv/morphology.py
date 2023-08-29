@@ -50,3 +50,31 @@ def dilate(
     iterations=DEFAULT_ITERATIONS,
 ) -> NDArray:
     return cv2.dilate(src, kernel, None, anchor, iterations)
+
+
+class CvlMorphology:
+    @staticmethod
+    def cvl_get_structuring_element(
+        shape=MorphMethod.RECT,
+        ksize=DEFAULT_KSIZE,
+        anchor=DEFAULT_ANCHOR,
+    ):
+        return get_structuring_element(shape, ksize, anchor)
+
+    @staticmethod
+    def cvl_erode(
+        src: NDArray,
+        kernel=DEFAULT_KERNEL,
+        anchor=DEFAULT_ANCHOR,
+        iterations=DEFAULT_ITERATIONS,
+    ):
+        return erode(src, kernel, anchor, iterations)
+
+    @staticmethod
+    def cvl_dilate(
+        src: NDArray,
+        kernel=DEFAULT_KERNEL,
+        anchor=DEFAULT_ANCHOR,
+        iterations=DEFAULT_ITERATIONS,
+    ):
+        return dilate(src, kernel, anchor, iterations)

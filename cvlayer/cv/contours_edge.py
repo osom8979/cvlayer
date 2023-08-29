@@ -149,3 +149,21 @@ def find_best_contour_edge_points(
     contour = contours[index]
     points = contours_edge_points[index]
     return ContourEdgePoints(score, contour, points)
+
+
+class CvlContoursEdge:
+    @staticmethod
+    def cvl_find_leftmost_contour(contours: List[NDArray]):
+        return find_best_contour_edge_points(FindContourEdgeMethod.LEFT, contours)
+
+    @staticmethod
+    def cvl_find_rightmost_contour(contours: List[NDArray]):
+        return find_best_contour_edge_points(FindContourEdgeMethod.RIGHT, contours)
+
+    @staticmethod
+    def cvl_find_topmost_contour(contours: List[NDArray]):
+        return find_best_contour_edge_points(FindContourEdgeMethod.TOP, contours)
+
+    @staticmethod
+    def cvl_find_bottommost_contour(contours: List[NDArray]):
+        return find_best_contour_edge_points(FindContourEdgeMethod.BOTTOM, contours)

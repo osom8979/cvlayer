@@ -175,3 +175,9 @@ class RotateTracer:
             self.on_detected(polygon, center)
         else:
             self.on_missing()
+
+
+class CvlRotateTracer:
+    @staticmethod
+    def cvl_create_rotate_tracer(max_missing_count=DEFAULT_MAX_MISSING_COUNT):
+        return RotateTracer(max_missing_count)

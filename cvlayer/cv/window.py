@@ -214,3 +214,9 @@ class Window:
     @staticmethod
     def wait_key_ex(delay=0) -> int:
         return cv2.waitKeyEx(delay)
+
+
+class CvlWindow:
+    @staticmethod
+    def cvl_create_window(name: str, flags=WINDOW_AUTOSIZE) -> Window:
+        return Window(name, flags)

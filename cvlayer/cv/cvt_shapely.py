@@ -77,3 +77,37 @@ def cvt_roi2contour(roi: RectT, dtype=int32) -> NDArray:
 def cvt_roi2polygon(roi: RectT) -> Polygon:
     x1, y1, x2, y2 = roi
     return Polygon([(x1, y1), (x2, y1), (x2, y2), (x1, y2)])
+
+
+class CvlShapely:
+    @staticmethod
+    def cvl_cvt_contour2polygon(contour: NDArray):
+        return cvt_contour2polygon(contour)
+
+    @staticmethod
+    def cvl_cvt_contour2linestring(contour: NDArray):
+        return cvt_contour2linestring(contour)
+
+    @staticmethod
+    def cvl_cvt_line2linestring(line: LineT):
+        return cvt_line2linestring(line)
+
+    @staticmethod
+    def cvl_cvt_polygon2contour(polygon: Polygon, dtype=int32):
+        return cvt_polygon2contour(polygon, dtype)
+
+    @staticmethod
+    def cvl_cvt_multipolygon2contours(multipolygon: MultiPolygon, dtype=int32):
+        return cvt_multipolygon2contours(multipolygon, dtype)
+
+    @staticmethod
+    def cvl_cvt_geometry2contours(geom: BaseGeometry, dtype=int32):
+        return cvt_geometry2contours(geom, dtype)
+
+    @staticmethod
+    def cvl_cvt_roi2contour(roi: RectT, dtype=int32):
+        return cvt_roi2contour(roi, dtype)
+
+    @staticmethod
+    def cvl_cvt_roi2polygon(roi: RectT):
+        return cvt_roi2polygon(roi)

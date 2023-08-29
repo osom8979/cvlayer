@@ -139,3 +139,9 @@ class VideoCapture:
     @pos.setter
     def pos(self, value: int) -> None:
         self.set_property(VideoCaptureProperty.POS_FRAMES, float(value))
+
+
+class CvlVideoCapture:
+    @staticmethod
+    def cvl_create_video_capture(file: Union[str, int]) -> VideoCapture:
+        return VideoCapture(file)

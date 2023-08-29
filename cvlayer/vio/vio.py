@@ -13,7 +13,7 @@ from overrides import overrides
 
 from cvlayer.cv.drawable import draw_multiline_text
 from cvlayer.cv.fourcc import FOURCC_MP4V
-from cvlayer.cv.keycode import (
+from cvlayer.cv.keymap import (
     KEYCODE_ENTER,
     KEYCODE_ESC,
     KEYCODE_NULL,

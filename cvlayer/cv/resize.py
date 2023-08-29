@@ -44,3 +44,23 @@ def resize_ratio(
         fy=y,
         interpolation=interpolation.value,
     )
+
+
+class CvlResize:
+    @staticmethod
+    def cvl_resize_constant(
+        src: NDArray,
+        x: int,
+        y: int,
+        interpolation=Interpolation.INTER_NEAREST,
+    ) -> NDArray:
+        return resize_constant(src, x, y, interpolation)
+
+    @staticmethod
+    def cvl_resize_ratio(
+        src: NDArray,
+        x: float,
+        y: float,
+        interpolation=Interpolation.INTER_NEAREST,
+    ) -> NDArray:
+        return resize_ratio(src, x, y, interpolation)

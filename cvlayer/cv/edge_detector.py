@@ -20,3 +20,17 @@ def canny(
 
 def laplacian(src: NDArray, ddepth=CV_8U) -> NDArray:
     return cv2.Laplacian(src, ddepth)
+
+
+class CvlEdgeDetector:
+    @staticmethod
+    def cvl_canny(
+        src: NDArray,
+        threshold_min=CANNY_THRESHOLD_MIN,
+        threshold_max=CANNY_THRESHOLD_MAX,
+    ):
+        return canny(src, threshold_min, threshold_max)
+
+    @staticmethod
+    def cvl_laplacian(src: NDArray, ddepth=CV_8U):
+        return laplacian(src, ddepth)

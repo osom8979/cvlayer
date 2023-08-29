@@ -30,3 +30,22 @@ FOURCC_X264: Final[int] = get_fourcc(*"x264")  # H.264 / AVC
 FOURCC_AVC1: Final[int] = get_fourcc(*"avc1")  # Advanced Video
 
 DEFAULT_FOURCC: Final[int] = FOURCC_MP4V
+
+
+class CvlFourcc:
+    @staticmethod
+    def cvl_fourcc(c1: str, c2: str, c3: str, c4: str):
+        return get_fourcc(c1, c2, c3, c4)
+
+    @staticmethod
+    def cvl_fourcc_mp4v():
+        return FOURCC_MP4V
+
+    @staticmethod
+    def cvl_fourcc_mjpg():
+        return FOURCC_MJPG
+
+    @staticmethod
+    def cvl_fourcc_with_name(name: str):
+        assert len(name) == 4
+        return get_fourcc(*name)

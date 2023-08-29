@@ -55,5 +55,11 @@ def highgui_backend_type() -> HighGuiBackend:
         return HighGuiBackend.UNKNOWN
 
 
-if __name__ == "__main__":
-    print(highgui_backend_type())
+class CvlBackend:
+    @staticmethod
+    def cvl_highgui_backend():
+        return highgui_backend()
+
+    @staticmethod
+    def cvl_highgui_backend_type():
+        return highgui_backend_type()

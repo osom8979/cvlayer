@@ -59,3 +59,45 @@ def draw_min_area_rect(
         thickness,
         line_type,
     )
+
+
+class CvlDrawableContours:
+    @staticmethod
+    def cvl_draw_contour(
+        image: Image,
+        contour: NDArray,
+        color=COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+    ):
+        draw_contour(image, contour, color, thickness, line_type)
+
+    @staticmethod
+    def cvl_draw_contours(
+        image: Image,
+        contours: Sequence[NDArray],
+        contour_index=DRAW_ALL_CONTOURS,
+        color=COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+        hierarchy: Optional[NDArray] = None,
+    ):
+        draw_contours(
+            image,
+            contours,
+            contour_index,
+            color,
+            thickness,
+            line_type,
+            hierarchy,
+        )
+
+    @staticmethod
+    def cvl_draw_min_box_area(
+        image: Image,
+        box: MinAreaRectResult,
+        color=COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+    ):
+        draw_min_area_rect(image, box, color, thickness, line_type)

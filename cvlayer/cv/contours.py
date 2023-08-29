@@ -50,7 +50,7 @@ def bitwise_intersection_contours(
     width: int, height: int, contour1: NDArray, contour2: NDArray
 ) -> NDArray:
     blank1 = zeros(shape=(height, width))
-    blank2 = blank1.copy()
+    blank2 = zeros(shape=(height, width))
 
     mask1 = cv2.drawContours(blank1, [contour1], 0, 1)  # noqa
     mask2 = cv2.drawContours(blank2, [contour2], 1, 1)  # noqa
@@ -83,3 +83,50 @@ def min_area_rect(points: NDArray) -> MinAreaRectResult:
 
 def box_points(box: MinAreaRectResult) -> NDArray:
     return cv2.boxPoints(box)
+
+
+class CvlContours:
+    @staticmethod
+    def cvl_find_contours(
+        image: Image,
+        mode=FindContoursMode.TREE,
+        method=FindContoursMethod.SIMPLE,
+    ):
+        return find_contours(image, mode, method)
+
+    @staticmethod
+    def cvl_find_largest_contour_index(contour: NDArray, oriented=False):
+        return find_largest_contour_index(contour, oriented)
+
+    @staticmethod
+    def cvl_bitwise_intersection_contours(
+        width: int,
+        height: int,
+        contour1: NDArray,
+        contour2: NDArray,
+    ):
+        return bitwise_intersection_contours(width, height, contour1, contour2)
+
+    @staticmethod
+    def cvl_contour_area(contour: NDArray, oriented=False):
+        return contour_area(contour, oriented)
+
+    @staticmethod
+    def cvl_convex_hull(contour: NDArray):
+        return convex_hull(contour)
+
+    @staticmethod
+    def cvl_arc_length(curve: NDArray, closed=False):
+        return arc_length(curve, closed)
+
+    @staticmethod
+    def cvl_approx_poly_dp(curve: NDArray, epsilon: float, closed=False):
+        return approx_poly_dp(curve, epsilon, closed)
+
+    @staticmethod
+    def cvl_min_area_rect(points: NDArray):
+        return min_area_rect(points)
+
+    @staticmethod
+    def cvl_box_points(box: MinAreaRectResult):
+        return box_points(box)

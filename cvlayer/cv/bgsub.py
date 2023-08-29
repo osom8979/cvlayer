@@ -149,3 +149,14 @@ class BackgroundSubtractor:
         self._foreground_mask = self._background_subtractor.apply(frame)
         assert self._foreground_mask is not None
         return self._foreground_mask
+
+
+class CvlBackgroundSubtractor:
+    @staticmethod
+    def cvl_create_background_subtractor(
+        method=DEFAULT_METHOD,
+        history=DEFAULT_HISTORY,
+        threshold: Optional[float] = None,
+        shadow=DEFAULT_DETECT_SHADOWS,
+    ):
+        return BackgroundSubtractor(method, history, threshold, shadow)

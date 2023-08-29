@@ -2,17 +2,22 @@
 
 from enum import Enum, auto, unique
 from functools import lru_cache
-from typing import Dict, Final
+from typing import Dict, Final, List
 
 from cvlayer.cv.backend import (
     HIGHGUI_BACKEND_TYPE_LINUX,
     HighGuiBackend,
     highgui_backend_type,
 )
+from cvlayer.keymap.create import (
+    DEFAULT_CALLBACK_NAME_PREFIX,
+    DEFAULT_CALLBACK_NAME_SUFFIX,
+    create_callable_keymap,
+)
 
 KEYCODE_NULL: Final[int] = -1
-KEYCODE_ESC: Final[int] = 27
 KEYCODE_ENTER: Final[int] = 13
+KEYCODE_ESC: Final[int] = 27
 
 
 @unique
@@ -54,3 +59,27 @@ def has_highgui_arrow_keys(keymap: Dict[HighGuiKeyCode, int]):
     if HighGuiKeyCode.ARROW_RIGHT not in keymap:
         return False
     return True
+
+
+class CvlKeymap:
+    @staticmethod
+    def cvl_highgui_keys():
+        return highgui_keys()
+
+    @staticmethod
+    def cvl_has_highgui_arrow_keys(keymap: Dict[HighGuiKeyCode, int]):
+        return has_highgui_arrow_keys(keymap)
+
+    @staticmethod
+    def cvl_create_callable_keymap(
+        obj: object,
+        keymaps: Dict[str, List[int]],
+        callback_name_prefix=DEFAULT_CALLBACK_NAME_PREFIX,
+        callback_name_suffix=DEFAULT_CALLBACK_NAME_SUFFIX,
+    ):
+        return create_callable_keymap(
+            obj,
+            keymaps,
+            callback_name_prefix,
+            callback_name_suffix,
+        )
