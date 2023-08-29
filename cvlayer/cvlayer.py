@@ -15,6 +15,7 @@ from cvlayer.cv.fourcc import CvlFourcc
 from cvlayer.cv.hsv import CvlHsv
 from cvlayer.cv.in_range import CvlInRange
 from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
+from cvlayer.cv.iou import CvlIou
 from cvlayer.cv.keymap import CvlKeymap
 from cvlayer.cv.make_image import CvlMakeImage
 from cvlayer.cv.morphology import CvlMorphology
@@ -45,6 +46,7 @@ class CvLayer(
     CvlMakeImage,
     CvlInRange,
     CvlIntrusionDetection,
+    CvlIou,
     CvlKeymap,
     CvlMorphology,
     CvlPalette,
