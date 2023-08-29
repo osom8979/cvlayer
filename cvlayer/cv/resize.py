@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Final
 
 import cv2
 from numpy.typing import NDArray
@@ -19,18 +18,29 @@ class Interpolation(Enum):
     INTER_MAX = cv2.INTER_MAX
 
 
-DEFAULT_INTERPOLATION: Final[Interpolation] = Interpolation.INTER_NEAREST
-
-
-def resize(
+def resize_constant(
     src: NDArray,
-    scale: float,
-    interpolation=DEFAULT_INTERPOLATION,
+    x: int,
+    y: int,
+    interpolation=Interpolation.INTER_NEAREST,
+) -> NDArray:
+    return cv2.resize(
+        src,
+        dsize=(x, y),
+        interpolation=interpolation.value,
+    )
+
+
+def resize_ratio(
+    src: NDArray,
+    x: float,
+    y: float,
+    interpolation=Interpolation.INTER_NEAREST,
 ) -> NDArray:
     return cv2.resize(
         src,
         dsize=(0, 0),
-        fx=scale,  # noqa
-        fy=scale,  # noqa
+        fx=x,
+        fy=y,
         interpolation=interpolation.value,
     )

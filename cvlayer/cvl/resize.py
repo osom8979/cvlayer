@@ -2,16 +2,24 @@
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.resize import DEFAULT_INTERPOLATION, Interpolation, resize
+from cvlayer.cv.resize import Interpolation, resize_constant, resize_ratio
 
 
 class CvlResize:
-    InterpolationType = Interpolation
+    @staticmethod
+    def cvl_resize_constant(
+        src: NDArray,
+        x: int,
+        y: int,
+        interpolation=Interpolation.INTER_NEAREST,
+    ) -> NDArray:
+        return resize_constant(src, x, y, interpolation)
 
     @staticmethod
-    def cvl_resize(
+    def cvl_resize_ratio(
         src: NDArray,
-        scale: float,
-        interpolation=DEFAULT_INTERPOLATION,
+        x: float,
+        y: float,
+        interpolation=Interpolation.INTER_NEAREST,
     ) -> NDArray:
-        return resize(src, scale, interpolation)
+        return resize_ratio(src, x, y, interpolation)

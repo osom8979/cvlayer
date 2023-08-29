@@ -15,8 +15,6 @@ from cvlayer.cv.morphology import (
 
 
 class CvlMorphology:
-    MorphMethodType = MorphMethod
-
     @staticmethod
     def cvl_get_structuring_element(
         shape=MorphMethod.RECT,

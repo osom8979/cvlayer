@@ -7,9 +7,6 @@ from cvlayer.cv.threshold import ThresholdMethod, ThresholdResult, threshold
 
 
 class CvlThreshold:
-    ThresholdMethodType = ThresholdMethod
-    ThresholdResultType = ThresholdResult
-
     @staticmethod
     def cvl_threshold(
         src: NDArray,

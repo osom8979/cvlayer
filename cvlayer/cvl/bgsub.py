@@ -7,13 +7,10 @@ from cvlayer.cv.bgsub import (
     DEFAULT_HISTORY,
     DEFAULT_METHOD,
     BackgroundSubtractor,
-    BackgroundSubtractorMethod,
 )
 
 
 class CvlBackgroundSubtractor:
-    BackgroundSubtractorMethodType = BackgroundSubtractorMethod
-
     @staticmethod
     def cvl_create_background_subtractor(
         method=DEFAULT_METHOD,

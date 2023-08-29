@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from cvlayer.cvl.adaptive_threshold import CvlAdaptiveThreshold
 from cvlayer.cvl.backend import CvlBackend
 from cvlayer.cvl.bgsub import CvlBackgroundSubtractor
 from cvlayer.cvl.bitwise import CvlBitwise
@@ -24,6 +25,7 @@ from cvlayer.cvl.window import CvlWindow
 
 
 class CvLayer(
+    CvlAdaptiveThreshold,
     CvlBackend,
     CvlBackgroundSubtractor,
     CvlBitwise,

@@ -10,7 +10,7 @@ CANNY_THRESHOLD_MIN: Final[int] = 30
 CANNY_THRESHOLD_MAX: Final[int] = 70
 
 
-def edge_detector_canny(
+def canny(
     src: NDArray,
     threshold_min=CANNY_THRESHOLD_MIN,
     threshold_max=CANNY_THRESHOLD_MAX,
@@ -18,5 +18,5 @@ def edge_detector_canny(
     return cv2.Canny(src, threshold_min, threshold_max)
 
 
-def edge_detector_laplacian(src: NDArray, ddepth=CV_8U) -> NDArray:
+def laplacian(src: NDArray, ddepth=CV_8U) -> NDArray:
     return cv2.Laplacian(src, ddepth)

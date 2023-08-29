@@ -16,10 +16,6 @@ from cvlayer.types import PointFloat, RectFloat, Scalar, SizeInt
 
 
 class CvlPerspective:
-    MatrixDecompositionType = MatrixDecomposition
-    WarpPerspectiveBorderModeType = WarpPerspectiveBorderMode
-    WarpPerspectiveFlagsType = WarpPerspectiveFlags
-
     @staticmethod
     def cvl_get_perspective_transform(
         src: NDArray,

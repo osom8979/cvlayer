@@ -19,10 +19,6 @@ from cvlayer.types import Image
 
 
 class CvlContours:
-    FindContoursMethodType = FindContoursMethod
-    FindContoursModeType = FindContoursMode
-    MinAreaRectResultType = MinAreaRectResult
-
     @staticmethod
     def cvl_find_contours(
         image: Image,
