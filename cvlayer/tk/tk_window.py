@@ -56,7 +56,7 @@ class TkWindow:
 
     def _escape(self, event: Event) -> None:
         assert event is not None
-        self._tk.quit()
+        self.on_escape()
 
     def _key(self, event: Event) -> None:
         assert self._exception is None
@@ -91,6 +91,9 @@ class TkWindow:
 
     def on_grab(self) -> NDArray:
         return zeros((self.width, self.height, 3), dtype=uint8)
+
+    def on_escape(self) -> None:
+        self._tk.quit()
 
     def on_keydown(self, code: str) -> None:
         pass
