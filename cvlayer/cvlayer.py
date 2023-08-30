@@ -30,6 +30,7 @@ from cvlayer.cv.match_template import CvlMatchTemplate
 from cvlayer.cv.matcher import CvlMatcher
 from cvlayer.cv.morphology import CvlMorphology
 from cvlayer.cv.norm import CvlNorm
+from cvlayer.cv.orb import CvlOrb
 from cvlayer.cv.palette import CvlPalette
 from cvlayer.cv.perspective import CvlPerspective
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
@@ -69,6 +70,7 @@ class CvLayer(
     CvlMorphology,
     CvlMove,
     CvlNorm,
+    CvlOrb,
     CvlPalette,
     CvlPerspective,
     CvlRotateTracer,
