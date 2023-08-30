@@ -5,6 +5,7 @@ from cvlayer.cv.aspect_ratio import CvlAspectRatio
 from cvlayer.cv.backend import CvlBackend
 from cvlayer.cv.bgsub import CvlBackgroundSubtractor
 from cvlayer.cv.bitwise import CvlBitwise
+from cvlayer.cv.canny import CvlCanny
 from cvlayer.cv.contours import CvlContours
 from cvlayer.cv.contours_edge import CvlContoursEdge
 from cvlayer.cv.contours_intersection import CvlContoursIntersection
@@ -13,7 +14,6 @@ from cvlayer.cv.cvt_shapely import CvlShapely
 from cvlayer.cv.dehaze import CvlDehaze
 from cvlayer.cv.drawable import CvlDrawable
 from cvlayer.cv.drawable_contours import CvlDrawableContours
-from cvlayer.cv.edge_detector import CvlEdgeDetector
 from cvlayer.cv.fourcc import CvlFourcc
 from cvlayer.cv.fourier_transform import CvlFourierTransform
 from cvlayer.cv.hsv import CvlHsv
@@ -44,20 +44,19 @@ class CvLayer(
     CvlBackend,
     CvlBackgroundSubtractor,
     CvlBitwise,
+    CvlCanny,
     CvlContours,
     CvlContoursEdge,
     CvlContoursIntersection,
+    CvlCrop,
     CvlCvtColor,
     CvlDehaze,
     CvlDrawable,
     CvlDrawableContours,
-    CvlEdgeDetector,
     CvlFourcc,
     CvlFourierTransform,
     CvlHsv,
-    CvlCrop,
     CvlImageMake,
-    CvlMove,
     CvlImageResize,
     CvlInRange,
     CvlIntrusionDetection,
@@ -66,6 +65,7 @@ class CvLayer(
     CvlMatchTemplate,
     CvlMatcher,
     CvlMorphology,
+    CvlMove,
     CvlNorm,
     CvlPalette,
     CvlPerspective,

@@ -5,7 +5,6 @@ from typing import Final
 import cv2
 from numpy.typing import NDArray
 
-CV_8U: Final[int] = cv2.CV_8U  # type: ignore[attr-defined]
 CANNY_THRESHOLD_MIN: Final[int] = 30
 CANNY_THRESHOLD_MAX: Final[int] = 70
 
@@ -18,11 +17,7 @@ def canny(
     return cv2.Canny(src, threshold_min, threshold_max)
 
 
-def laplacian(src: NDArray, ddepth=CV_8U) -> NDArray:
-    return cv2.Laplacian(src, ddepth)
-
-
-class CvlEdgeDetector:
+class CvlCanny:
     @staticmethod
     def cvl_canny(
         src: NDArray,
@@ -30,7 +25,3 @@ class CvlEdgeDetector:
         threshold_max=CANNY_THRESHOLD_MAX,
     ):
         return canny(src, threshold_min, threshold_max)
-
-    @staticmethod
-    def cvl_laplacian(src: NDArray, ddepth=CV_8U):
-        return laplacian(src, ddepth)
