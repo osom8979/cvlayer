@@ -16,6 +16,7 @@ from cvlayer.cv.edge_detector import CvlEdgeDetector
 from cvlayer.cv.fourcc import CvlFourcc
 from cvlayer.cv.fourier_transform import CvlFourierTransform
 from cvlayer.cv.hsv import CvlHsv
+from cvlayer.cv.image_crop import CvlCrop
 from cvlayer.cv.image_make import CvlImageMake
 from cvlayer.cv.image_resize import CvlImageResize
 from cvlayer.cv.in_range import CvlInRange
@@ -50,6 +51,7 @@ class CvLayer(
     CvlFourcc,
     CvlFourierTransform,
     CvlHsv,
+    CvlCrop,
     CvlImageMake,
     CvlImageResize,
     CvlInRange,
