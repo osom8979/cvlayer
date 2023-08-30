@@ -17,6 +17,7 @@ from cvlayer.cv.drawable import CvlDrawable
 from cvlayer.cv.drawable_contours import CvlDrawableContours
 from cvlayer.cv.fourcc import CvlFourcc
 from cvlayer.cv.fourier_transform import CvlFourierTransform
+from cvlayer.cv.histogram import CvlHistogram
 from cvlayer.cv.hough_lines import CvlHoughLines
 from cvlayer.cv.hsv import CvlHsv
 from cvlayer.cv.image_crop import CvlCrop
@@ -61,6 +62,7 @@ class CvLayer(
     CvlDrawableContours,
     CvlFourcc,
     CvlFourierTransform,
+    CvlHistogram,
     CvlHoughLines,
     CvlHsv,
     CvlImageMake,
