@@ -24,6 +24,7 @@ from cvlayer.cv.in_range import CvlInRange
 from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
 from cvlayer.cv.iou import CvlIou
 from cvlayer.cv.keymap import CvlKeymap
+from cvlayer.cv.match_template import CvlMatchTemplate
 from cvlayer.cv.matcher import CvlMatcher
 from cvlayer.cv.morphology import CvlMorphology
 from cvlayer.cv.norm import CvlNorm
@@ -60,6 +61,7 @@ class CvLayer(
     CvlIntrusionDetection,
     CvlIou,
     CvlKeymap,
+    CvlMatchTemplate,
     CvlMatcher,
     CvlMorphology,
     CvlNorm,

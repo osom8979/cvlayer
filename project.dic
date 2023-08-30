@@ -6,7 +6,9 @@ asctime
 bgra
 bgsegm
 buffersize
+ccoeff
 ccomp
+ccorr
 cholesky
 csrt
 ctrlkey
@@ -41,6 +43,7 @@ pythonpath
 rbutton
 retr
 shiftkey
+sqdiff
 strftime
 tozero
 trackbarname
