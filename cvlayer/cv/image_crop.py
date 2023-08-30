@@ -15,7 +15,7 @@ def crop(src: NDArray, roi: RectInt) -> NDArray:
     return src[y1:y2, x1:x2]
 
 
-class CvlCrop:
+class CvlImageCrop:
     @staticmethod
     def cvl_crop(src: NDArray, roi: RectInt):
         return crop(src, roi)

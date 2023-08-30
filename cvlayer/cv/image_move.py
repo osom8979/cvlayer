@@ -19,7 +19,7 @@ def move(src: NDArray, x: int, y: int) -> NDArray:
     return cv2.warpAffine(src, fm, size)
 
 
-class CvlMove:
+class CvlImageMove:
     @staticmethod
     def cvl_move(src: NDArray, x: int, y: int):
         return move(src, x, y)
