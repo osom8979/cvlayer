@@ -14,6 +14,7 @@ from cvlayer.cv.drawable import CvlDrawable
 from cvlayer.cv.drawable_contours import CvlDrawableContours
 from cvlayer.cv.edge_detector import CvlEdgeDetector
 from cvlayer.cv.fourcc import CvlFourcc
+from cvlayer.cv.fourier_transform import CvlFourierTransform
 from cvlayer.cv.hsv import CvlHsv
 from cvlayer.cv.image_make import CvlImageMake
 from cvlayer.cv.image_resize import CvlImageResize
@@ -47,6 +48,7 @@ class CvLayer(
     CvlDrawableContours,
     CvlEdgeDetector,
     CvlFourcc,
+    CvlFourierTransform,
     CvlHsv,
     CvlImageMake,
     CvlImageResize,
