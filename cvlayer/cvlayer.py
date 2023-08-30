@@ -9,6 +9,7 @@ from cvlayer.cv.canny import CvlCanny
 from cvlayer.cv.contours import CvlContours
 from cvlayer.cv.contours_edge import CvlContoursEdge
 from cvlayer.cv.contours_intersection import CvlContoursIntersection
+from cvlayer.cv.convert_scale_abs import CvlConvertScaleAbs
 from cvlayer.cv.cvt_color import CvlCvtColor
 from cvlayer.cv.cvt_shapely import CvlShapely
 from cvlayer.cv.dehaze import CvlDehaze
@@ -34,6 +35,7 @@ from cvlayer.cv.orb import CvlOrb
 from cvlayer.cv.palette import CvlPalette
 from cvlayer.cv.perspective import CvlPerspective
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
+from cvlayer.cv.sobel import CvlSobel
 from cvlayer.cv.threshold import CvlThreshold
 from cvlayer.cv.tracker import CvlTracker
 from cvlayer.cv.video_capture import CvlVideoCapture
@@ -50,6 +52,7 @@ class CvLayer(
     CvlContours,
     CvlContoursEdge,
     CvlContoursIntersection,
+    CvlConvertScaleAbs,
     CvlCrop,
     CvlCvtColor,
     CvlDehaze,
@@ -74,6 +77,7 @@ class CvLayer(
     CvlPalette,
     CvlPerspective,
     CvlRotateTracer,
+    CvlSobel,
     CvlShapely,
     CvlThreshold,
     CvlTracker,
