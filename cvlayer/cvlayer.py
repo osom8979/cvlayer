@@ -10,6 +10,7 @@ from cvlayer.cv.contours_edge import CvlContoursEdge
 from cvlayer.cv.contours_intersection import CvlContoursIntersection
 from cvlayer.cv.cvt_color import CvlCvtColor
 from cvlayer.cv.cvt_shapely import CvlShapely
+from cvlayer.cv.dehaze import CvlDehaze
 from cvlayer.cv.drawable import CvlDrawable
 from cvlayer.cv.drawable_contours import CvlDrawableContours
 from cvlayer.cv.edge_detector import CvlEdgeDetector
@@ -47,6 +48,7 @@ class CvLayer(
     CvlContoursEdge,
     CvlContoursIntersection,
     CvlCvtColor,
+    CvlDehaze,
     CvlDrawable,
     CvlDrawableContours,
     CvlEdgeDetector,
