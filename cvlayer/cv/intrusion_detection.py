@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-from typing import Dict, Final, List, Optional, Union
+from typing import Dict, Final, List, Optional
 
 from numpy import ndarray
 from numpy.typing import NDArray
@@ -9,16 +9,13 @@ from shapely.geometry import Polygon
 
 from cvlayer.cv.contours_intersection import intersection_polygon_and_polygon
 from cvlayer.cv.cvt_shapely import (
-    cvt_contour2polygon,
+    AreaType,
+    cvt_area2polygon,
     cvt_polygon2contour,
     cvt_roi2contour,
-    cvt_roi2polygon,
 )
-from cvlayer.types import RectT
 
-AreaType = Union[NDArray, RectT]
-
-ANONYMOUS_INSTANCE_UID: Final[int] = -1
+ANONYMOUS_UID: Final[int] = -1
 
 COUNTER_CONFIG_DIRECT_THRESHOLD: Final[int] = 1
 COUNTER_CONFIG_DIRECT_MAXVALUE: Final[int] = 1
@@ -27,6 +24,11 @@ COUNTER_CONFIG_DIRECT_UPGRADE_PERIOD: Final[int] = 1
 COUNTER_CONFIG_DIRECT_DOWNGRADE_PERIOD: Final[int] = 1
 COUNTER_CONFIG_DIRECT_UPGRADE_INIT: Final[int] = 1
 COUNTER_CONFIG_DIRECT_DOWNGRADE_INIT: Final[int] = 0
+
+COUNTER_CONFIG_UNIT_STEP: Final[int] = 2
+COUNTER_CONFIG_UNIT_PERIOD: Final[int] = 1
+COUNTER_CONFIG_UNIT_THRESHOLD_WEIGHT: Final[int] = 2
+COUNTER_CONFIG_UNIT_MAXVALUE_WEIGHT: Final[int] = 3
 
 
 class _GradeDone(Exception):
@@ -41,18 +43,16 @@ class _MinimumDowngrade(_GradeDone):
     pass
 
 
-def cvt_area2polygon(area: AreaType) -> Polygon:
-    if isinstance(area, ndarray):
-        return cvt_contour2polygon(area)
-    else:
-        assert isinstance(area, (tuple, list))
-        return cvt_roi2polygon(area)
-
-
 class Realm:
-    def __init__(self, area: AreaType):
+    def __init__(self, level: int, area: AreaType, *, name: Optional[str] = None):
+        self._level = level
         self._contour = area if isinstance(area, ndarray) else cvt_roi2contour(area)
         self._polygon = cvt_area2polygon(area)
+        self._name = name if name else str()
+
+    @property
+    def level(self):
+        return self._level
 
     @property
     def contour(self):
@@ -62,29 +62,49 @@ class Realm:
     def polygon(self):
         return self._polygon
 
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name) -> None:
+        self._name = name
+
     def intersection(self, polygon: Polygon) -> List[Polygon]:
         return intersection_polygon_and_polygon(self._polygon, polygon)
 
 
 @dataclass
 class CounterConfig:
-    threshold: int = 1
-    maxvalue: int = 1
-    minvalue: int = 0
-    upgrade_period: int = 1
-    downgrade_period: int = 1
-    upgrade_init: int = 1
-    downgrade_init: int = 0
+    threshold: int = COUNTER_CONFIG_DIRECT_THRESHOLD
+    maxvalue: int = COUNTER_CONFIG_DIRECT_MAXVALUE
+    minvalue: int = COUNTER_CONFIG_DIRECT_MINVALUE
+    upgrade_period: int = COUNTER_CONFIG_DIRECT_UPGRADE_PERIOD
+    downgrade_period: int = COUNTER_CONFIG_DIRECT_DOWNGRADE_PERIOD
+    upgrade_init: int = COUNTER_CONFIG_DIRECT_UPGRADE_INIT
+    downgrade_init: int = COUNTER_CONFIG_DIRECT_DOWNGRADE_INIT
 
     @classmethod
-    def from_unit(cls, step=2, period=1, thresh_weight=2, maxvalue_weight=3):
-        assert step >= 1
-        assert period >= 1
-        assert thresh_weight >= 1
-        assert maxvalue_weight >= 1
-        assert maxvalue_weight > thresh_weight
+    def from_unit(
+        cls,
+        step=COUNTER_CONFIG_UNIT_STEP,
+        period=COUNTER_CONFIG_UNIT_PERIOD,
+        thresh_weight=COUNTER_CONFIG_UNIT_THRESHOLD_WEIGHT,
+        maxvalue_weight=COUNTER_CONFIG_UNIT_MAXVALUE_WEIGHT,
+    ):
+        if step < 1:
+            raise ValueError("'step' must be greater than or equal to 1")
+        if period < 1:
+            raise ValueError("'period' must be greater than or equal to 1")
+        if thresh_weight < 1:
+            raise ValueError("'thresh_weight' must be greater than or equal to 1")
+        if maxvalue_weight < 1:
+            raise ValueError("'maxvalue_weight' must be greater than or equal to 1")
+        if maxvalue_weight <= thresh_weight:
+            raise ValueError("'maxvalue_weight' must be greater than 'thresh_weight'")
 
         unit = period * step
+
         threshold = unit * thresh_weight
         maxvalue = unit * maxvalue_weight
         minvalue = 0
@@ -108,7 +128,11 @@ class ObjectState:
     _first_intrusions: List[Polygon]
     _second_intrusions: List[Polygon]
 
-    def __init__(self, config: CounterConfig, max_level: int):
+    def __init__(self, uid: int, config: CounterConfig, max_level: int):
+        if uid != ANONYMOUS_UID and uid < 0:
+            raise ValueError("'uid' must be greater than or equal to 0")
+
+        self._uid = uid
         self._config = config
         self._max_level = max_level
 
@@ -117,6 +141,14 @@ class ObjectState:
 
         self._level = 0
         self._counter = config.minvalue
+
+    @property
+    def uid(self) -> int:
+        return self._uid
+
+    @property
+    def is_anonymous(self) -> bool:
+        return self._uid == ANONYMOUS_UID
 
     @property
     def level(self) -> int:
@@ -137,20 +169,16 @@ class ObjectState:
         return self._level == 0
 
     @property
-    def is_current_level_inbound(self) -> bool:
+    def is_inbound(self) -> bool:
         return self._counter >= self._config.threshold
 
     @property
-    def is_current_level_outbound(self) -> bool:
-        return not self.is_current_level_inbound
+    def is_outbound(self) -> bool:
+        return not self.is_inbound
 
     @property
-    def is_max_inbound(self) -> bool:
-        return self.is_max_level and self.is_current_level_inbound
-
-    @property
-    def is_min_outbound(self) -> bool:
-        return self.is_min_level and self.is_current_level_outbound
+    def entered(self) -> bool:
+        return self.is_max_level and self.is_inbound
 
     @property
     def as_first_intrusions(self) -> List[NDArray]:
@@ -224,7 +252,7 @@ class HierarchicalIntrusionDetection:
         config: Optional[CounterConfig] = None,
     ):
         self._config = config if config else CounterConfig()
-        self._realms = [Realm(area) for area in areas]
+        self._realms = [Realm(i, area) for i, area in enumerate(areas)]
         self._states = dict()
 
         if not self._realms:
@@ -248,10 +276,10 @@ class HierarchicalIntrusionDetection:
 
     def get_state(self, uid: int) -> ObjectState:
         if uid not in self._states:
-            self._states[uid] = ObjectState(self.config, self.max_level)
+            self._states[uid] = ObjectState(uid, self.config, self.max_level)
         return self._states[uid]
 
-    def run(self, area: AreaType, uid=ANONYMOUS_INSTANCE_UID) -> ObjectState:
+    def run(self, area: AreaType, uid=ANONYMOUS_UID) -> ObjectState:
         if not self._realms:
             raise IndexError("Realm does not exist")
 
@@ -262,10 +290,6 @@ class HierarchicalIntrusionDetection:
 
 
 class CvlIntrusionDetection:
-    @staticmethod
-    def cvl_cvt_area2polygon(area: AreaType):
-        return cvt_area2polygon(area)
-
     @staticmethod
     def cvl_create_counter_config(
         threshold=1,

@@ -56,82 +56,101 @@ class HierarchicalIntrusionDetectionTestCase(TestCase):
         res1 = self.hid.run(outside_first)
         self.assertEqual(0, res1.level)
         self.assertEqual(1, res1.counter)  # minvalue
+        self.assertFalse(res1.entered)
 
         # OUTSIDE #1 -> INSIDE #1
         res2 = self.hid.run(inside_first)
         self.assertEqual(0, res2.level)
         self.assertEqual(2, res2.counter)
+        self.assertFalse(res2.entered)
 
         res3 = self.hid.run(inside_first)
         self.assertEqual(0, res3.level)
         self.assertEqual(3, res3.counter)
+        self.assertFalse(res3.entered)
 
         res4 = self.hid.run(inside_first)
         self.assertEqual(0, res4.level)
         self.assertEqual(4, res4.counter)
+        self.assertFalse(res4.entered)
 
         res5 = self.hid.run(inside_first)
         self.assertEqual(0, res5.level)
         self.assertEqual(5, res5.counter)
+        self.assertFalse(res5.entered)
 
         res6 = self.hid.run(inside_first)
         self.assertEqual(0, res6.level)
         self.assertEqual(5, res6.counter)
+        self.assertFalse(res6.entered)
 
         # INSIDE #1 -> UNION
         res7 = self.hid.run(inside_union)
         self.assertEqual(1, res7.level)
         self.assertEqual(2, res7.counter)
+        self.assertFalse(res7.entered)
 
         # UNION -> INSIDE #2
         res8 = self.hid.run(inside_second)
         self.assertEqual(1, res8.level)
         self.assertEqual(3, res8.counter)
+        self.assertFalse(res8.entered)
 
         res9 = self.hid.run(inside_second)
         self.assertEqual(1, res9.level)
         self.assertEqual(4, res9.counter)
+        self.assertTrue(res9.entered)
 
         res10 = self.hid.run(inside_second)
         self.assertEqual(1, res10.level)
         self.assertEqual(5, res10.counter)
+        self.assertTrue(res10.entered)
 
         res11 = self.hid.run(inside_second)
         self.assertEqual(1, res11.level)
         self.assertEqual(5, res11.counter)
+        self.assertTrue(res11.entered)
 
         # INSIDE #2 -> OUTSIDE #2
         res12 = self.hid.run(outside_second)
         self.assertEqual(1, res12.level)
         self.assertEqual(4, res12.counter)
+        self.assertTrue(res12.entered)
 
         res13 = self.hid.run(outside_second)
         self.assertEqual(1, res13.level)
         self.assertEqual(3, res13.counter)
+        self.assertFalse(res13.entered)
 
         res14 = self.hid.run(outside_second)
         self.assertEqual(1, res14.level)
         self.assertEqual(2, res14.counter)
+        self.assertFalse(res14.entered)
 
         res15 = self.hid.run(outside_second)
         self.assertEqual(1, res15.level)
         self.assertEqual(1, res15.counter)
+        self.assertFalse(res15.entered)
 
         res16 = self.hid.run(outside_second)
         self.assertEqual(0, res16.level)
         self.assertEqual(3, res16.counter)
+        self.assertFalse(res16.entered)
 
         res17 = self.hid.run(outside_second)
         self.assertEqual(0, res17.level)
         self.assertEqual(2, res17.counter)
+        self.assertFalse(res17.entered)
 
         res18 = self.hid.run(outside_second)
         self.assertEqual(0, res18.level)
         self.assertEqual(1, res18.counter)
+        self.assertFalse(res18.entered)
 
         res19 = self.hid.run(outside_second)
         self.assertEqual(0, res19.level)
         self.assertEqual(1, res19.counter)
+        self.assertFalse(res19.entered)
 
 
 if __name__ == "__main__":

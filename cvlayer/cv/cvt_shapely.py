@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from typing import List
+from typing import List, Union
 
-from numpy import array, int32
+from numpy import array, int32, ndarray
 from numpy.typing import NDArray
 from shapely import LineString, MultiPolygon, Polygon
 from shapely.geometry.base import BaseGeometry
@@ -79,6 +79,18 @@ def cvt_roi2polygon(roi: RectT) -> Polygon:
     return Polygon([(x1, y1), (x2, y1), (x2, y2), (x1, y2)])
 
 
+AreaType = Union[NDArray, RectT]
+
+
+def cvt_area2polygon(area: AreaType) -> Polygon:
+    if isinstance(area, ndarray):
+        return cvt_contour2polygon(area)
+    elif isinstance(area, (tuple, list)):
+        if len(area) == 4:
+            return cvt_roi2polygon(area)
+    raise TypeError(f"Unsupported area type: {type(area).__name__}")
+
+
 class CvlShapely:
     @staticmethod
     def cvl_cvt_contour2polygon(contour: NDArray):
@@ -111,3 +123,7 @@ class CvlShapely:
     @staticmethod
     def cvl_cvt_roi2polygon(roi: RectT):
         return cvt_roi2polygon(roi)
+
+    @staticmethod
+    def cvl_cvt_area2polygon(area: AreaType):
+        return cvt_area2polygon(area)
