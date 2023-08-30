@@ -18,6 +18,7 @@ from cvlayer.cv.fourier_transform import CvlFourierTransform
 from cvlayer.cv.hsv import CvlHsv
 from cvlayer.cv.image_crop import CvlCrop
 from cvlayer.cv.image_make import CvlImageMake
+from cvlayer.cv.image_move import CvlMove
 from cvlayer.cv.image_resize import CvlImageResize
 from cvlayer.cv.in_range import CvlInRange
 from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
@@ -53,6 +54,7 @@ class CvLayer(
     CvlHsv,
     CvlCrop,
     CvlImageMake,
+    CvlMove,
     CvlImageResize,
     CvlInRange,
     CvlIntrusionDetection,
