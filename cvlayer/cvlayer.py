@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from cvlayer.cv.angle import CvlAngle
+from cvlayer.cv.aspect_ratio import CvlAspectRatio
 from cvlayer.cv.backend import CvlBackend
 from cvlayer.cv.bgsub import CvlBackgroundSubtractor
 from cvlayer.cv.bitwise import CvlBitwise
@@ -33,6 +34,7 @@ from cvlayer.cv.window import CvlWindow
 
 class CvLayer(
     CvlAngle,
+    CvlAspectRatio,
     CvlBackend,
     CvlBackgroundSubtractor,
     CvlBitwise,
