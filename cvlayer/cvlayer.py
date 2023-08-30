@@ -23,6 +23,7 @@ from cvlayer.cv.iou import CvlIou
 from cvlayer.cv.keymap import CvlKeymap
 from cvlayer.cv.matcher import CvlMatcher
 from cvlayer.cv.morphology import CvlMorphology
+from cvlayer.cv.norm import CvlNorm
 from cvlayer.cv.palette import CvlPalette
 from cvlayer.cv.perspective import CvlPerspective
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
@@ -42,23 +43,24 @@ class CvLayer(
     CvlContoursEdge,
     CvlContoursIntersection,
     CvlCvtColor,
-    CvlShapely,
     CvlDrawable,
     CvlDrawableContours,
     CvlEdgeDetector,
     CvlFourcc,
     CvlHsv,
     CvlImageMake,
-    CvlMatcher,
+    CvlImageResize,
     CvlInRange,
     CvlIntrusionDetection,
     CvlIou,
     CvlKeymap,
+    CvlMatcher,
     CvlMorphology,
+    CvlNorm,
     CvlPalette,
     CvlPerspective,
-    CvlImageResize,
     CvlRotateTracer,
+    CvlShapely,
     CvlThreshold,
     CvlTracker,
     CvlVideoCapture,
