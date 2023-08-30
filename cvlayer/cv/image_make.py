@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.np.image import make_image, make_image_filled, make_image_with_shape
+from cvlayer.np.image import (
+    make_image,
+    make_image_empty,
+    make_image_filled,
+    make_image_with_shape,
+)
 from cvlayer.types import Color, ImageShape
 
 
-class CvlMakeImage:
+class CvlImageMake:
     @staticmethod
     def cvl_make_image_with_shape(shape: ImageShape, data: bytes):
         return make_image_with_shape(shape, data)
@@ -16,3 +21,7 @@ class CvlMakeImage:
     @staticmethod
     def cvl_make_image_filled(width: int, height: int, color: Color):
         return make_image_filled(width, height, color)
+
+    @staticmethod
+    def cvl_make_image_empty(width: int, height: int):
+        return make_image_empty(width, height)

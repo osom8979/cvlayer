@@ -46,7 +46,7 @@ def resize_ratio(
     )
 
 
-class CvlResize:
+class CvlImageResize:
     @staticmethod
     def cvl_resize_constant(
         src: NDArray,
