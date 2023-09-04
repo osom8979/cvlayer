@@ -185,7 +185,7 @@ class VideoCapture:
         else:
             return self._capture.retrieve(image)
 
-    def read(self, image: Optional[NDArray]) -> Tuple[bool, NDArray]:
+    def read(self, image: Optional[NDArray] = None) -> Tuple[bool, NDArray]:
         return self._capture.read(image)
 
     def set(self, prop: int, value: float) -> bool:
