@@ -2,6 +2,7 @@
 # https://plugins.jetbrains.com/plugin/12089-dictionary
 
 altkey
+aravis
 asctime
 bgra
 bgsegm
@@ -20,15 +21,21 @@ ddepth
 decomp
 deriv
 divx
+dshow
 dtype
+fireware
 freeratio
+giganetix
 goturn
+gphoto
 hwheel
+intelperc
 kcos
 keepratio
 ksize
 lbutton
 levelname
+libv
 maxval
 mbutton
 medianflow
@@ -36,16 +43,24 @@ meipass
 minval
 mjpg
 mosse
+msmf
 nocov
 otsu's
 printonly
+prosilica
+pvapi
 pythonpath
 rbutton
 retr
 shiftkey
+smartek
 sqdiff
 strftime
 tozero
 trackbarname
+unicap
 winname
+xiapi
+ximea
+xine
 xvid
