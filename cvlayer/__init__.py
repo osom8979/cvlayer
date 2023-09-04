@@ -2,5 +2,8 @@
 
 from cvlayer.cvlayer import CvLayer
 
-__version__ = "0.6.0"
-__all__ = ["CvLayer"]
+__version__ = "0.7.0"
+__all__ = [
+    "__version__",
+    "CvLayer",
+]
