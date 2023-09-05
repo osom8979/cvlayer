@@ -41,6 +41,7 @@ from cvlayer.cv.sobel import CvlSobel
 from cvlayer.cv.threshold import CvlThreshold
 from cvlayer.cv.tracker import CvlTracker
 from cvlayer.cv.video_capture import CvlVideoCapture
+from cvlayer.cv.video_writer import CvlVideoWriter
 from cvlayer.cv.window import CvlWindow
 
 
@@ -86,6 +87,7 @@ class CvLayer(
     CvlThreshold,
     CvlTracker,
     CvlVideoCapture,
+    CvlVideoWriter,
     CvlWindow,
 ):
     pass

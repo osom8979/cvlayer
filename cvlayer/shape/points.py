@@ -34,7 +34,7 @@ def raw_points(base: Optional[BaseGeometry]) -> List[PointT]:
         raise NotImplementedError
     elif base.geom_type == "MultiLineString":
         assert isinstance(base, MultiLineString)
-        raise NotImplementedError
+        return list(chain(*[raw_points(geom) for geom in base.geoms]))
     elif base.geom_type == "LinearRing":
         assert isinstance(base, LinearRing)
         raise NotImplementedError

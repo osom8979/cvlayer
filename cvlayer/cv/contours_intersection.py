@@ -11,7 +11,6 @@ from cvlayer.cv.cvt_shapely import (
     cvt_line2linestring,
     cvt_roi2polygon,
 )
-from cvlayer.geometry.flatten import flatten_line
 from cvlayer.shape.points import raw_points
 from cvlayer.shape.polygons import filter_polygons
 from cvlayer.types import LineT, PointT, RectT
@@ -32,14 +31,14 @@ def intersection_roi_and_contour(roi: RectT, contour: NDArray) -> List[Polygon]:
 
 
 def intersection_line_and_contour(line: LineT, contour: NDArray) -> List[PointT]:
-    ls2 = cvt_line2linestring(*flatten_line(line))
+    ls2 = cvt_line2linestring(line)
     ls1 = cvt_contour2linestring(contour)
     return raw_points(ls1.intersection(ls2))
 
 
 def intersection_line_and_line(line1: LineT, line2: LineT) -> Optional[PointT]:
-    ls1 = cvt_line2linestring(*flatten_line(line1))
-    ls2 = cvt_line2linestring(*flatten_line(line2))
+    ls1 = cvt_line2linestring(line1)
+    ls2 = cvt_line2linestring(line2)
     intersection = ls1.intersection(ls2)
 
     if intersection.is_empty:
