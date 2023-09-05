@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 from shapely import LineString, MultiPolygon, Polygon
 from shapely.geometry.base import BaseGeometry
 
-from cvlayer.types import LineT, RectT
+from cvlayer.typing import LineT, RectT
 
 
 def cvt_contour2polygon(contour: NDArray) -> Polygon:

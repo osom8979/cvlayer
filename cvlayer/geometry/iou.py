@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.types import RectT
+from cvlayer.typing import RectT
 
 
 def calculate_iou(rect1: RectT, rect2: RectT) -> float:

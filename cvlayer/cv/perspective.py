@@ -7,7 +7,7 @@ import cv2
 from numpy import array, float32
 from numpy.typing import NDArray
 
-from cvlayer.types import PointFloat, RectFloat, Scalar, SizeInt
+from cvlayer.typing import PointFloat, RectFloat, Scalar, SizeInt
 
 
 @unique

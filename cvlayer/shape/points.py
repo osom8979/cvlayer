@@ -15,7 +15,7 @@ from shapely import (
 )
 from shapely.geometry.base import BaseGeometry
 
-from cvlayer.types import PointT
+from cvlayer.typing import PointT
 
 
 def raw_points(base: Optional[BaseGeometry]) -> List[PointT]:

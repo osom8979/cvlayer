@@ -6,7 +6,7 @@ from typing import Final
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.types import PointInt, SizeInt
+from cvlayer.typing import PointInt, SizeInt
 
 DEFAULT_KSIZE: Final[SizeInt] = (3, 3)
 DEFAULT_ANCHOR: Final[PointInt] = (-1, -1)

@@ -6,7 +6,7 @@ import cv2
 
 from cvlayer.geometry.find_nearset_point import find_nearest_point
 from cvlayer.math.angle import degrees_point3
-from cvlayer.types import PointT, PolygonT
+from cvlayer.typing import PointT, PolygonT
 
 DEFAULT_MAX_MISSING_COUNT: Final[int] = 10
 

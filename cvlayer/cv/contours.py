@@ -7,7 +7,7 @@ import cv2
 from numpy import logical_and, zeros
 from numpy.typing import NDArray
 
-from cvlayer.types import Image, PointFloat, SizeFloat
+from cvlayer.typing import Image, PointFloat, SizeFloat
 
 
 @unique

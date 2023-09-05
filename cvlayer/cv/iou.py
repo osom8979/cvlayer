@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from cvlayer.geometry.iou import calculate_iou
-from cvlayer.types import RectT
+from cvlayer.typing import RectT
 
 
 class CvlIou:

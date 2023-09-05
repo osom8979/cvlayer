@@ -3,7 +3,7 @@
 from typing import Optional
 
 from cvlayer.math.aspect_ratio import aspect_ratio, rescale_aspect_ratio
-from cvlayer.types import NumberT
+from cvlayer.typing import NumberT
 
 
 class CvlAspectRatio:

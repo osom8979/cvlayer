@@ -6,7 +6,7 @@ from typing import Callable, List, NamedTuple, Tuple
 from numpy import int32, ndarray
 from numpy.typing import NDArray
 
-from cvlayer.types import PolygonT
+from cvlayer.typing import PolygonT
 
 
 @unique

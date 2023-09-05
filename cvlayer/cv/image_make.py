@@ -6,7 +6,7 @@ from cvlayer.np.image import (
     make_image_filled,
     make_image_with_shape,
 )
-from cvlayer.types import Color, ImageShape
+from cvlayer.typing import Color, ImageShape
 
 
 class CvlImageMake:

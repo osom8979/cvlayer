@@ -3,7 +3,7 @@
 from math import gcd
 from typing import Optional, Tuple
 
-from cvlayer.types import NumberT
+from cvlayer.typing import NumberT
 
 
 def aspect_ratio(a: int, b: int) -> Tuple[int, int]:

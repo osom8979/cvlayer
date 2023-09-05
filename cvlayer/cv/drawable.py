@@ -4,7 +4,7 @@ from typing import Final, Optional, Tuple
 
 import cv2
 
-from cvlayer.types import Color, Image, Number, PointT, RectT
+from cvlayer.typing import Color, Image, Number, PointT, RectT
 
 FILLED: Final[int] = cv2.FILLED
 

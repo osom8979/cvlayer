@@ -2,7 +2,7 @@
 
 from numpy.typing import NDArray
 
-from cvlayer.types import RectInt
+from cvlayer.typing import RectInt
 
 
 def crop(src: NDArray, roi: RectInt) -> NDArray:

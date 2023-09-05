@@ -2,7 +2,7 @@
 
 from math import sqrt
 
-from cvlayer.types import NumberT
+from cvlayer.typing import NumberT
 
 
 def l1_norm(x1: NumberT, y1: NumberT, x2: NumberT, y2: NumberT) -> NumberT:

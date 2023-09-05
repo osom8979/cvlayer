@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.contours import MinAreaRectResult, box_points
 from cvlayer.cv.drawable import COLOR, LINE_TYPE, THICKNESS
-from cvlayer.types import Image
+from cvlayer.typing import Image
 
 DRAW_ALL_CONTOURS: Final[int] = -1
 

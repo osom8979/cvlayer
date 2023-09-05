@@ -9,7 +9,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.mouse import MouseEvent
-from cvlayer.types import RectInt
+from cvlayer.typing import RectInt
 
 FUNC_SET_MOUSE_CALLBACK: Final[str] = "setMouseCallback"
 FUNC_CREATE_TRACKBAR: Final[str] = "createTrackbar"

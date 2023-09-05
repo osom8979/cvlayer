@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from cvlayer.math.norm import l1_norm, l2_norm, max_norm
-from cvlayer.types import NumberT
+from cvlayer.typing import NumberT
 
 
 class CvlNorm:

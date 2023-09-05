@@ -13,7 +13,7 @@ from cvlayer.cv.cvt_shapely import (
 )
 from cvlayer.shape.points import raw_points
 from cvlayer.shape.polygons import filter_polygons
-from cvlayer.types import LineT, PointT, RectT
+from cvlayer.typing import LineT, PointT, RectT
 
 
 def intersection_polygon_and_polygon(

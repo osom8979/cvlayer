@@ -6,7 +6,7 @@ from numpy import bool_ as np_bool
 from numpy import concatenate, uint8, where
 from numpy.typing import NDArray
 
-from cvlayer.types import Color, Image
+from cvlayer.typing import Color, Image
 
 BLACK_COLOR: Final[Color] = (0, 0, 0)
 DEFAULT_CHROMA_COLOR: Final[Color] = BLACK_COLOR

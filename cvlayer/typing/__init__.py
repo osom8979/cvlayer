@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.types.color import Color
-from cvlayer.types.geomerty import (
+from cvlayer.typing.color import Color
+from cvlayer.typing.geomerty import (
     LineFloat,
     LineInt,
     LineT,
@@ -19,7 +19,7 @@ from cvlayer.types.geomerty import (
     SizeInt,
     SizeT,
 )
-from cvlayer.types.np import Image, ImageShape
+from cvlayer.typing.np import Image, ImageShape
 
 __all__ = [
     "Color",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.types import LineT
+from cvlayer.typing import LineT
 
 
 def flatten_line(line: LineT):

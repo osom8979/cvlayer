@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from cvlayer.math.norm import l2_norm
-from cvlayer.types import PointT
+from cvlayer.typing import PointT
 
 
 def find_nearest_point_index(pivot: PointT, *points: PointT) -> int:

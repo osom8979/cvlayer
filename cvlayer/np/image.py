@@ -2,7 +2,7 @@
 
 from numpy import full, ndarray, uint8, zeros
 
-from cvlayer.types import Color, Image, ImageShape
+from cvlayer.typing import Color, Image, ImageShape
 
 
 def make_image_with_shape(shape: ImageShape, data: bytes) -> Image:

@@ -7,7 +7,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.fourcc import DEFAULT_FOURCC, get_fourcc
-from cvlayer.types import SizeInt
+from cvlayer.typing import SizeInt
 
 DEFAULT_FPS: Final[float] = 30.0
 AUTO_DETECTION_NSTRIPES: Final[int] = -1

@@ -3,7 +3,7 @@
 from math import atan2, degrees
 
 from cvlayer.math.constant import DOUBLE_PI
-from cvlayer.types import PointT
+from cvlayer.typing import PointT
 
 
 def radians_angle(x: float, y: float) -> float:

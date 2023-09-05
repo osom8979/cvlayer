@@ -5,7 +5,7 @@ from typing import Sequence, Union
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.types import NumberT
+from cvlayer.typing import NumberT
 
 
 def in_range(

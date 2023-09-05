@@ -12,7 +12,7 @@ from cvlayer.math.angle import (
     radians_point2,
     radians_point3,
 )
-from cvlayer.types import PointT
+from cvlayer.typing import PointT
 
 
 class CvlAngle:

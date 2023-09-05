@@ -6,7 +6,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.tracking import TrackingMethod, tracker_create_method_name
-from cvlayer.types import RectInt
+from cvlayer.typing import RectInt
 
 
 class Tracker:

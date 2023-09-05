@@ -4,7 +4,7 @@ from enum import Enum, unique
 
 import cv2
 
-from cvlayer.types.np import Image
+from cvlayer.typing.np import Image
 
 
 @unique

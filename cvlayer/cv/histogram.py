@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.palette.basic import BLUE, GREEN, RED
-from cvlayer.types import Color, RectInt
+from cvlayer.typing import Color, RectInt
 
 RANGE_MAX: Final[int] = PIXEL_8BIT_MAX + 1
 DEFAULT_BINS: Final[Sequence[int]] = (RANGE_MAX,)
