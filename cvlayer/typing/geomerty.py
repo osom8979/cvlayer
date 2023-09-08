@@ -25,4 +25,8 @@ PolygonT = List[PointT]
 PolygonInt = List[PointInt]
 PolygonFloat = List[PointFloat]
 
+PerspectivePointsT = Tuple[PointT, PointT, PointT, PointT]
+PerspectivePointsInt = Tuple[PointInt, PointInt, PointInt, PointInt]
+PerspectivePointsFloat = Tuple[PointFloat, PointFloat, PointFloat, PointFloat]
+
 Scalar = Tuple[float, float, float, float]

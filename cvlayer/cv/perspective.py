@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Final, Optional
+from typing import Any, Final, Optional
 
 import cv2
 from numpy import array, float32
 from numpy.typing import NDArray
 
-from cvlayer.typing import PointFloat, RectFloat, Scalar, SizeInt
+from cvlayer.typing import PerspectivePointsInt, PointFloat, RectFloat, Scalar, SizeInt
 
 
 @unique
@@ -42,6 +42,38 @@ class MatrixDecomposition(Enum):
     while all the previous flags are mutually exclusive,
     this flag can be used together with any of the previous;
     """
+
+
+def cast_perspective_int(points: Any) -> PerspectivePointsInt:
+    assert isinstance(points, list)
+    assert len(points) == 4
+
+    assert isinstance(points[0], list)
+    assert len(points[0]) == 2
+    assert isinstance(points[0][0], int)
+    assert isinstance(points[0][1], int)
+
+    assert isinstance(points[1], list)
+    assert len(points[1]) == 2
+    assert isinstance(points[1][0], int)
+    assert isinstance(points[1][1], int)
+
+    assert isinstance(points[2], list)
+    assert len(points[2]) == 2
+    assert isinstance(points[2][0], int)
+    assert isinstance(points[2][1], int)
+
+    assert isinstance(points[3], list)
+    assert len(points[3]) == 2
+    assert isinstance(points[3][0], int)
+    assert isinstance(points[3][1], int)
+
+    return (
+        (points[0][0], points[0][1]),
+        (points[1][0], points[1][1]),
+        (points[2][0], points[2][1]),
+        (points[3][0], points[3][1]),
+    )
 
 
 def get_perspective_transform(
@@ -110,6 +142,10 @@ def warp_perspective(
 
 
 class CvlPerspective:
+    @staticmethod
+    def cvl_cast_perspective_int(points: Any) -> PerspectivePointsInt:
+        return cast_perspective_int(points)
+
     @staticmethod
     def cvl_get_perspective_transform(
         src: NDArray,
