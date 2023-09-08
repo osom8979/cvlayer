@@ -60,25 +60,34 @@ def _create_trackbar(
 
 
 class Window:
-    def __init__(self, name: str, flags=WINDOW_AUTOSIZE):
-        if not name:
+    def __init__(self, title: str, flags=WINDOW_AUTOSIZE):
+        if not title:
             raise ValueError("A window name is required")
 
-        self._name = name
+        self._title = title
         self._has_mouse = _has_set_mouse_callback()
         self._has_trackbar = _has_create_trackbar()
 
-        cv2.namedWindow(name, flags)
+        cv2.namedWindow(title, flags)
         if self._has_mouse:
-            _set_mouse_callback(name, self._mouse_callback)
+            _set_mouse_callback(title, self._mouse_callback)
 
     @property
     def has_mouse(self) -> str:
-        return deepcopy(self._name)
+        return deepcopy(self._title)
 
     @property
-    def name(self) -> str:
-        return deepcopy(self._name)
+    def title(self) -> str:
+        return deepcopy(self._title)
+
+    def set_title(self, title: str) -> None:
+        cv2.setWindowTitle(self._title, title)
+        self._title = title
+
+    @property
+    def image_rect(self) -> RectInt:
+        x1, y1, x2, y2 = cv2.getWindowImageRect(self._title)
+        return x1, y1, x2, y2
 
     @staticmethod
     def start_window_thread() -> None:
@@ -104,104 +113,111 @@ class Window:
     def create_trackbar(self, trackbarname: str, value: int, count: int) -> None:
         _create_trackbar(
             trackbarname,
-            self._name,
+            self._title,
             value,
             count,
             wraps(self._trackbar_callback, trackbarname),
         )
 
     def get_trackbar_pos(self, trackbarname: str) -> int:
-        return cv2.getTrackbarPos(trackbarname, self._name)
+        return cv2.getTrackbarPos(trackbarname, self._title)
 
     def set_trackbar_max(self, trackbarname: str, maxval: int) -> None:
-        cv2.setTrackbarMax(trackbarname, self._name, maxval)
+        cv2.setTrackbarMax(trackbarname, self._title, maxval)
 
     def set_trackbar_min(self, trackbarname: str, minval: int) -> None:
-        cv2.setTrackbarMin(trackbarname, self._name, minval)
+        cv2.setTrackbarMin(trackbarname, self._title, minval)
 
     def set_trackbar_pos(self, trackbarname: str, pos: int) -> None:
-        cv2.setTrackbarPos(trackbarname, self._name, pos)
+        cv2.setTrackbarPos(trackbarname, self._title, pos)
 
     def destroy(self) -> None:
-        cv2.destroyWindow(self._name)
+        cv2.destroyWindow(self._title)
 
     def draw(self, image: NDArray) -> None:
-        cv2.imshow(self._name, image)
+        cv2.imshow(self._title, image)
 
     def move(self, x: int, y: int) -> None:
-        cv2.moveWindow(self._name, x, y)
+        cv2.moveWindow(self._title, x, y)
 
     def resize(self, width: int, height: int) -> None:
-        cv2.resizeWindow(self._name, width, height)
+        cv2.resizeWindow(self._title, width, height)
 
-    def get_property(self, prop: WindowProperty) -> float:
-        return cv2.getWindowProperty(self._name, prop.value)
+    def _get_property(self, prop: WindowProperty) -> float:
+        return cv2.getWindowProperty(self._title, prop.value)
 
-    def set_property(self, prop: WindowProperty, value: float) -> None:
-        cv2.setWindowProperty(self._name, prop.value, value)
+    def _set_property(self, prop: WindowProperty, value: float) -> None:
+        cv2.setWindowProperty(self._title, prop.value, value)
+
+    def _get_boolean_property(self, prop: WindowProperty) -> bool:
+        if prop == WindowProperty.OPENGL:
+            # [IMPORTANT] It is `0` if OpenGL is supported, `-1` otherwise.
+            return self._get_property(prop) == 0
+        else:
+            return self._get_property(prop) == 1
+
+    def _set_boolean_property(self, prop: WindowProperty, value: bool) -> None:
+        if prop == WindowProperty.OPENGL:
+            # [IMPORTANT] It is `0` if OpenGL is supported, `-1` otherwise.
+            self._set_property(prop, 0 if value else -1)
+        else:
+            self._set_property(prop, 1 if value else 1)
 
     @property
-    def fullscreen(self) -> float:
-        return self.get_property(WindowProperty.FULLSCREEN)
+    def fullscreen(self) -> bool:
+        return self._get_boolean_property(WindowProperty.FULLSCREEN)
 
     @fullscreen.setter
-    def fullscreen(self, value: float) -> None:
-        self.set_property(WindowProperty.FULLSCREEN, value)
+    def fullscreen(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.FULLSCREEN, value)
 
     @property
-    def autosize(self) -> float:
-        return self.get_property(WindowProperty.AUTOSIZE)
+    def autosize(self) -> bool:
+        return self._get_boolean_property(WindowProperty.AUTOSIZE)
 
     @autosize.setter
-    def autosize(self, value: float) -> None:
-        self.set_property(WindowProperty.AUTOSIZE, value)
+    def autosize(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.AUTOSIZE, value)
 
     @property
-    def aspect_ratio(self) -> float:
-        return self.get_property(WindowProperty.ASPECT_RATIO)
+    def aspect_ratio(self) -> bool:
+        return self._get_boolean_property(WindowProperty.ASPECT_RATIO)
 
     @aspect_ratio.setter
-    def aspect_ratio(self, value: float) -> None:
-        self.set_property(WindowProperty.ASPECT_RATIO, value)
+    def aspect_ratio(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.ASPECT_RATIO, value)
 
     @property
-    def opengl(self) -> float:
-        return self.get_property(WindowProperty.OPENGL)
+    def opengl(self) -> bool:
+        return self._get_boolean_property(WindowProperty.OPENGL)
 
     @opengl.setter
-    def opengl(self, value: float) -> None:
-        self.set_property(WindowProperty.OPENGL, value)
+    def opengl(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.OPENGL, value)
 
     @property
-    def visible(self) -> float:
-        return self.get_property(WindowProperty.VISIBLE)
+    def visible(self) -> bool:
+        return self._get_boolean_property(WindowProperty.VISIBLE)
 
     @visible.setter
-    def visible(self, value: float) -> None:
-        self.set_property(WindowProperty.VISIBLE, value)
+    def visible(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.VISIBLE, value)
 
     @property
-    def topmost(self) -> float:
-        return self.get_property(WindowProperty.TOPMOST)
+    def topmost(self) -> bool:
+        return self._get_boolean_property(WindowProperty.TOPMOST)
 
     @topmost.setter
-    def topmost(self, value: float) -> None:
-        self.set_property(WindowProperty.TOPMOST, value)
+    def topmost(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.TOPMOST, value)
 
     @property
-    def vsync(self) -> float:
-        return self.get_property(WindowProperty.VSYNC)
+    def vsync(self) -> bool:
+        return self._get_boolean_property(WindowProperty.VSYNC)
 
     @vsync.setter
-    def vsync(self, value: float) -> None:
-        self.set_property(WindowProperty.VSYNC, value)
-
-    def set_title(self, title: str) -> None:
-        cv2.setWindowTitle(self._name, title)
-
-    def get_image_rect(self) -> RectInt:
-        x1, y1, x2, y2 = cv2.getWindowImageRect(self._name)
-        return x1, y1, x2, y2
+    def vsync(self, value: bool) -> None:
+        self._set_boolean_property(WindowProperty.VSYNC, value)
 
     @staticmethod
     def poll_key() -> int:
