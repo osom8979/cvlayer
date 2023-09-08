@@ -21,6 +21,7 @@ from cvlayer.cv.histogram import CvlHistogram
 from cvlayer.cv.hough_lines import CvlHoughLines
 from cvlayer.cv.hsv import CvlHsv
 from cvlayer.cv.image_crop import CvlImageCrop
+from cvlayer.cv.image_io import CvlImageIo
 from cvlayer.cv.image_make import CvlImageMake
 from cvlayer.cv.image_move import CvlImageMove
 from cvlayer.cv.image_resize import CvlImageResize
@@ -66,6 +67,7 @@ class CvLayer(
     CvlHoughLines,
     CvlHsv,
     CvlImageCrop,
+    CvlImageIo,
     CvlImageMake,
     CvlImageMove,
     CvlImageResize,
