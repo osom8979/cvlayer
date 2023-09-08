@@ -30,6 +30,12 @@ MULTILINE_BACKGROUND_COLOR: Final[Color] = (0, 0, 0)
 MULTILINE_BACKGROUND_ALPHA: Final[float] = 0.4
 MULTILINE_MARGIN: Final[int] = 8
 
+CROSSHAIR_POINT_RADIUS: Final[int] = 6
+CROSSHAIR_POINT_THICKNESS: Final[int] = 1
+CROSSHAIR_POINT_COLOR: Final[Color] = (0, 0, 255)
+CROSSHAIR_POINT_LINE_TYPE: Final[int] = LINE_AA
+CROSSHAIR_POINT_PADDING: Final[int] = 2
+
 
 def draw_point(
     image: Image,
@@ -80,6 +86,56 @@ def draw_circle(
 ) -> None:
     center = int(x), int(y)
     cv2.circle(image, center, radius, color, thickness, line_type)
+
+
+def draw_crosshair_point(
+    image: Image,
+    point: PointT,
+    radius=CROSSHAIR_POINT_RADIUS,
+    thickness=CROSSHAIR_POINT_THICKNESS,
+    color=CROSSHAIR_POINT_COLOR,
+    line_type=CROSSHAIR_POINT_LINE_TYPE,
+    padding=CROSSHAIR_POINT_PADDING,
+    circle=True,
+) -> None:
+    x, y = point
+
+    if padding == 0:
+        left = x - radius, y
+        top = x, y - radius
+        right = x + radius, y
+        bottom = x, y + radius
+
+        draw_line(image, left, right, color, thickness, line_type)
+        draw_line(image, top, bottom, color, thickness, line_type)
+    else:
+        left1 = x - radius - padding, y
+        left2 = x - padding, y
+
+        top1 = x, y - radius - padding
+        top2 = x, y - padding
+
+        right1 = x + radius + padding, y
+        right2 = x + padding, y
+
+        bottom1 = x, y + radius + padding
+        bottom2 = x, y + padding
+
+        draw_line(image, left1, left2, color, thickness, line_type)
+        draw_line(image, top1, top2, color, thickness, line_type)
+        draw_line(image, right1, right2, color, thickness, line_type)
+        draw_line(image, bottom1, bottom2, color, thickness, line_type)
+
+    if circle:
+        draw_circle(
+            image=image,
+            x=x,
+            y=y,
+            radius=radius,
+            color=color,
+            thickness=thickness,
+            line_type=line_type,
+        )
 
 
 def draw_outline_text(
@@ -217,6 +273,21 @@ class CvlDrawable:
         line_type=LINE_TYPE,
     ):
         draw_circle(image, x, y, radius, color, thickness, line_type)
+
+    @staticmethod
+    def cvl_draw_crosshair_point(
+        image: Image,
+        point: PointT,
+        radius=CROSSHAIR_POINT_RADIUS,
+        thickness=CROSSHAIR_POINT_THICKNESS,
+        color=CROSSHAIR_POINT_COLOR,
+        line_type=CROSSHAIR_POINT_LINE_TYPE,
+        padding=CROSSHAIR_POINT_PADDING,
+        circle=True,
+    ) -> None:
+        draw_crosshair_point(
+            image, point, radius, thickness, color, line_type, padding, circle
+        )
 
     @staticmethod
     def cvl_draw_outline_text(
