@@ -2,10 +2,13 @@
 # https://plugins.jetbrains.com/plugin/12089-dictionary
 
 altkey
+anycolor
+anydepth
 aravis
 asctime
 bgra
 bgsegm
+bilevel
 buffersize
 ccoeff
 ccomp
@@ -23,6 +26,7 @@ deriv
 divx
 dshow
 dtype
+exif's
 fireware
 framebytes
 freeratio
@@ -30,12 +34,14 @@ giganetix
 goturn
 gphoto
 hwheel
+imwrite
 intelperc
 kcos
 keepratio
 ksize
 lbutton
 levelname
+libtiff's
 libv
 maxval
 mbutton
@@ -53,16 +59,21 @@ prosilica
 pvapi
 pythonpath
 rbutton
+resunit
 retr
+sgilog
 shiftkey
 smartek
 sqdiff
 strftime
 tozero
 trackbarname
+tupletype
 unicap
 winname
+xdpi
 xiapi
 ximea
 xine
 xvid
+ydpi

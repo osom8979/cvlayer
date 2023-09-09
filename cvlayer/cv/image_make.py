@@ -4,6 +4,7 @@ from cvlayer.np.image import (
     make_image,
     make_image_empty,
     make_image_filled,
+    make_image_random,
     make_image_with_shape,
 )
 from cvlayer.typing import Color, ImageShape
@@ -25,3 +26,7 @@ class CvlImageMake:
     @staticmethod
     def cvl_make_image_empty(width: int, height: int):
         return make_image_empty(width, height)
+
+    @staticmethod
+    def cvl_make_image_random(width: int, height: int):
+        return make_image_random(width, height)

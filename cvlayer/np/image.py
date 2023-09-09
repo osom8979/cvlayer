@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from numpy import full, ndarray, uint8, zeros
+from numpy.random import randint
 
 from cvlayer.typing import Color, Image, ImageShape
 
@@ -19,3 +20,7 @@ def make_image_filled(width: int, height: int, color: Color) -> Image:
 
 def make_image_empty(width: int, height: int) -> Image:
     return zeros((height, width, 3), dtype=uint8)
+
+
+def make_image_random(width: int, height: int) -> Image:
+    return randint(low=0, high=256, size=(height, width, 3), dtype=uint8)
