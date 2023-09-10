@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from typing import Final, Optional, Tuple
+from typing import Final, List, Tuple
 
 import cv2
+from numpy import full, uint8
 
-from cvlayer.typing import Color, Image, Number, PointT, RectT
+from cvlayer.typing import Color, Image, Number, PointT, RectT, SizeInt
 
 FILLED: Final[int] = cv2.FILLED
 
@@ -44,9 +45,12 @@ OUTLINE_THICKNESS: Final[int] = 9
 
 MULTILINE_COLOR: Final[Color] = (220, 220, 220)
 MULTILINE_LINEFEED: Final[str] = "\n"
+MULTILINE_LINE_SPACING: Final[int] = 4
 MULTILINE_BACKGROUND_COLOR: Final[Color] = (0, 0, 0)
 MULTILINE_BACKGROUND_ALPHA: Final[float] = 0.4
-MULTILINE_MARGIN: Final[int] = 8
+MULTILINE_BOX_MARGIN: Final[int] = 8
+MULTILINE_BOX_ANCHOR_X: Final[float] = 0.0
+MULTILINE_BOX_ANCHOR_Y: Final[float] = 0.0
 
 CROSSHAIR_POINT_RADIUS: Final[int] = 6
 CROSSHAIR_POINT_THICKNESS: Final[int] = 1
@@ -104,6 +108,23 @@ def draw_circle(
 ) -> None:
     center = int(x), int(y)
     cv2.circle(image, center, radius, color, thickness, line_type)
+
+
+def draw_image(
+    canvas: Image,
+    src: Image,
+    x: Number,
+    y: Number,
+) -> None:
+    canvas_height = canvas.shape[0]
+    canvas_width = canvas.shape[1]
+    src_height = src.shape[0]
+    src_width = src.shape[1]
+    x1 = max(int(x), 0)
+    y1 = max(int(y), 0)
+    x2 = min(x1 + src_width, canvas_width)
+    y2 = min(y1 + src_height, canvas_height)
+    canvas[y1:y2, x1:x2] = src
 
 
 def draw_crosshair_point(
@@ -184,16 +205,45 @@ def measure_multiline_text_box_size(
     scale=FONT_SCALE,
     thickness=THICKNESS,
     linefeed=MULTILINE_LINEFEED,
-) -> Tuple[int, int]:
-    tws = []
-    ths = []
+    line_spacing=MULTILINE_LINE_SPACING,
+) -> Tuple[int, int, List[Tuple[str, SizeInt, int]]]:
+    tws = list()
+    ths = list()
+    lines = list()
     for line in text.split(linefeed):
         text_size = cv2.getTextSize(line, font, scale, thickness)
-        tw, th = text_size[0]
+        text_width, text_height = text_size[0]
         baseline = text_size[1]
-        tws.append(tw)
-        ths.append(th + baseline + (thickness * 2))
-    return max(tws), sum(ths)
+        line_height = text_height + baseline + line_spacing
+        tws.append(text_width)
+        ths.append(line_height)
+        lines.append((line, (text_width, text_height), baseline))
+    box_width = max(tws)
+    box_height = sum(ths)
+    box_height -= line_spacing  # The last line has no bottom line spacing.
+    return box_width, box_height, lines
+
+
+def draw_multiline_text_with_lines(
+    image: Image,
+    lines: List[Tuple[str, SizeInt, int]],
+    x: Number,
+    y: Number,
+    font=FONT,
+    scale=FONT_SCALE,
+    color=MULTILINE_COLOR,
+    thickness=THICKNESS,
+    line_type=LINE_TYPE,
+    line_spacing=MULTILINE_LINE_SPACING,
+) -> None:
+    for line in lines:
+        text = line[0]
+        width, height = line[1]
+        baseline = line[2]
+        y += height
+        pos = int(x), int(y)
+        y += baseline + line_spacing
+        cv2.putText(image, text, pos, font, scale, color, thickness, line_type)
 
 
 def draw_multiline_text(
@@ -207,43 +257,103 @@ def draw_multiline_text(
     thickness=THICKNESS,
     line_type=LINE_TYPE,
     linefeed=MULTILINE_LINEFEED,
-    background_color=MULTILINE_BACKGROUND_COLOR,
-    background_alpha=MULTILINE_BACKGROUND_ALPHA,
-    margin=MULTILINE_MARGIN,
-    canvas_width: Optional[int] = None,
-    canvas_height: Optional[int] = None,
+    line_spacing=MULTILINE_LINE_SPACING,
 ) -> None:
-    box_width, box_height = measure_multiline_text_box_size(
-        text, font, scale, thickness, linefeed
+    width, height, lines = measure_multiline_text_box_size(
+        text,
+        font,
+        scale,
+        thickness,
+        linefeed,
+        line_spacing,
+    )
+    draw_multiline_text_with_lines(
+        image,
+        lines,
+        x,
+        y,
+        font,
+        scale,
+        color,
+        thickness,
+        line_type,
+        line_spacing,
     )
 
-    left_offset = canvas_width - box_width + x if canvas_width and x < 0 else x
-    top_offset = canvas_height - box_height + y if canvas_height and y < 0 else y
 
-    overlay = image.copy()
-    x1 = left_offset
-    y1 = top_offset
-    x2 = left_offset + box_width + (margin * 2)
-    y2 = top_offset + box_height + (margin * 2)
-    p1 = (x1, y1)
-    p2 = (x2, y2)
-    cv2.rectangle(overlay, p1, p2, background_color, FILLED)
+def draw_multiline_text_box(
+    image: Image,
+    text: str,
+    x: Number,
+    y: Number,
+    font=FONT,
+    scale=FONT_SCALE,
+    color=MULTILINE_COLOR,
+    thickness=THICKNESS,
+    line_type=LINE_TYPE,
+    linefeed=MULTILINE_LINEFEED,
+    line_spacing=MULTILINE_LINE_SPACING,
+    background_color=MULTILINE_BACKGROUND_COLOR,
+    background_alpha=MULTILINE_BACKGROUND_ALPHA,
+    margin=MULTILINE_BOX_MARGIN,
+    anchor_x=MULTILINE_BOX_ANCHOR_X,
+    anchor_y=MULTILINE_BOX_ANCHOR_Y,
+) -> None:
+    assert 0 <= anchor_x <= 1
+    assert 0 <= anchor_y <= 1
+    assert 0 <= background_alpha <= 1
+
+    ch = image.shape[0]
+    cw = image.shape[1]
+
+    bw, bh, lines = measure_multiline_text_box_size(
+        text, font, scale, thickness, linefeed, line_spacing
+    )
+    bw += margin * 2
+    bh += margin * 2
+    box = full((bh, bw, 3), background_color, dtype=uint8)
+
+    bx = bw * anchor_x
+    by = bh * anchor_y
+    x1 = max(int((x + cw * anchor_x) - bx), 0)
+    y1 = max(int((y + cw * anchor_y) - by), 0)
+    x2 = min(x1 + bw, cw)
+    y2 = min(y1 + bh, ch)
+    w = x2 - x1
+    h = y2 - y1
+
+    assert 0 <= x1 <= cw
+    assert 0 <= y1 <= ch
+    assert 0 <= x2 <= cw
+    assert 0 <= y2 <= ch
+    assert w <= bw
+    assert h <= bh
+
+    img_area = image[y1:y2, x1:x2]
+    box_area = box[0:h, 0:w]
 
     alpha = background_alpha
     beta = 1.0 - background_alpha
-    gamma = 0
-    image[::] = cv2.addWeighted(overlay, alpha, image, beta, gamma)
+    if alpha >= 1:
+        mixed = box_area
+    elif beta >= 1:
+        mixed = img_area
+    else:
+        mixed = cv2.addWeighted(box_area, alpha, img_area, beta, 0)
 
-    next_y = top_offset + margin
-    for line in text.split(linefeed):
-        text_size = cv2.getTextSize(line, font, scale, thickness)
-        tw, th = text_size[0]
-        baseline = text_size[1]  # noqa
-        pos_x = int(left_offset + margin)
-        pos_y = int(next_y + th + thickness + baseline)
-        pos = pos_x, pos_y
-        cv2.putText(image, line, pos, font, scale, color, thickness, line_type)
-        next_y += th + baseline + (thickness * 2)
+    draw_multiline_text_with_lines(
+        mixed,
+        lines,
+        x + margin,
+        y + margin,
+        font,
+        scale,
+        color,
+        thickness,
+        line_type,
+        line_spacing,
+    )
+    image[y1:y2, x1:x2] = mixed
 
 
 class CvlDrawable:
@@ -291,6 +401,15 @@ class CvlDrawable:
         line_type=LINE_TYPE,
     ):
         draw_circle(image, x, y, radius, color, thickness, line_type)
+
+    @staticmethod
+    def draw_image(
+        canvas: Image,
+        src: Image,
+        x: Number,
+        y: Number,
+    ) -> None:
+        draw_image(canvas, src, x, y)
 
     @staticmethod
     def cvl_draw_crosshair_point(
@@ -342,8 +461,42 @@ class CvlDrawable:
         scale=FONT_SCALE,
         thickness=THICKNESS,
         linefeed=MULTILINE_LINEFEED,
+        line_spacing=MULTILINE_LINE_SPACING,
     ):
-        return measure_multiline_text_box_size(text, font, scale, thickness, linefeed)
+        return measure_multiline_text_box_size(
+            text,
+            font,
+            scale,
+            thickness,
+            linefeed,
+            line_spacing,
+        )
+
+    @staticmethod
+    def cvl_draw_multiline_text_with_lines(
+        image: Image,
+        lines: List[Tuple[str, SizeInt, int]],
+        x: Number,
+        y: Number,
+        font=FONT,
+        scale=FONT_SCALE,
+        color=MULTILINE_COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+        line_spacing=MULTILINE_LINE_SPACING,
+    ):
+        return draw_multiline_text_with_lines(
+            image,
+            lines,
+            x,
+            y,
+            font,
+            scale,
+            color,
+            thickness,
+            line_type,
+            line_spacing,
+        )
 
     @staticmethod
     def cvl_draw_multiline_text(
@@ -357,12 +510,7 @@ class CvlDrawable:
         thickness=THICKNESS,
         line_type=LINE_TYPE,
         linefeed=MULTILINE_LINEFEED,
-        background_color=MULTILINE_BACKGROUND_COLOR,
-        background_alpha=MULTILINE_BACKGROUND_ALPHA,
-        margin=MULTILINE_MARGIN,
-        canvas_width: Optional[int] = None,
-        canvas_height: Optional[int] = None,
-    ):
+    ) -> None:
         draw_multiline_text(
             image,
             text,
@@ -374,9 +522,42 @@ class CvlDrawable:
             thickness,
             line_type,
             linefeed,
+        )
+
+    @staticmethod
+    def cvl_draw_multiline_text_box(
+        image: Image,
+        text: str,
+        x: Number,
+        y: Number,
+        font=FONT,
+        scale=FONT_SCALE,
+        color=MULTILINE_COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+        linefeed=MULTILINE_LINEFEED,
+        line_spacing=MULTILINE_LINE_SPACING,
+        background_color=MULTILINE_BACKGROUND_COLOR,
+        background_alpha=MULTILINE_BACKGROUND_ALPHA,
+        margin=MULTILINE_BOX_MARGIN,
+        anchor_x=MULTILINE_BOX_ANCHOR_X,
+        anchor_y=MULTILINE_BOX_ANCHOR_Y,
+    ) -> None:
+        draw_multiline_text_box(
+            image,
+            text,
+            x,
+            y,
+            font,
+            scale,
+            color,
+            thickness,
+            line_type,
+            linefeed,
+            line_spacing,
             background_color,
             background_alpha,
             margin,
-            canvas_width,
-            canvas_height,
+            anchor_x,
+            anchor_y,
         )

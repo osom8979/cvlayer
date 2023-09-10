@@ -134,3 +134,6 @@ MANIFEST
 ###############
 ### Project ###
 .venv/
+*.png
+*.jpg
+*.jpeg
