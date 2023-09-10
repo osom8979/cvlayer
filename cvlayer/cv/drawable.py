@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from enum import Enum, unique
 from typing import Final, List, Tuple
 
 import cv2
@@ -13,13 +14,9 @@ LINE_4: Final[int] = cv2.LINE_4  # Bresenham 4 Connect
 LINE_8: Final[int] = cv2.LINE_8  # Bresenham 8 Connect
 LINE_AA: Final[int] = cv2.LINE_AA  # Anti-Aliasing
 
-MARKER_CROSS: Final[int] = cv2.MARKER_CROSS
-MARKER_TILTED_CROSS: Final[int] = cv2.MARKER_TILTED_CROSS
-MARKER_STAR: Final[int] = cv2.MARKER_STAR
-MARKER_DIAMOND: Final[int] = cv2.MARKER_DIAMOND
-MARKER_SQUARE: Final[int] = cv2.MARKER_SQUARE
-MARKER_TRIANGLE_UP: Final[int] = cv2.MARKER_TRIANGLE_UP
-MARKER_TRIANGLE_DOWN: Final[int] = cv2.MARKER_TRIANGLE_DOWN
+MARKER_SIZE: Final[int] = 20
+
+ARROWED_LINE_TIP_LENGTH: Final[float] = 0.1
 
 FONT_HERSHEY_SIMPLEX: Final[int] = cv2.FONT_HERSHEY_SIMPLEX
 FONT_HERSHEY_PLAIN: Final[int] = cv2.FONT_HERSHEY_PLAIN
@@ -57,6 +54,17 @@ CROSSHAIR_POINT_THICKNESS: Final[int] = 1
 CROSSHAIR_POINT_COLOR: Final[Color] = (0, 0, 255)
 CROSSHAIR_POINT_LINE_TYPE: Final[int] = LINE_AA
 CROSSHAIR_POINT_PADDING: Final[int] = 2
+
+
+@unique
+class MarkerType(Enum):
+    CROSS = cv2.MARKER_CROSS
+    TILTED_CROSS = cv2.MARKER_TILTED_CROSS
+    STAR = cv2.MARKER_STAR
+    DIAMOND = cv2.MARKER_DIAMOND
+    SQUARE = cv2.MARKER_SQUARE
+    TRIANGLE_UP = cv2.MARKER_TRIANGLE_UP
+    TRIANGLE_DOWN = cv2.MARKER_TRIANGLE_DOWN
 
 
 def draw_point(
@@ -110,6 +118,34 @@ def draw_circle(
     cv2.circle(image, center, radius, color, thickness, line_type)
 
 
+def draw_ellipse(
+    image: Image,
+    center_x: Number,
+    center_y: Number,
+    axes_x: Number,
+    axes_y: Number,
+    angle: float,
+    start_angle: float,
+    end_angle: float,
+    color=COLOR,
+    thickness=FILLED,
+    line_type=LINE_TYPE,
+) -> None:
+    center = int(center_x), int(center_y)
+    axes = int(axes_x), int(axes_y)
+    cv2.ellipse(
+        image,
+        center,
+        axes,
+        angle,
+        start_angle,
+        end_angle,
+        color,
+        thickness,
+        line_type,
+    )
+
+
 def draw_image(
     canvas: Image,
     src: Image,
@@ -129,16 +165,15 @@ def draw_image(
 
 def draw_crosshair_point(
     image: Image,
-    point: PointT,
+    x: Number,
+    y: Number,
     radius=CROSSHAIR_POINT_RADIUS,
-    thickness=CROSSHAIR_POINT_THICKNESS,
     color=CROSSHAIR_POINT_COLOR,
+    thickness=CROSSHAIR_POINT_THICKNESS,
     line_type=CROSSHAIR_POINT_LINE_TYPE,
     padding=CROSSHAIR_POINT_PADDING,
     circle=True,
 ) -> None:
-    x, y = point
-
     if padding == 0:
         left = x - radius, y
         top = x, y - radius
@@ -177,6 +212,50 @@ def draw_crosshair_point(
         )
 
 
+def draw_marker(
+    image: Image,
+    x: Number,
+    y: Number,
+    marker_size=MARKER_SIZE,
+    marker_type=MarkerType.CROSS,
+    color=COLOR,
+    thickness=THICKNESS,
+    line_type=LINE_TYPE,
+) -> None:
+    position = int(x), int(y)
+    cv2.drawMarker(
+        image,
+        position,
+        color,
+        marker_type.value,
+        marker_size,
+        thickness,
+        line_type,
+    )
+
+
+def draw_arrowed(
+    image: Image,
+    point1: PointT,
+    point2: PointT,
+    tip_length=ARROWED_LINE_TIP_LENGTH,
+    color=COLOR,
+    thickness=THICKNESS,
+    line_type=LINE_TYPE,
+) -> None:
+    x1, y1 = int(point1[0]), int(point1[1])
+    x2, y2 = int(point2[0]), int(point2[1])
+    cv2.arrowedLine(
+        image,
+        (x1, y1),
+        (x2, y2),
+        color,
+        thickness,
+        line_type,
+        tipLength=tip_length,
+    )
+
+
 def draw_outline_text(
     image: Image,
     text: str,
@@ -197,6 +276,14 @@ def draw_outline_text(
     fg_thickness = thickness
     cv2.putText(image, text, org, font, scale, bg_color, bg_thickness, line_type)
     cv2.putText(image, text, org, font, scale, fg_color, fg_thickness, line_type)
+
+
+def get_font_scale_from_height(
+    pixel_height: int,
+    font=FONT,
+    thickness=THICKNESS,
+) -> float:
+    return cv2.getFontScaleFromHeight(font, pixel_height, thickness)
 
 
 def measure_multiline_text_box_size(
@@ -403,7 +490,7 @@ class CvlDrawable:
         draw_circle(image, x, y, radius, color, thickness, line_type)
 
     @staticmethod
-    def draw_image(
+    def cvl_draw_image(
         canvas: Image,
         src: Image,
         x: Number,
@@ -414,7 +501,8 @@ class CvlDrawable:
     @staticmethod
     def cvl_draw_crosshair_point(
         image: Image,
-        point: PointT,
+        x: Number,
+        y: Number,
         radius=CROSSHAIR_POINT_RADIUS,
         thickness=CROSSHAIR_POINT_THICKNESS,
         color=CROSSHAIR_POINT_COLOR,
@@ -423,7 +511,49 @@ class CvlDrawable:
         circle=True,
     ) -> None:
         draw_crosshair_point(
-            image, point, radius, thickness, color, line_type, padding, circle
+            image, x, y, radius, thickness, color, line_type, padding, circle
+        )
+
+    @staticmethod
+    def cvl_draw_marker(
+        image: Image,
+        x: Number,
+        y: Number,
+        marker_type=MarkerType.CROSS,
+        marker_size=MARKER_SIZE,
+        color=CROSSHAIR_POINT_COLOR,
+        thickness=CROSSHAIR_POINT_THICKNESS,
+        line_type=CROSSHAIR_POINT_LINE_TYPE,
+    ) -> None:
+        return draw_marker(
+            image,
+            x,
+            y,
+            marker_size,
+            marker_type,
+            color,
+            thickness,
+            line_type,
+        )
+
+    @staticmethod
+    def cvl_draw_arrowed(
+        image: Image,
+        point1: PointT,
+        point2: PointT,
+        tip_length=ARROWED_LINE_TIP_LENGTH,
+        color=COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+    ) -> None:
+        draw_arrowed(
+            image,
+            point1,
+            point2,
+            tip_length,
+            color,
+            thickness,
+            line_type,
         )
 
     @staticmethod
@@ -453,6 +583,14 @@ class CvlDrawable:
             outline_thickness,
             line_type,
         )
+
+    @staticmethod
+    def cvl_get_font_scale_from_height(
+        pixel_height: int,
+        font=FONT,
+        thickness=THICKNESS,
+    ):
+        return get_font_scale_from_height(font, pixel_height, thickness)
 
     @staticmethod
     def cvl_measure_multiline_text_box_size(
