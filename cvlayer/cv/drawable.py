@@ -286,6 +286,18 @@ def get_font_scale_from_height(
     return cv2.getFontScaleFromHeight(font, pixel_height, thickness)
 
 
+def get_text_size(
+    text: str,
+    font=FONT,
+    scale=FONT_SCALE,
+    thickness=THICKNESS,
+) -> Tuple[SizeInt, int]:
+    text_size = cv2.getTextSize(text, font, scale, thickness)
+    text_width, text_height = text_size[0]
+    baseline = text_size[1]
+    return (text_width, text_height), baseline
+
+
 def measure_multiline_text_box_size(
     text: str,
     font=FONT,
@@ -403,7 +415,7 @@ def draw_multiline_text_box(
     bx = bw * anchor_x
     by = bh * anchor_y
     x1 = max(int((x + cw * anchor_x) - bx), 0)
-    y1 = max(int((y + cw * anchor_y) - by), 0)
+    y1 = max(int((y + ch * anchor_y) - by), 0)
     x2 = min(x1 + bw, cw)
     y2 = min(y1 + bh, ch)
     w = x2 - x1
@@ -591,6 +603,15 @@ class CvlDrawable:
         thickness=THICKNESS,
     ):
         return get_font_scale_from_height(font, pixel_height, thickness)
+
+    @staticmethod
+    def cvl_get_text_size(
+        text: str,
+        font=FONT,
+        scale=FONT_SCALE,
+        thickness=THICKNESS,
+    ):
+        return get_text_size(text, font, scale, thickness)
 
     @staticmethod
     def cvl_measure_multiline_text_box_size(
