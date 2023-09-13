@@ -15,7 +15,8 @@ from cvlayer.keymap.create import (
     create_callable_keymap,
 )
 
-KEYCODE_NULL: Final[int] = -1
+KEYCODE_TIMEOUT: Final[int] = -1
+KEYCODE_NULL: Final[int] = 0
 KEYCODE_ENTER: Final[int] = 13
 KEYCODE_ESC: Final[int] = 27
 

@@ -31,6 +31,7 @@ from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
 from cvlayer.cv.iou import CvlIou
 from cvlayer.cv.keymap import CvlKeymap
 from cvlayer.cv.laplacian import CvlLaplacian
+from cvlayer.cv.layers_window import CvlLayersWindow
 from cvlayer.cv.match_template import CvlMatchTemplate
 from cvlayer.cv.matcher import CvlMatcher
 from cvlayer.cv.morphology import CvlMorphology
@@ -78,6 +79,7 @@ class CvLayer(
     CvlIou,
     CvlKeymap,
     CvlLaplacian,
+    CvlLayersWindow,
     CvlMatchTemplate,
     CvlMatcher,
     CvlMorphology,

@@ -60,7 +60,7 @@ def _create_trackbar(
 
 
 class Window:
-    def __init__(self, title: str, flags=WINDOW_AUTOSIZE):
+    def __init__(self, title: str, flags=WINDOW_NORMAL):
         if not title:
             raise ValueError("A window name is required")
 
@@ -108,7 +108,7 @@ class Window:
         self.on_trackbar(name, value)
 
     def on_trackbar(self, name: str, value: int) -> None:
-        self.on_trackbar(name, value)
+        pass
 
     def create_trackbar(self, trackbarname: str, value: int, count: int) -> None:
         _create_trackbar(
