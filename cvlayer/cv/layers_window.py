@@ -32,6 +32,7 @@ from cvlayer.cv.window import WINDOW_NORMAL, Window
 from cvlayer.debug.avg_stat import AvgStat
 from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
+from cvlayer.layers.base.layer_base import LayerBase
 from cvlayer.layers.base.layer_manager import LayerManager
 from cvlayer.typing import PointFloat, PointInt, SizeInt
 
@@ -111,6 +112,7 @@ class LayersWindow(Window):
         logging_step=1000,
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
+        use_deepcopy=False,
     ):
         super().__init__(window_title, window_flags)
 
@@ -131,6 +133,7 @@ class LayersWindow(Window):
         self._verbose = verbose
         self._help_offset = help_offset if help_offset is not None else (0, 0)
         self._help_anchor = help_anchor if help_anchor is not None else (0.5, 0.0)
+        self._use_deepcopy = use_deepcopy
 
         self._logger = getLogger(logger_name)
         self._manager = LayerManager(name=window_title, logger_name=logger_name)
@@ -201,8 +204,42 @@ class LayersWindow(Window):
         self._highgui_keys = highgui_keys()
         self._has_arrow_keys = has_highgui_arrow_keys(self._highgui_keys)
 
+        self._mouse_event = MouseEvent.MOUSE_MOVE
+        self._mouse_x = 0
+        self._mouse_y = 0
+        self._mouse_flags = 0
+        self._keycode = 0
+
         self._stat = AvgStat("Iter", self._logger, logging_step, verbose, 1)
         self._shutdown = False
+
+    def __getitem__(self, item: str):
+        if not self._manager.has_layer_by_name(item):
+            self._manager.append_layer(LayerBase(item))
+        return self._manager.get_layer_by_name(item)
+
+    def __setitem__(self, key: str, value: LayerBase):
+        self._manager.append_layer(value)
+
+    @property
+    def mouse_event(self):
+        return self._mouse_event
+
+    @property
+    def mouse_x(self):
+        return self._mouse_x
+
+    @property
+    def mouse_y(self):
+        return self._mouse_y
+
+    @property
+    def mouse_flags(self):
+        return self._mouse_flags
+
+    @property
+    def keycode(self):
+        return self._keycode
 
     @property
     def logger(self):
@@ -223,6 +260,10 @@ class LayersWindow(Window):
     @property
     def current_layer_index(self):
         return self._manager.index
+
+    @current_layer_index.setter
+    def current_layer_index(self, index: int) -> None:
+        self.layer_select(index)
 
     @property
     def current_layer(self):
@@ -313,7 +354,7 @@ class LayersWindow(Window):
 
     def on_frame(self, image: NDArray) -> NDArray:
         with self._stat:
-            return self._manager.run(image)[0]
+            return self._manager.run(image, self._use_deepcopy)[0]
 
     def on_keydown(self, keycode: int) -> None:
         # Process user events with priority.
@@ -338,6 +379,11 @@ class LayersWindow(Window):
 
     @override
     def on_mouse(self, event: MouseEvent, x: int, y: int, flags: EventFlags) -> None:
+        self._mouse_event = event
+        self._mouse_x = x
+        self._mouse_y = y
+        self._mouse_flags = flags
+
         # Process user events with priority.
         # And if it consumed the event with a return value of `True`,
         # It doesn't handle default events.
@@ -554,13 +600,13 @@ class LayersWindow(Window):
         if not self._headless:
             self.draw(self.preview_frame)
 
-        keycode = self.wait_key_ex(self._window_wait)
+        self._keycode = self.wait_key_ex(self._window_wait)
 
         if not self.visible:
             raise InterruptedError("The window is not visible")
 
-        if keycode not in (KEYCODE_NULL, KEYCODE_TIMEOUT):
-            self.on_keydown(keycode)
+        if self._keycode not in (KEYCODE_NULL, KEYCODE_TIMEOUT):
+            self.on_keydown(self._keycode)
 
     def run(self) -> None:
         self.on_create()
@@ -603,6 +649,7 @@ class CvlLayersWindow:
         logging_step=1000,
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
+        use_deepcopy=False,
     ) -> LayersWindow:
         return LayersWindow(
             input=input,
@@ -630,4 +677,5 @@ class CvlLayersWindow:
             logging_step=logging_step,
             help_offset=help_offset,
             help_anchor=help_anchor,
+            use_deepcopy=use_deepcopy,
         )

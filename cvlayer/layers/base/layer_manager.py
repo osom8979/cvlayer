@@ -28,6 +28,14 @@ class LayerManager:
         self.name2index = dict()
         self.logger = getLogger(logger_name)
 
+    def __getitem__(self, item: str):
+        if not self.has_layer_by_name(item):
+            self.append_layer(LayerBase(item))
+        return self.get_layer_by_name(item)
+
+    def __setitem__(self, key: str, value: LayerBase):
+        self.append_layer(value)
+
     @property
     def current_layer(self) -> LayerBase:
         return self.layers[self.index]
@@ -41,9 +49,15 @@ class LayerManager:
         return self.index == LAST_LAYER_INDEX
 
     def append_layer(self, layer: LayerBase) -> None:
+        if layer.name in self.name2index:
+            raise KeyError(f"A layer with the same name already exists: '{layer.name}'")
+
         self.layers.append(layer)
         if layer.name:
             self.name2index[layer.name] = len(self.layers) - 1
+
+    def has_layer_by_name(self, name: str) -> bool:
+        return name in self.name2index
 
     def get_layer_index_by_name(self, name: str) -> int:
         return self.name2index[name]

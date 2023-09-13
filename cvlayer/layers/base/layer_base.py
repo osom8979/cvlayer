@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from copy import deepcopy
 from datetime import datetime
 from io import StringIO
 from typing import Any, Dict, List, Optional, Tuple
@@ -24,7 +25,6 @@ class LayerBase:
     params: Dict[str, LayerParameter]
     cursor: int
     error: Optional[BaseException]
-    duration: float
     use_deepcopy: bool
 
     def __init__(
@@ -38,13 +38,14 @@ class LayerBase:
         self.params = params
         self.cursor = 0
         self.error = None
-        self.duration = 0.0
+        self.begin = datetime.now()
+        self.end = datetime.now()
         self.use_deepcopy = False
 
     def __repr__(self) -> str:
         cls_name = type(self).__name__
         if self.name:
-            return f"{cls_name}<{self.name}>"
+            return f"{cls_name}('{self.name}')"
         else:
             return cls_name
 
@@ -59,6 +60,10 @@ class LayerBase:
     @property
     def has_error(self) -> bool:
         return self.error is not None
+
+    @property
+    def duration(self):
+        return (self.end - self.begin).total_seconds()
 
     def has(self, key: str) -> bool:
         return key in self.params
@@ -113,11 +118,12 @@ class LayerBase:
         return buffer.getvalue()
 
     def skip(self):
+        self.begin = datetime.now()
+        self.end = deepcopy(self.begin)
         self.error = SkipError()
-        self.duration = 0.0
 
     def run(self, frame: NDArray, data=None) -> Tuple[NDArray, Any]:
-        begin = datetime.now()
+        self.begin = datetime.now()
         try:
             self.error = None
             self.frame, self.data = self.on_layer(frame, data)
@@ -125,9 +131,18 @@ class LayerBase:
             self.error = e
             raise e
         finally:
-            self.duration = (datetime.now() - begin).total_seconds()
+            self.end = datetime.now()
 
         return self.frame, self.data
+
+    def __enter__(self):
+        self.begin = datetime.now()
+        self.error = None
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.error = exc_val
+        self.end = datetime.now()
 
     def on_create(self) -> None:
         pass
