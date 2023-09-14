@@ -2,14 +2,12 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from functools import reduce
 from io import StringIO
-from logging import getLogger
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
-from typing import Final, List, Optional
+from typing import Any, Final, List, Optional, Union
 
-from numpy import full_like, uint8
+from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
 from overrides import override
 
@@ -37,7 +35,7 @@ from cvlayer.layers.base.layer_manager import LayerManager
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import PointFloat, PointInt, SizeInt
 
-DEFAULT_WINDOW_EX_TITLE: Final[str] = "LayersWindow"
+DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
 DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.5
 
@@ -85,7 +83,7 @@ class KeyDefine:
         )
 
 
-class LayersWindow(Window):
+class CvWindow(Window):
     _writer: Optional[VideoWriter]
 
     def __init__(
@@ -138,8 +136,7 @@ class LayersWindow(Window):
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
         self._use_deepcopy = use_deepcopy
 
-        self._logger = getLogger(logger_name)
-        self._manager = LayerManager(name=window_title, logger_name=logger_name)
+        self._manager = LayerManager(logger_name=logger_name)
 
         if window_size is not None:
             win_width, win_height = window_size
@@ -173,6 +170,7 @@ class LayersWindow(Window):
         if not retval:
             raise EOFError("Failed to read the first frame")
 
+        self._empty_frame = zeros_like(frame, dtype=uint8)
         self._original_frame = frame
         self._preview_frame = frame
 
@@ -221,18 +219,68 @@ class LayersWindow(Window):
         self._mouse_flags = 0
         self._keycode = 0
 
-        self._stat = AvgStat("Iter", self._logger, logging_step, verbose, 1)
+        self._stat = AvgStat("Iter", self._manager.logger, logging_step, verbose, 1)
         self._process_duration = 0.0
         self._shutdown = False
 
-    def __getitem__(self, item: str) -> LayerBase:
-        return self._manager.__getitem__(item)
-
-    def __setitem__(self, key: str, value: LayerBase) -> None:
-        self._manager.__setitem__(key, value)
+    @property
+    def logger(self):
+        return self._manager.logger
 
     def layer(self, item: str) -> LayerBase:
         return self._manager.__getitem__(item)
+
+    def has_layer(self, layer: Union[str, LayerBase]) -> bool:
+        key = layer.name if isinstance(layer, LayerBase) else layer
+        assert isinstance(key, str)
+        if not key:
+            raise KeyError("Empty key name")
+        return self._manager.has_layer_by_name(key)
+
+    def layer_index(self, layer: Union[str, LayerBase]) -> int:
+        key = layer.name if isinstance(layer, LayerBase) else layer
+        assert isinstance(key, str)
+        if not key:
+            raise KeyError("Empty key name")
+        return self._manager.get_layer_index_by_name(key)
+
+    @property
+    def first_frame(self) -> NDArray:
+        return self._manager.first_layer.frame
+
+    @property
+    def first_data(self) -> Any:
+        return self._manager.first_layer.data
+
+    def prev_frame(self, layer: Union[str, LayerBase]) -> NDArray:
+        index = self.layer_index(layer)
+        if index == 0:
+            return self._original_frame
+        else:
+            return self._manager.get_layer_frame(index - 1)
+
+    def prev_data(self, layer: Union[str, LayerBase]) -> Any:
+        index = self.layer_index(layer)
+        if index == 0:
+            return None
+        else:
+            return self._manager.get_layer_data(index - 1)
+
+    def frame(self, layer: Union[str, LayerBase]) -> NDArray:
+        index = self.layer_index(layer)
+        return self._manager.get_layer_frame(index)
+
+    def data(self, layer: Union[str, LayerBase]) -> Any:
+        index = self.layer_index(layer)
+        return self._manager.get_layer_data(index)
+
+    @property
+    def last_frame(self) -> NDArray:
+        return self._manager.last_layer.frame
+
+    @property
+    def last_data(self) -> NDArray:
+        return self._manager.last_layer.data
 
     @property
     def mouse_event(self):
@@ -253,14 +301,6 @@ class LayersWindow(Window):
     @property
     def keycode(self):
         return self._keycode
-
-    @property
-    def process_layers_duration(self) -> float:
-        if self._manager.number_of_layers >= 1:
-            durations = map(lambda x: x.duration, self._manager.layers)
-            return float(reduce(lambda x, y: x + y, durations))
-        else:
-            return 0.0
 
     def on_keydown_quit(self, keycode: int) -> None:
         raise KeyboardInterrupt("Quit key detected")
@@ -283,53 +323,53 @@ class LayersWindow(Window):
 
     def on_keydown_wait_down(self, keycode: int) -> None:
         assert 0 < keycode
-        self.wait_down()
+        self.do_wait_down()
 
     def on_keydown_wait_up(self, keycode: int) -> None:
         assert 0 < keycode
-        self.wait_up()
+        self.do_wait_up()
 
     def on_keydown_layer_select(self, keycode: int) -> None:
         assert 0 < keycode
         index = keycode - ord("0")
         assert 0 <= index <= 9
-        self.layer_select(index)
+        self.do_layer_select(index)
 
     def on_keydown_layer_prev(self, keycode: int) -> None:
         assert 0 < keycode
-        self.layer_prev()
+        self.do_layer_prev()
 
     def on_keydown_layer_next(self, keycode: int) -> None:
         assert 0 < keycode
-        self.layer_next()
+        self.do_layer_next()
 
     def on_keydown_layer_last(self, keycode: int) -> None:
         assert 0 < keycode
-        self.layer_last()
+        self.do_layer_last()
 
     def on_keydown_frame_prev(self, keycode: int) -> None:
         assert 0 < keycode
-        self.frame_prev()
+        self.do_frame_prev()
 
     def on_keydown_frame_next(self, keycode: int) -> None:
         assert 0 < keycode
-        self.frame_next()
+        self.do_frame_next()
 
     def on_keydown_param_prev(self, keycode: int) -> None:
         assert 0 < keycode
-        self.param_prev()
+        self.do_param_prev()
 
     def on_keydown_param_next(self, keycode: int) -> None:
         assert 0 < keycode
-        self.param_next()
+        self.do_param_next()
 
     def on_keydown_param_down(self, keycode: int) -> None:
         assert 0 < keycode
-        self.param_down()
+        self.do_param_down()
 
     def on_keydown_param_up(self, keycode: int) -> None:
         assert 0 < keycode
-        self.param_up()
+        self.do_param_up()
 
     def on_create(self) -> None:
         self._manager.on_create()
@@ -354,13 +394,13 @@ class LayersWindow(Window):
 
         if self._has_arrow_keys:
             if keycode == self._highgui_keys[HighGuiKeyCode.ARROW_UP]:
-                self.param_prev()
+                self.do_param_prev()
             elif keycode == self._highgui_keys[HighGuiKeyCode.ARROW_DOWN]:
-                self.param_next()
+                self.do_param_next()
             elif keycode == self._highgui_keys[HighGuiKeyCode.ARROW_LEFT]:
-                self.param_down()
+                self.do_param_down()
             elif keycode == self._highgui_keys[HighGuiKeyCode.ARROW_RIGHT]:
-                self.param_up()
+                self.do_param_up()
 
     @override
     def on_mouse(self, event: MouseEvent, x: int, y: int, flags: EventFlags) -> None:
@@ -400,17 +440,17 @@ class LayersWindow(Window):
     def flip_play(self) -> None:
         self._play = not self._play
         state_text = "played" if self._play else "stopped"
-        self._logger.info(f"The video has been {state_text}")
+        self.logger.info(f"The video has been {state_text}")
 
     def flip_help_popup(self) -> None:
         self._show_help = not self._show_help
         popup_state = "Show" if self._show_help else "Hide"
-        self._logger.info(f"{popup_state} help popup")
+        self.logger.info(f"{popup_state} help popup")
 
     def flip_manual_page(self) -> None:
         self._show_man = not self._show_man
         popup_state = "Show" if self._show_man else "Hide"
-        self._logger.info(f"{popup_state} man page")
+        self.logger.info(f"{popup_state} man page")
 
     def snapshot(self, directory: Optional[str] = None, ext=".png") -> None:
         base = directory if directory else (self._output if self._output else getcwd())
@@ -426,115 +466,111 @@ class LayersWindow(Window):
 
         if not path.isdir(prefix):
             mkdir(prefix)
-            self._logger.debug(f"Make directory; '{prefix}'")
+            self.logger.debug(f"Make directory; '{prefix}'")
 
-        self._logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
+        self.logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
 
-        for layer_index in range(self._manager.number_of_layers):
-            layer_path = path.join(prefix, f"layer{layer_index}-{ext}")
-            image_write(layer_path, self._manager.get_layer_frame(layer_index))
+        for index in range(self._manager.number_of_layers):
+            layer_path = path.join(prefix, f"layer{index}-{ext}")
+            layer_frame = self._manager.get_layer_frame(index)
+            image_write(layer_path, layer_frame)
 
         image_write(path.join(prefix, f"original{ext}"), self._original_frame)
         image_write(path.join(prefix, f"preview{ext}"), self._preview_frame)
 
-        self._logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
+        self.logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
 
-    def wait_up(self) -> None:
+    def do_wait_up(self) -> None:
         self._window_wait += 1
-        self._logger.info(f"Increase wait milliseconds to {self._window_wait}ms")
+        self.logger.info(f"Increase wait milliseconds to {self._window_wait}ms")
 
-    def wait_down(self) -> None:
+    def do_wait_down(self) -> None:
         if self._window_wait >= 2:
             self._window_wait -= 1
-        self._logger.info(f"Decrease wait milliseconds to {self._window_wait}ms")
+        self.logger.info(f"Decrease wait milliseconds to {self._window_wait}ms")
 
-    def layer_select(self, index: int) -> None:
-        self._manager.set_index(index)
+    def do_layer_select(self, index: int) -> None:
+        self._manager.set_cursor(index)
         self._manager.logging_current_layer()
 
-    def layer_prev(self) -> None:
-        self._manager.prev_layer()
+    def do_layer_prev(self) -> None:
+        self._manager.move_prev_layer()
         self._manager.logging_current_layer()
 
-    def layer_next(self) -> None:
-        self._manager.next_layer()
+    def do_layer_next(self) -> None:
+        self._manager.move_next_layer()
         self._manager.logging_current_layer()
 
-    def layer_last(self) -> None:
-        self._manager.set_last_index()
-        self._logger.info("Change last layer")
+    def do_layer_last(self) -> None:
+        self._manager.set_cursor_last()
+        self.logger.info("Change last layer")
 
-    def frame_prev(self) -> None:
+    def do_frame_prev(self) -> None:
         self._original_frame = self.read_prev_frame()
 
-    def frame_next(self) -> None:
+    def do_frame_next(self) -> None:
         self._original_frame = self.read_next_frame()
 
-    def param_prev(self) -> None:
-        if self._manager.is_last_layer:
+    def do_param_prev(self) -> None:
+        if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.prev_cursor()
-        self._logger.info("Change prev param cursor")
+        self.logger.info("Change prev param cursor")
         self._manager.logging_current_param()
 
-    def param_next(self) -> None:
-        if self._manager.is_last_layer:
+    def do_param_next(self) -> None:
+        if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.next_cursor()
-        self._logger.info("Change next param cursor")
+        self.logger.info("Change next param cursor")
         self._manager.logging_current_param()
 
-    def param_up(self) -> None:
-        if self._manager.is_last_layer:
+    def do_param_up(self) -> None:
+        if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.increase_at_cursor()
-        self._logger.info("Increase value at param cursor")
+        self.logger.info("Increase value at param cursor")
         self._manager.logging_current_param()
 
-    def param_down(self) -> None:
-        if self._manager.is_last_layer:
+    def do_param_down(self) -> None:
+        if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.decrease_at_cursor()
-        self._logger.info("Decrease value at param cursor")
+        self.logger.info("Decrease value at param cursor")
         self._manager.logging_current_param()
 
-    def do_process(self, frame: NDArray) -> NDArray:
+    def do_process(self, frame: NDArray) -> Optional[NDArray]:
         begin = datetime.now()
         try:
             with self._stat:
-                result_frame = self.on_frame(frame)
+                return self.on_frame(frame)
         except BaseException as e:
-            self._logger.exception(e)
-            result_frame = None
+            self.logger.exception(e)
+            return None
         finally:
             self._process_duration = (datetime.now() - begin).total_seconds()
 
-        if result_frame is not None:
-            return result_frame
-
-        if self._manager.number_of_layers >= 1:
-            return self._manager.current_layer.frame
-        else:
-            raise IndexError("Layer does not exist")
-
-    def draw_help_popup(self, frame: NDArray) -> NDArray:
+    def draw_help_popup(self, frame: NDArray) -> None:
         buffer = StringIO()
         buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
-        buffer.write(f"Layer {self._manager.index}/{self._manager.number_of_layers}\n")
 
-        if self._manager.is_last_layer:
+        if self._manager.is_cursor_at_last:
             duration = self._process_duration
             fps = 1.0 / duration
+            number_of_layers = self._manager.number_of_layers
+            buffer.write(f"Layer -/{number_of_layers}\n")
             buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
-            buffer.write(f"Layers duration: {self.process_layers_duration:.3f}s\n")
-            buffer.write("Last layer")
+            buffer.write(f"Total duration: {self._manager.total_duration:.3f}s\n")
+            buffer.write("[Last layer]")
         else:
             duration = self._manager.current_layer.duration
             fps = 1.0 / duration
+            number_of_layers = self._manager.number_of_layers
+            buffer.write(f"Layer {self._manager.cursor + 1}/{number_of_layers}\n")
             buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
             buffer.write(self._manager.current_layer.as_help())
 
@@ -544,9 +580,8 @@ class LayersWindow(Window):
         scale = self._font_scale
         help_text = buffer.getvalue()
 
-        canvas = frame.copy()
         draw_multiline_text_box(
-            image=canvas,
+            image=frame,
             text=help_text,
             x=x,
             y=y,
@@ -555,7 +590,36 @@ class LayersWindow(Window):
             anchor_x=anchor_x,
             anchor_y=anchor_y,
         )
-        return canvas
+
+    def _select_preview_source(self, result_frame: Optional[NDArray]) -> NDArray:
+        if self._show_man:
+            return self._manpage
+        elif self._manager.is_cursor_at_last:
+            if result_frame is not None:
+                return result_frame
+            else:
+                return self._empty_frame
+        else:
+            try:
+                return self._manager.current_layer.frame
+            except:  # noqa
+                return self._empty_frame
+
+    def _coloring(self, frame: NDArray) -> NDArray:
+        assert self
+        if len(frame.shape) == 2:
+            return cvt_color(frame, CvtColorCode.GRAY2BGR)
+        else:
+            return frame
+
+    def _resizing(self, frame: NDArray) -> NDArray:
+        if isclose(self._preview_scale, 1.0):
+            return frame
+        else:
+            sx = self._preview_scale
+            sy = self._preview_scale
+            sm = self._preview_scale_method
+            return resize_ratio(frame, sx, sy, sm)
 
     def _iter(self) -> None:
         if not self._capture.opened:
@@ -564,33 +628,20 @@ class LayersWindow(Window):
         if self._play:
             self._original_frame = self.read_next_frame()
 
-        processed_frame = self.do_process(self._original_frame)
+        result_frame = self.do_process(self._original_frame)
+        select_frame = self._select_preview_source(result_frame)
+        colored_frame = self._coloring(select_frame)
+        resized_preview = self._resizing(colored_frame)
 
-        if len(processed_frame.shape) == 2:
-            colored_frame = cvt_color(processed_frame, CvtColorCode.GRAY2BGR)
-        else:
-            colored_frame = processed_frame
-
-        if self._show_man:
-            select_frame = self._manpage
-        else:
-            if self._show_help:
-                select_frame = self.draw_help_popup(colored_frame)
-            else:
-                select_frame = colored_frame
-
-        if isclose(self._preview_scale, 1.0):
-            resized_preview = select_frame
-        else:
-            sx = self._preview_scale
-            sy = self._preview_scale
-            sm = self._preview_scale_method
-            resized_preview = resize_ratio(select_frame, sx, sy, sm)
+        if self._show_help:
+            self.draw_help_popup(resized_preview)
 
         self._preview_frame = resized_preview
+
         if self._writer is not None:
             assert self._writer.opened
             self._writer.write(self._preview_frame)
+
         if not self._headless:
             self.draw(self._preview_frame)
 
@@ -600,7 +651,14 @@ class LayersWindow(Window):
             raise InterruptedError("The window is not visible")
 
         if self._keycode not in (KEYCODE_NULL, KEYCODE_TIMEOUT):
-            self.on_keydown(self._keycode)
+            try:
+                self.on_keydown(self._keycode)
+            except KeyboardInterrupt:
+                raise
+            except InterruptedError:
+                raise
+            except BaseException as e:
+                self.logger.exception(e)
 
     def run(self) -> None:
         self.on_create()
@@ -608,72 +666,12 @@ class LayersWindow(Window):
             while not self._shutdown:
                 self._iter()
         except KeyboardInterrupt as e:
-            self._logger.warning(e)
+            self.logger.warning(e)
         except InterruptedError as e:
-            self._logger.warning(e)
+            self.logger.warning(e)
         except EOFError as e:
-            self._logger.error(e)
+            self.logger.error(e)
         except BaseException as e:
-            self._logger.exception(e)
+            self.logger.exception(e)
         finally:
             self.on_destroy()
-
-
-class CvlLayersWindow:
-    @staticmethod
-    def cvl_create_layers_window(
-        input: str,  # noqa
-        output: Optional[str] = None,
-        font=FONT_HERSHEY_SIMPLEX,
-        font_scale=1.0,
-        preview_scale=1.0,
-        preview_scale_method=Interpolation.INTER_AREA,
-        start_position=0,
-        play=False,
-        headless=False,
-        show_help=True,
-        show_man=False,
-        verbose=0,
-        keymap: Optional[KeyDefine] = None,
-        window_title=DEFAULT_WINDOW_EX_TITLE,
-        window_flags=WINDOW_NORMAL,
-        window_wait=1,
-        window_size: Optional[SizeInt] = None,
-        window_position: Optional[PointInt] = None,
-        writer_size: Optional[SizeInt] = None,
-        writer_fps: Optional[float] = None,
-        writer_fourcc=FOURCC_MP4V,
-        logger_name: Optional[str] = None,
-        logging_step=1000,
-        help_offset: Optional[PointInt] = None,
-        help_anchor: Optional[PointFloat] = None,
-        use_deepcopy=False,
-    ) -> LayersWindow:
-        return LayersWindow(
-            input=input,
-            output=output,
-            font=font,
-            font_scale=font_scale,
-            preview_scale=preview_scale,
-            preview_scale_method=preview_scale_method,
-            start_position=start_position,
-            play=play,
-            headless=headless,
-            show_help=show_help,
-            show_man=show_man,
-            verbose=verbose,
-            keymap=keymap,
-            window_title=window_title,
-            window_flags=window_flags,
-            window_wait=window_wait,
-            window_size=window_size,
-            window_position=window_position,
-            writer_size=writer_size,
-            writer_fps=writer_fps,
-            writer_fourcc=writer_fourcc,
-            logger_name=logger_name,
-            logging_step=logging_step,
-            help_offset=help_offset,
-            help_anchor=help_anchor,
-            use_deepcopy=use_deepcopy,
-        )
