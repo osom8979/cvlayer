@@ -37,6 +37,12 @@ class LayerBase:
         self._begin = datetime.now()
         self._end = datetime.now()
 
+        self._mouse_event = MouseEvent.MOUSE_MOVE
+        self._mouse_x = 0
+        self._mouse_y = 0
+        self._mouse_flags = 0
+        self._keycode = 0
+
     @property
     def name(self):
         return self._name
@@ -45,19 +51,46 @@ class LayerBase:
     def frame(self):
         return self._frame
 
+    @frame.setter
+    def frame(self, value: NDArray) -> None:
+        self._frame = value
+
     @property
     def data(self):
         return self._data
+
+    @data.setter
+    def data(self, value: Any) -> None:
+        self._data = value
+
+    @property
+    def mouse_event(self):
+        return self._mouse_event
+
+    @property
+    def mouse_x(self):
+        return self._mouse_x
+
+    @property
+    def mouse_y(self):
+        return self._mouse_y
+
+    @property
+    def mouse_flags(self):
+        return self._mouse_flags
+
+    @property
+    def keycode(self):
+        return self._keycode
 
     def __str__(self):
         return self._name
 
     def __repr__(self) -> str:
-        cls_name = type(self).__name__
         if self._name:
-            return f"{cls_name}('{self._name}')"
+            return f"Layer[{self._name}]"
         else:
-            return cls_name
+            return type(self).__name__
 
     def __getitem__(self, item: str) -> LayerParameter:
         return self.param(item)
@@ -91,12 +124,15 @@ class LayerBase:
         return list(self._params.keys())[self._cursor]
 
     @property
+    def duration(self):
+        return (self._end - self._begin).total_seconds()
+
+    @property
     def has_error(self) -> bool:
         return self._error is not None
 
-    @property
-    def duration(self):
-        return (self._end - self._begin).total_seconds()
+    def clear_error(self) -> None:
+        self._error = None
 
     def param(self, key: str) -> LayerParameter:
         if key not in self._params:
@@ -182,8 +218,9 @@ class LayerBase:
     def on_destroy(self) -> None:
         pass
 
-    def on_keydown(self, code: int) -> Optional[bool]:
-        pass
+    def on_keydown(self, keycode: int) -> Optional[bool]:
+        self._keycode = keycode
+        return False
 
     def on_mouse(
         self,
@@ -192,7 +229,11 @@ class LayerBase:
         y: int,
         flags: EventFlags,
     ) -> Optional[bool]:
-        pass
+        self._mouse_event = event
+        self._mouse_x = x
+        self._mouse_y = y
+        self._mouse_flags = flags
+        return False
 
     def on_layer(self, frame: NDArray, data: Any) -> Tuple[NDArray, Any]:
         assert self

@@ -9,7 +9,7 @@ from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
 from typing import Final, List, Optional
 
-from numpy import uint8, zeros_like
+from numpy import full_like, uint8
 from numpy.typing import NDArray
 from overrides import override
 
@@ -34,6 +34,7 @@ from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layers.base.layer_base import LayerBase
 from cvlayer.layers.base.layer_manager import LayerManager
+from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import PointFloat, PointInt, SizeInt
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "LayersWindow"
@@ -68,19 +69,19 @@ class KeyDefine:
             play=[" "],
             help=["H", "h"],
             manpage=["/", "?"],
-            snapshot=["P", "p"],
+            snapshot=["`", "\n"],
             wait_down=["-", "_"],
             wait_up=["=", "+"],
             layer_select=[str(i) for i in range(10)],
             layer_prev=["{", "["],
             layer_next=["}", "]"],
             layer_last=["\\", "|"],
-            frame_prev=["<", ","],
-            frame_next=[">", "."],
+            frame_prev=["P", "p", "<", ","],
+            frame_next=["N", "n", ">", "."],
             param_prev=["W", "w"],
             param_next=["S", "s"],
             param_down=["A", "a"],
-            param_up=["D", "D"],
+            param_up=["D", "d"],
         )
 
 
@@ -173,9 +174,7 @@ class LayersWindow(Window):
             raise EOFError("Failed to read the first frame")
 
         self._original_frame = frame
-        self._processed_frame = frame
-        self._resized_preview = frame
-        self._record_frame = frame
+        self._preview_frame = frame
 
         if self._output:
             size = writer_size if writer_size is not None else (width, height)
@@ -183,7 +182,6 @@ class LayersWindow(Window):
             self._writer = VideoWriter(self._output, size, fps, writer_fourcc)
             if not self._writer.opened:
                 raise RuntimeError("A Video Writer was created but not opened")
-            self._writer.write(self._original_frame)
         else:
             self._writer = None
 
@@ -200,8 +198,19 @@ class LayersWindow(Window):
             buffer.write(f" {name}: {keys}\n")
 
         self._keymap = create_callable_keymap(self, shortcut)
-        self._manpage = zeros_like(frame, dtype=uint8)
-        draw_multiline_text_box(self._manpage, buffer.getvalue(), 0, 0)
+        self._manpage = full_like(frame, fill_value=MIDNIGHT_BLUE_900, dtype=uint8)
+        assert len(self._manpage.shape) == 3
+        assert self._manpage.shape[2] == 3
+        draw_multiline_text_box(
+            self._manpage,
+            buffer.getvalue(),
+            0,
+            0,
+            font=font,
+            scale=font_scale,
+            color=CLOUDS_50,
+            background_alpha=0,
+        )
 
         self._highgui_keys = highgui_keys()
         self._has_arrow_keys = has_highgui_arrow_keys(self._highgui_keys)
@@ -213,6 +222,7 @@ class LayersWindow(Window):
         self._keycode = 0
 
         self._stat = AvgStat("Iter", self._logger, logging_step, verbose, 1)
+        self._process_duration = 0.0
         self._shutdown = False
 
     def __getitem__(self, item: str) -> LayerBase:
@@ -253,7 +263,7 @@ class LayersWindow(Window):
             return 0.0
 
     def on_keydown_quit(self, keycode: int) -> None:
-        raise InterruptedError("Quit key detected")
+        raise KeyboardInterrupt("Quit key detected")
 
     def on_keydown_play(self, keycode: int) -> None:
         assert 0 < keycode
@@ -261,11 +271,11 @@ class LayersWindow(Window):
 
     def on_keydown_help(self, keycode: int) -> None:
         assert 0 < keycode
-        self.flip_help()
+        self.flip_help_popup()
 
     def on_keydown_manpage(self, keycode: int) -> None:
         assert 0 < keycode
-        self.flip_man()
+        self.flip_manual_page()
 
     def on_keydown_snapshot(self, keycode: int) -> None:
         assert 0 < keycode
@@ -327,8 +337,9 @@ class LayersWindow(Window):
     def on_destroy(self) -> None:
         self._manager.on_destroy()
 
-    def on_frame(self, image: NDArray) -> NDArray:
-        return self._manager.run(image, self._use_deepcopy)[0]
+    def on_frame(self, image: NDArray) -> Optional[NDArray]:
+        self._manager.run(image, self._use_deepcopy)
+        return None
 
     def on_keydown(self, keycode: int) -> None:
         # Process user events with priority.
@@ -370,50 +381,6 @@ class LayersWindow(Window):
     def on_trackbar(self, name: str, value: int) -> None:
         pass
 
-    @property
-    def preview_frame(self) -> NDArray:
-        if self._show_man:
-            return self._manpage
-
-        if self._manager.is_last_layer:
-            frame = self._resized_preview.copy()
-        else:
-            frame = self._manager.current_layer.frame.copy()
-
-        if not self._show_help:
-            return frame
-
-        buffer = StringIO()
-        buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
-        buffer.write(f"Layer {self._manager.index}/{self._manager.number_of_layers}\n")
-
-        if self._manager.is_last_layer:
-            buffer.write(f"Duration: {self._process_duration:.3f}s\n")
-            buffer.write(f"Layers duration: {self.process_layers_duration:.3f}s\n")
-            buffer.write("Last layer")
-        else:
-            buffer.write(f"Duration: {self._manager.current_layer.duration:.3f}s\n")
-            buffer.write(self._manager.current_layer.as_help())
-
-        x, y = self._help_offset
-        anchor_x, anchor_y = self._help_anchor
-        font = self._font
-        scale = self._font_scale
-        help_text = buffer.getvalue()
-
-        draw_multiline_text_box(
-            image=frame,
-            text=help_text,
-            x=x,
-            y=y,
-            font=font,
-            scale=scale,
-            anchor_x=anchor_x,
-            anchor_y=anchor_y,
-        )
-
-        return frame
-
     def shutdown(self) -> None:
         self._shutdown = True
 
@@ -421,7 +388,6 @@ class LayersWindow(Window):
         retval, frame = self._capture.read()
         if not retval:
             raise EOFError("Failed to read the next frame")
-        self._original_frame = frame
         return frame
 
     def read_prev_frame(self) -> NDArray:
@@ -436,12 +402,12 @@ class LayersWindow(Window):
         state_text = "played" if self._play else "stopped"
         self._logger.info(f"The video has been {state_text}")
 
-    def flip_help(self) -> None:
+    def flip_help_popup(self) -> None:
         self._show_help = not self._show_help
         popup_state = "Show" if self._show_help else "Hide"
         self._logger.info(f"{popup_state} help popup")
 
-    def flip_man(self) -> None:
+    def flip_manual_page(self) -> None:
         self._show_man = not self._show_man
         popup_state = "Show" if self._show_man else "Hide"
         self._logger.info(f"{popup_state} man page")
@@ -469,10 +435,7 @@ class LayersWindow(Window):
             image_write(layer_path, self._manager.get_layer_frame(layer_index))
 
         image_write(path.join(prefix, f"original{ext}"), self._original_frame)
-        image_write(path.join(prefix, f"processed{ext}"), self._processed_frame)
-        image_write(path.join(prefix, f"resized{ext}"), self._resized_preview)
-        image_write(path.join(prefix, f"record{ext}"), self._record_frame)
-        image_write(path.join(prefix, f"preview{ext}"), self.preview_frame)
+        image_write(path.join(prefix, f"preview{ext}"), self._preview_frame)
 
         self._logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
 
@@ -489,23 +452,23 @@ class LayersWindow(Window):
         self._manager.set_index(index)
         self._manager.logging_current_layer()
 
-    def layer_next(self) -> None:
-        self._manager.next_layer()
-        self._manager.logging_current_layer()
-
     def layer_prev(self) -> None:
         self._manager.prev_layer()
+        self._manager.logging_current_layer()
+
+    def layer_next(self) -> None:
+        self._manager.next_layer()
         self._manager.logging_current_layer()
 
     def layer_last(self) -> None:
         self._manager.set_last_index()
         self._logger.info("Change last layer")
 
-    def frame_next(self) -> None:
-        self.read_next_frame()
-
     def frame_prev(self) -> None:
-        self.read_prev_frame()
+        self._original_frame = self.read_prev_frame()
+
+    def frame_next(self) -> None:
+        self._original_frame = self.read_next_frame()
 
     def param_prev(self) -> None:
         if self._manager.is_last_layer:
@@ -539,41 +502,97 @@ class LayersWindow(Window):
         self._logger.info("Decrease value at param cursor")
         self._manager.logging_current_param()
 
+    def do_process(self, frame: NDArray) -> NDArray:
+        begin = datetime.now()
+        try:
+            with self._stat:
+                result_frame = self.on_frame(frame)
+        except BaseException as e:
+            self._logger.exception(e)
+            result_frame = None
+        finally:
+            self._process_duration = (datetime.now() - begin).total_seconds()
+
+        if result_frame is not None:
+            return result_frame
+
+        if self._manager.number_of_layers >= 1:
+            return self._manager.current_layer.frame
+        else:
+            raise IndexError("Layer does not exist")
+
+    def draw_help_popup(self, frame: NDArray) -> NDArray:
+        buffer = StringIO()
+        buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
+        buffer.write(f"Layer {self._manager.index}/{self._manager.number_of_layers}\n")
+
+        if self._manager.is_last_layer:
+            duration = self._process_duration
+            fps = 1.0 / duration
+            buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
+            buffer.write(f"Layers duration: {self.process_layers_duration:.3f}s\n")
+            buffer.write("Last layer")
+        else:
+            duration = self._manager.current_layer.duration
+            fps = 1.0 / duration
+            buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
+            buffer.write(self._manager.current_layer.as_help())
+
+        x, y = self._help_offset
+        anchor_x, anchor_y = self._help_anchor
+        font = self._font
+        scale = self._font_scale
+        help_text = buffer.getvalue()
+
+        canvas = frame.copy()
+        draw_multiline_text_box(
+            image=canvas,
+            text=help_text,
+            x=x,
+            y=y,
+            font=font,
+            scale=scale,
+            anchor_x=anchor_x,
+            anchor_y=anchor_y,
+        )
+        return canvas
+
     def _iter(self) -> None:
         if not self._capture.opened:
             raise EOFError("Input video is not opened")
 
         if self._play:
-            self.read_next_frame()
+            self._original_frame = self.read_next_frame()
 
-        begin = datetime.now()
-        try:
-            with self._stat:
-                self._processed_frame = self.on_frame(self._original_frame)
-        finally:
-            self._process_duration = (datetime.now() - begin).total_seconds()
+        processed_frame = self.do_process(self._original_frame)
+
+        if len(processed_frame.shape) == 2:
+            colored_frame = cvt_color(processed_frame, CvtColorCode.GRAY2BGR)
+        else:
+            colored_frame = processed_frame
+
+        if self._show_man:
+            select_frame = self._manpage
+        else:
+            if self._show_help:
+                select_frame = self.draw_help_popup(colored_frame)
+            else:
+                select_frame = colored_frame
 
         if isclose(self._preview_scale, 1.0):
-            self._resized_preview = self._processed_frame
+            resized_preview = select_frame
         else:
-            self._resized_preview = resize_ratio(
-                self._processed_frame,
-                self._preview_scale,
-                self._preview_scale,
-                self._preview_scale_method,
-            )
+            sx = self._preview_scale
+            sy = self._preview_scale
+            sm = self._preview_scale_method
+            resized_preview = resize_ratio(select_frame, sx, sy, sm)
 
-        if len(self._processed_frame.shape) == 2:
-            self._record_frame = cvt_color(self._processed_frame, CvtColorCode.GRAY2BGR)
-        else:
-            self._record_frame = self._processed_frame
-
+        self._preview_frame = resized_preview
         if self._writer is not None:
             assert self._writer.opened
-            self._writer.write(self._record_frame)
-
+            self._writer.write(self._preview_frame)
         if not self._headless:
-            self.draw(self.preview_frame)
+            self.draw(self._preview_frame)
 
         self._keycode = self.wait_key_ex(self._window_wait)
 
@@ -588,6 +607,10 @@ class LayersWindow(Window):
         try:
             while not self._shutdown:
                 self._iter()
+        except KeyboardInterrupt as e:
+            self._logger.warning(e)
+        except InterruptedError as e:
+            self._logger.warning(e)
         except EOFError as e:
             self._logger.error(e)
         except BaseException as e:

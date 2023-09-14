@@ -41,8 +41,20 @@ class LayerManager:
         return self.layers[self.index]
 
     @property
+    def first_layer(self) -> LayerBase:
+        return self.layers[0]
+
+    @property
+    def last_layer(self) -> LayerBase:
+        return self.layers[LAST_LAYER_INDEX]
+
+    @property
     def number_of_layers(self) -> int:
         return len(self.layers)
+
+    @property
+    def is_first_layer(self) -> bool:
+        return self.index == 0
 
     @property
     def is_last_layer(self) -> bool:

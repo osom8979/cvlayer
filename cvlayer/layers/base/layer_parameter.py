@@ -200,35 +200,33 @@ class LayerParameter:
     def __repr__(self):
         return self.as_printable_text()
 
-    def build_printonly(self, printable: Callable[[], str]) -> None:
-        self._validate_initialize()
+    def build_printonly(self, printable: Callable[[], str]):
+        if self._frozen:
+            return self
         self._clear_all_properties()
         self._printable = lambda x: printable()
         self._frozen = True
+        return self
 
-    def build_readonly(
-        self,
-        value: Any,
-        printable: Optional[PrintableCallable] = None,
-    ) -> None:
-        self._validate_initialize()
+    def build_readonly(self, value: Any, printable: Optional[PrintableCallable] = None):
+        if self._frozen:
+            return self
         self._clear_all_properties()
         self._value = value
         self._printable = printable
         self._frozen = True
+        return self
 
-    def build_boolean(
-        self,
-        value: bool,
-        printable: Optional[PrintableCallable] = None,
-    ) -> None:
-        self._validate_initialize()
+    def build_boolean(self, value: bool, printable: Optional[PrintableCallable] = None):
+        if self._frozen:
+            return self
         self._clear_all_properties()
         self._value = value
         self._decrease = lambda x: not x
         self._increase = lambda x: not x
         self._printable = printable
         self._frozen = True
+        return self
 
     def build_integer(
         self,
@@ -237,8 +235,9 @@ class LayerParameter:
         max_value: Optional[int] = None,
         printable: Optional[PrintableCallable] = None,
         step=1,
-    ) -> None:
-        self._validate_initialize()
+    ):
+        if self._frozen:
+            return self
         self._clear_all_properties()
         self._value = value
         self._min_value = lambda: min_value
@@ -247,6 +246,7 @@ class LayerParameter:
         self._increase = lambda x: x + step
         self._printable = printable
         self._frozen = True
+        return self
 
     def build_unsigned(
         self,
@@ -254,7 +254,9 @@ class LayerParameter:
         max_value: Optional[int] = None,
         printable: Optional[PrintableCallable] = None,
         step=1,
-    ) -> None:
+    ):
+        if self._frozen:
+            return self
         return self.build_integer(
             value=value,
             min_value=0,
@@ -270,8 +272,9 @@ class LayerParameter:
         max_value: Optional[float] = None,
         printable: Optional[PrintableCallable] = None,
         step=0.01,
-    ) -> None:
-        self._validate_initialize()
+    ):
+        if self._frozen:
+            return self
         self._clear_all_properties()
         self._value = value
         self._min_value = lambda: min_value
@@ -280,13 +283,16 @@ class LayerParameter:
         self._increase = lambda x: x + step
         self._printable = printable
         self._frozen = True
+        return self
 
     def build_enumeration(
         self,
         value: Enum,
         excludes: Optional[Union[Enum, Iterable[Enum]]] = None,
-    ) -> None:
-        self._validate_initialize()
+    ):
+        if self._frozen:
+            return self
+
         self._clear_all_properties()
 
         assert isinstance(value, Enum)
@@ -321,9 +327,12 @@ class LayerParameter:
         self._setter = lambda element: available_items.index(element)
         self._printable = lambda index: f"{index} ({available_items[index].name})"
         self._frozen = True
+        return self
 
-    def build_array(self, items: Iterable[Any], value: Optional[Any] = None) -> None:
-        self._validate_initialize()
+    def build_array(self, items: Iterable[Any], value: Optional[Any] = None):
+        if self._frozen:
+            return self
+
         self._clear_all_properties()
 
         if not items:
@@ -340,3 +349,4 @@ class LayerParameter:
         self._setter = lambda element: available_items.index(element)
         self._printable = lambda index: f"{index} ({available_items[index]})"
         self._frozen = True
+        return self

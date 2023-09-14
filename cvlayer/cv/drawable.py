@@ -57,6 +57,12 @@ CROSSHAIR_POINT_PADDING: Final[int] = 2
 
 
 @unique
+class DrawTextOrigin(Enum):
+    BOTTOM_LEFT = True
+    TOP_LEFT = False
+
+
+@unique
 class MarkerType(Enum):
     CROSS = cv2.MARKER_CROSS
     TILTED_CROSS = cv2.MARKER_TILTED_CROSS
@@ -256,6 +262,32 @@ def draw_arrowed(
     )
 
 
+def draw_text(
+    image: Image,
+    text: str,
+    x: Number,
+    y: Number,
+    font=FONT,
+    scale=FONT_SCALE,
+    color=COLOR,
+    thickness=THICKNESS,
+    line_type=LINE_TYPE,
+    origin=DrawTextOrigin.TOP_LEFT,
+) -> None:
+    org = int(x), int(y)
+    cv2.putText(
+        image,
+        text,
+        org,
+        font,
+        scale,
+        color,
+        thickness,
+        line_type,
+        origin.value,
+    )
+
+
 def draw_outline_text(
     image: Image,
     text: str,
@@ -268,14 +300,14 @@ def draw_outline_text(
     thickness=THICKNESS,
     outline_thickness=OUTLINE_THICKNESS,
     line_type=LINE_TYPE,
+    origin=DrawTextOrigin.TOP_LEFT,
 ) -> None:
-    org = int(x), int(y)
     bg_color = outline_color
     fg_color = fill_color
     bg_thickness = outline_thickness
     fg_thickness = thickness
-    cv2.putText(image, text, org, font, scale, bg_color, bg_thickness, line_type)
-    cv2.putText(image, text, org, font, scale, fg_color, fg_thickness, line_type)
+    draw_text(image, text, x, y, font, scale, bg_color, bg_thickness, line_type, origin)
+    draw_text(image, text, x, y, font, scale, fg_color, fg_thickness, line_type, origin)
 
 
 def get_font_scale_from_height(
@@ -340,9 +372,19 @@ def draw_multiline_text_with_lines(
         width, height = line[1]
         baseline = line[2]
         y += height
-        pos = int(x), int(y)
+        draw_text(
+            image,
+            text,
+            x,
+            y,
+            font,
+            scale,
+            color,
+            thickness,
+            line_type,
+            DrawTextOrigin.TOP_LEFT,
+        )
         y += baseline + line_spacing
-        cv2.putText(image, text, pos, font, scale, color, thickness, line_type)
 
 
 def draw_multiline_text(
@@ -566,6 +608,32 @@ class CvlDrawable:
             color,
             thickness,
             line_type,
+        )
+
+    @staticmethod
+    def cvl_draw_text(
+        image: Image,
+        text: str,
+        x: Number,
+        y: Number,
+        font=FONT,
+        scale=FONT_SCALE,
+        color=COLOR,
+        thickness=THICKNESS,
+        line_type=LINE_TYPE,
+        origin=DrawTextOrigin.TOP_LEFT,
+    ) -> None:
+        draw_text(
+            image,
+            text,
+            x,
+            y,
+            font,
+            scale,
+            color,
+            thickness,
+            line_type,
+            origin,
         )
 
     @staticmethod
