@@ -28,12 +28,12 @@ class LayerManager:
         self.name2index = dict()
         self.logger = getLogger(logger_name)
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, item: str) -> LayerBase:
         if not self.has_layer_by_name(item):
             self.append_layer(LayerBase(item))
         return self.get_layer_by_name(item)
 
-    def __setitem__(self, key: str, value: LayerBase):
+    def __setitem__(self, key: str, value: LayerBase) -> None:
         self.append_layer(value)
 
     @property
@@ -171,7 +171,7 @@ class LayerManager:
     def on_create(self, init_defaults=True) -> None:
         for layer in self.layers:
             if init_defaults:
-                layer.params = layer.defaults()
+                layer.init_defaults()
             layer.on_create()
 
     def on_destroy(self) -> None:

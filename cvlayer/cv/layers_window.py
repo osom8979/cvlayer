@@ -37,6 +37,8 @@ from cvlayer.layers.base.layer_manager import LayerManager
 from cvlayer.typing import PointFloat, PointInt, SizeInt
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "LayersWindow"
+DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
+DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.5
 
 
 @dataclass
@@ -131,8 +133,8 @@ class LayersWindow(Window):
         self._show_help = show_help
         self._show_man = show_man
         self._verbose = verbose
-        self._help_offset = help_offset if help_offset is not None else (0, 0)
-        self._help_anchor = help_anchor if help_anchor is not None else (0.5, 0.0)
+        self._help_offset = help_offset if help_offset else DEFAULT_HELP_OFFSET
+        self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
         self._use_deepcopy = use_deepcopy
 
         self._logger = getLogger(logger_name)
@@ -213,13 +215,14 @@ class LayersWindow(Window):
         self._stat = AvgStat("Iter", self._logger, logging_step, verbose, 1)
         self._shutdown = False
 
-    def __getitem__(self, item: str):
-        if not self._manager.has_layer_by_name(item):
-            self._manager.append_layer(LayerBase(item))
-        return self._manager.get_layer_by_name(item)
+    def __getitem__(self, item: str) -> LayerBase:
+        return self._manager.__getitem__(item)
 
-    def __setitem__(self, key: str, value: LayerBase):
-        self._manager.append_layer(value)
+    def __setitem__(self, key: str, value: LayerBase) -> None:
+        self._manager.__setitem__(key, value)
+
+    def layer(self, item: str) -> LayerBase:
+        return self._manager.__getitem__(item)
 
     @property
     def mouse_event(self):
@@ -242,37 +245,9 @@ class LayersWindow(Window):
         return self._keycode
 
     @property
-    def logger(self):
-        return self._logger
-
-    @property
-    def is_last_layer(self):
-        return self._manager.is_last_layer
-
-    @property
-    def number_of_layers(self):
-        return self._manager.number_of_layers
-
-    @property
-    def layers(self):
-        return self._manager.layers
-
-    @property
-    def current_layer_index(self):
-        return self._manager.index
-
-    @current_layer_index.setter
-    def current_layer_index(self, index: int) -> None:
-        self.layer_select(index)
-
-    @property
-    def current_layer(self):
-        return self._manager.current_layer
-
-    @property
     def process_layers_duration(self) -> float:
-        if self.number_of_layers >= 1:
-            durations = map(lambda x: x.duration, self.layers)
+        if self._manager.number_of_layers >= 1:
+            durations = map(lambda x: x.duration, self._manager.layers)
             return float(reduce(lambda x, y: x + y, durations))
         else:
             return 0.0
@@ -353,8 +328,7 @@ class LayersWindow(Window):
         self._manager.on_destroy()
 
     def on_frame(self, image: NDArray) -> NDArray:
-        with self._stat:
-            return self._manager.run(image, self._use_deepcopy)[0]
+        return self._manager.run(image, self._use_deepcopy)[0]
 
     def on_keydown(self, keycode: int) -> None:
         # Process user events with priority.
@@ -401,25 +375,25 @@ class LayersWindow(Window):
         if self._show_man:
             return self._manpage
 
-        if self.is_last_layer:
+        if self._manager.is_last_layer:
             frame = self._resized_preview.copy()
         else:
-            frame = self.current_layer.frame.copy()
+            frame = self._manager.current_layer.frame.copy()
 
         if not self._show_help:
             return frame
 
         buffer = StringIO()
         buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
-        buffer.write(f"Layer {self.current_layer_index}/{self.number_of_layers}\n")
+        buffer.write(f"Layer {self._manager.index}/{self._manager.number_of_layers}\n")
 
-        if self.is_last_layer:
+        if self._manager.is_last_layer:
             buffer.write(f"Duration: {self._process_duration:.3f}s\n")
             buffer.write(f"Layers duration: {self.process_layers_duration:.3f}s\n")
             buffer.write("Last layer")
         else:
-            buffer.write(f"Duration: {self.current_layer.duration:.3f}s\n")
-            buffer.write(self.current_layer.as_help())
+            buffer.write(f"Duration: {self._manager.current_layer.duration:.3f}s\n")
+            buffer.write(self._manager.current_layer.as_help())
 
         x, y = self._help_offset
         anchor_x, anchor_y = self._help_anchor
@@ -460,17 +434,17 @@ class LayersWindow(Window):
     def flip_play(self) -> None:
         self._play = not self._play
         state_text = "played" if self._play else "stopped"
-        self.logger.info(f"The video has been {state_text}")
+        self._logger.info(f"The video has been {state_text}")
 
     def flip_help(self) -> None:
         self._show_help = not self._show_help
         popup_state = "Show" if self._show_help else "Hide"
-        self.logger.info(f"{popup_state} help popup")
+        self._logger.info(f"{popup_state} help popup")
 
     def flip_man(self) -> None:
         self._show_man = not self._show_man
         popup_state = "Show" if self._show_man else "Hide"
-        self.logger.info(f"{popup_state} man page")
+        self._logger.info(f"{popup_state} man page")
 
     def snapshot(self, directory: Optional[str] = None, ext=".png") -> None:
         base = directory if directory else (self._output if self._output else getcwd())
@@ -486,11 +460,11 @@ class LayersWindow(Window):
 
         if not path.isdir(prefix):
             mkdir(prefix)
-            self.logger.debug(f"Make directory; '{prefix}'")
+            self._logger.debug(f"Make directory; '{prefix}'")
 
-        self.logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
+        self._logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
 
-        for layer_index in range(self.number_of_layers):
+        for layer_index in range(self._manager.number_of_layers):
             layer_path = path.join(prefix, f"layer{layer_index}-{ext}")
             image_write(layer_path, self._manager.get_layer_frame(layer_index))
 
@@ -500,16 +474,16 @@ class LayersWindow(Window):
         image_write(path.join(prefix, f"record{ext}"), self._record_frame)
         image_write(path.join(prefix, f"preview{ext}"), self.preview_frame)
 
-        self.logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
+        self._logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
 
     def wait_up(self) -> None:
         self._window_wait += 1
-        self.logger.info(f"Increase wait milliseconds to {self._window_wait}ms")
+        self._logger.info(f"Increase wait milliseconds to {self._window_wait}ms")
 
     def wait_down(self) -> None:
         if self._window_wait >= 2:
             self._window_wait -= 1
-        self.logger.info(f"Decrease wait milliseconds to {self._window_wait}ms")
+        self._logger.info(f"Decrease wait milliseconds to {self._window_wait}ms")
 
     def layer_select(self, index: int) -> None:
         self._manager.set_index(index)
@@ -525,7 +499,7 @@ class LayersWindow(Window):
 
     def layer_last(self) -> None:
         self._manager.set_last_index()
-        self.logger.info("Change last layer")
+        self._logger.info("Change last layer")
 
     def frame_next(self) -> None:
         self.read_next_frame()
@@ -534,35 +508,35 @@ class LayersWindow(Window):
         self.read_prev_frame()
 
     def param_prev(self) -> None:
-        if self.is_last_layer:
+        if self._manager.is_last_layer:
             raise IndexError("The current layer is the last layer")
 
-        self.current_layer.prev_cursor()
-        self.logger.info("Change prev param cursor")
+        self._manager.current_layer.prev_cursor()
+        self._logger.info("Change prev param cursor")
         self._manager.logging_current_param()
 
     def param_next(self) -> None:
-        if self.is_last_layer:
+        if self._manager.is_last_layer:
             raise IndexError("The current layer is the last layer")
 
-        self.current_layer.next_cursor()
-        self.logger.info("Change next param cursor")
+        self._manager.current_layer.next_cursor()
+        self._logger.info("Change next param cursor")
         self._manager.logging_current_param()
 
     def param_up(self) -> None:
-        if self.is_last_layer:
+        if self._manager.is_last_layer:
             raise IndexError("The current layer is the last layer")
 
-        self.current_layer.increase_at_cursor()
-        self.logger.info("Increase value at param cursor")
+        self._manager.current_layer.increase_at_cursor()
+        self._logger.info("Increase value at param cursor")
         self._manager.logging_current_param()
 
     def param_down(self) -> None:
-        if self.is_last_layer:
+        if self._manager.is_last_layer:
             raise IndexError("The current layer is the last layer")
 
-        self.current_layer.decrease_at_cursor()
-        self.logger.info("Decrease value at param cursor")
+        self._manager.current_layer.decrease_at_cursor()
+        self._logger.info("Decrease value at param cursor")
         self._manager.logging_current_param()
 
     def _iter(self) -> None:
@@ -574,7 +548,8 @@ class LayersWindow(Window):
 
         begin = datetime.now()
         try:
-            self._processed_frame = self.on_frame(self._original_frame)
+            with self._stat:
+                self._processed_frame = self.on_frame(self._original_frame)
         finally:
             self._process_duration = (datetime.now() - begin).total_seconds()
 
