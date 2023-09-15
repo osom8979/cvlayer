@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum, auto, unique
 from io import StringIO
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
@@ -38,6 +39,13 @@ from cvlayer.typing import PointFloat, PointInt, SizeInt
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
 DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.0
+
+
+@unique
+class HelpMode(Enum):
+    HIDE = auto()
+    INFO = auto()
+    PLOT = auto()
 
 
 @dataclass
@@ -95,9 +103,9 @@ class CvWindow(Window):
         preview_scale=1.0,
         preview_scale_method=Interpolation.INTER_AREA,
         start_position=0,
+        help_mode=HelpMode.INFO,
         play=False,
         headless=False,
-        show_help=True,
         show_man=False,
         verbose=0,
         keymap: Optional[KeyDefine] = None,
@@ -127,9 +135,9 @@ class CvWindow(Window):
         self._preview_scale = preview_scale
         self._preview_scale_method = preview_scale_method
         self._window_wait = window_wait
+        self._help_mode = help_mode
         self._play = play
         self._headless = headless
-        self._show_help = show_help
         self._show_man = show_man
         self._verbose = verbose
         self._help_offset = help_offset if help_offset else DEFAULT_HELP_OFFSET
@@ -455,9 +463,15 @@ class CvWindow(Window):
         self.logger.info(f"The video has been {state_text}")
 
     def flip_help_popup(self) -> None:
-        self._show_help = not self._show_help
-        popup_state = "Show" if self._show_help else "Hide"
-        self.logger.info(f"{popup_state} help popup")
+        if self._help_mode == HelpMode.HIDE:
+            self._help_mode = HelpMode.INFO
+        elif self._help_mode == HelpMode.INFO:
+            self._help_mode = HelpMode.PLOT
+        elif self._help_mode == HelpMode.PLOT:
+            self._help_mode = HelpMode.HIDE
+        else:
+            assert False, "Inaccessible section"
+        self.logger.info(f"{self._help_mode.name} help popup")
 
     def flip_manual_page(self) -> None:
         self._show_man = not self._show_man
@@ -566,7 +580,10 @@ class CvWindow(Window):
         finally:
             self._process_duration = (datetime.now() - begin).total_seconds()
 
-    def draw_help_popup(self, frame: NDArray) -> None:
+    def draw_plot_popup(self, canvas: NDArray, analysis_frame: NDArray) -> None:
+        pass
+
+    def draw_help_popup(self, canvas: NDArray) -> None:
         buffer = StringIO()
         buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
 
@@ -593,7 +610,7 @@ class CvWindow(Window):
         help_text = buffer.getvalue()
 
         draw_multiline_text_box(
-            image=frame,
+            image=canvas,
             text=help_text,
             x=x,
             y=y,
@@ -645,7 +662,9 @@ class CvWindow(Window):
         colored_frame = self._coloring(select_frame)
         resized_preview = self._resizing(colored_frame)
 
-        if self._show_help:
+        if self._help_mode != HelpMode.HIDE:
+            if self._help_mode == HelpMode.PLOT:
+                self.draw_plot_popup(resized_preview, select_frame)
             self.draw_help_popup(resized_preview)
 
         self._preview_frame = resized_preview

@@ -38,6 +38,7 @@ from cvlayer.cv.norm import CvlNorm
 from cvlayer.cv.orb import CvlOrb
 from cvlayer.cv.palette import CvlPalette
 from cvlayer.cv.perspective import CvlPerspective
+from cvlayer.cv.plot import CvlPlot
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
 from cvlayer.cv.sobel import CvlSobel
 from cvlayer.cv.threshold import CvlThreshold
@@ -85,6 +86,7 @@ class CvLayer(
     CvlOrb,
     CvlPalette,
     CvlPerspective,
+    CvlPlot,
     CvlRotateTracer,
     CvlShapely,
     CvlSobel,

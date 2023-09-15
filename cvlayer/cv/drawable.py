@@ -6,7 +6,7 @@ from typing import Final, List, Tuple
 import cv2
 from numpy import full, uint8
 
-from cvlayer.typing import Color, Image, Number, PointT, RectT, SizeInt
+from cvlayer.typing import Color, Image, Number, PointT, RectInt, RectT, SizeInt
 
 FILLED: Final[int] = cv2.FILLED
 
@@ -439,7 +439,7 @@ def draw_multiline_text_box(
     margin=MULTILINE_BOX_MARGIN,
     anchor_x=MULTILINE_BOX_ANCHOR_X,
     anchor_y=MULTILINE_BOX_ANCHOR_Y,
-) -> None:
+) -> RectInt:
     assert 0 <= anchor_x <= 1
     assert 0 <= anchor_y <= 1
     assert 0 <= background_alpha <= 1
@@ -495,6 +495,7 @@ def draw_multiline_text_box(
         line_spacing,
     )
     image[y1:y2, x1:x2] = mixed
+    return x1, y1, x2, y2
 
 
 class CvlDrawable:
@@ -508,7 +509,7 @@ class CvlDrawable:
         thickness=FILLED,
         line_type=LINE_AA,
     ):
-        draw_point(image, x, y, radius, color, thickness, line_type)
+        return draw_point(image, x, y, radius, color, thickness, line_type)
 
     @staticmethod
     def cvl_draw_line(
@@ -519,7 +520,7 @@ class CvlDrawable:
         thickness=THICKNESS,
         line_type=LINE_TYPE,
     ):
-        draw_line(image, point1, point2, color, thickness, line_type)
+        return draw_line(image, point1, point2, color, thickness, line_type)
 
     @staticmethod
     def cvl_draw_rectangle(
@@ -529,7 +530,7 @@ class CvlDrawable:
         thickness=THICKNESS,
         line_type=LINE_TYPE,
     ):
-        draw_rectangle(image, roi, color, thickness, line_type)
+        return draw_rectangle(image, roi, color, thickness, line_type)
 
     @staticmethod
     def cvl_draw_circle(
@@ -541,7 +542,7 @@ class CvlDrawable:
         thickness=FILLED,
         line_type=LINE_TYPE,
     ):
-        draw_circle(image, x, y, radius, color, thickness, line_type)
+        return draw_circle(image, x, y, radius, color, thickness, line_type)
 
     @staticmethod
     def cvl_draw_image(
@@ -549,8 +550,8 @@ class CvlDrawable:
         src: Image,
         x: Number,
         y: Number,
-    ) -> None:
-        draw_image(canvas, src, x, y)
+    ):
+        return draw_image(canvas, src, x, y)
 
     @staticmethod
     def cvl_draw_crosshair_point(
@@ -563,8 +564,8 @@ class CvlDrawable:
         line_type=CROSSHAIR_POINT_LINE_TYPE,
         padding=CROSSHAIR_POINT_PADDING,
         circle=True,
-    ) -> None:
-        draw_crosshair_point(
+    ):
+        return draw_crosshair_point(
             image, x, y, radius, thickness, color, line_type, padding, circle
         )
 
@@ -578,7 +579,7 @@ class CvlDrawable:
         color=CROSSHAIR_POINT_COLOR,
         thickness=CROSSHAIR_POINT_THICKNESS,
         line_type=CROSSHAIR_POINT_LINE_TYPE,
-    ) -> None:
+    ):
         return draw_marker(
             image,
             x,
@@ -599,8 +600,8 @@ class CvlDrawable:
         color=COLOR,
         thickness=THICKNESS,
         line_type=LINE_TYPE,
-    ) -> None:
-        draw_arrowed(
+    ):
+        return draw_arrowed(
             image,
             point1,
             point2,
@@ -622,8 +623,8 @@ class CvlDrawable:
         thickness=THICKNESS,
         line_type=LINE_TYPE,
         origin=DrawTextOrigin.TOP_LEFT,
-    ) -> None:
-        draw_text(
+    ):
+        return draw_text(
             image,
             text,
             x,
@@ -650,7 +651,7 @@ class CvlDrawable:
         outline_thickness=OUTLINE_THICKNESS,
         line_type=LINE_TYPE,
     ):
-        draw_outline_text(
+        return draw_outline_text(
             image,
             text,
             x,
@@ -737,8 +738,8 @@ class CvlDrawable:
         thickness=THICKNESS,
         line_type=LINE_TYPE,
         linefeed=MULTILINE_LINEFEED,
-    ) -> None:
-        draw_multiline_text(
+    ):
+        return draw_multiline_text(
             image,
             text,
             x,
@@ -769,8 +770,8 @@ class CvlDrawable:
         margin=MULTILINE_BOX_MARGIN,
         anchor_x=MULTILINE_BOX_ANCHOR_X,
         anchor_y=MULTILINE_BOX_ANCHOR_Y,
-    ) -> None:
-        draw_multiline_text_box(
+    ):
+        return draw_multiline_text_box(
             image,
             text,
             x,
