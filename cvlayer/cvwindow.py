@@ -37,7 +37,7 @@ from cvlayer.typing import PointFloat, PointInt, SizeInt
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
-DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.5
+DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.0
 
 
 @dataclass
@@ -227,8 +227,8 @@ class CvWindow(Window):
     def logger(self):
         return self._manager.logger
 
-    def layer(self, item: str) -> LayerBase:
-        return self._manager.__getitem__(item)
+    def layer(self, name: str) -> LayerBase:
+        return self._manager.__getitem__(name)
 
     def has_layer(self, layer: Union[str, LayerBase]) -> bool:
         key = layer.name if isinstance(layer, LayerBase) else layer
@@ -237,50 +237,62 @@ class CvWindow(Window):
             raise KeyError("Empty key name")
         return self._manager.has_layer_by_name(key)
 
-    def layer_index(self, layer: Union[str, LayerBase]) -> int:
+    def get_layer_index(self, layer: Union[str, LayerBase]) -> int:
         key = layer.name if isinstance(layer, LayerBase) else layer
         assert isinstance(key, str)
         if not key:
             raise KeyError("Empty key name")
         return self._manager.get_layer_index_by_name(key)
 
-    @property
-    def first_frame(self) -> NDArray:
+    def get_first_layer_frame(self) -> NDArray:
         return self._manager.first_layer.frame
 
-    @property
-    def first_data(self) -> Any:
+    def get_first_layer_data(self) -> Any:
         return self._manager.first_layer.data
 
-    def prev_frame(self, layer: Union[str, LayerBase]) -> NDArray:
-        index = self.layer_index(layer)
+    def get_prev_layer_frame(self, layer: Union[str, LayerBase]) -> NDArray:
+        index = self.get_layer_index(layer)
         if index == 0:
             return self._original_frame
         else:
             return self._manager.get_layer_frame(index - 1)
 
-    def prev_data(self, layer: Union[str, LayerBase]) -> Any:
-        index = self.layer_index(layer)
+    def get_prev_layer_data(self, layer: Union[str, LayerBase]) -> Any:
+        index = self.get_layer_index(layer)
         if index == 0:
             return None
         else:
             return self._manager.get_layer_data(index - 1)
 
-    def frame(self, layer: Union[str, LayerBase]) -> NDArray:
-        index = self.layer_index(layer)
+    def get_layer_frame(self, layer: Union[str, LayerBase]) -> NDArray:
+        index = self.get_layer_index(layer)
         return self._manager.get_layer_frame(index)
 
-    def data(self, layer: Union[str, LayerBase]) -> Any:
-        index = self.layer_index(layer)
+    def get_layer_data(self, layer: Union[str, LayerBase]) -> Any:
+        index = self.get_layer_index(layer)
         return self._manager.get_layer_data(index)
+
+    def get_last_layer_frame(self) -> NDArray:
+        return self._manager.last_layer.frame
+
+    def get_last_layer_data(self) -> Any:
+        return self._manager.last_layer.data
+
+    @property
+    def original_frame(self) -> NDArray:
+        return self._original_frame
+
+    @property
+    def preview_frame(self) -> NDArray:
+        return self._preview_frame
 
     @property
     def last_frame(self) -> NDArray:
-        return self._manager.last_layer.frame
+        return self.get_last_layer_frame()
 
     @property
-    def last_data(self) -> NDArray:
-        return self._manager.last_layer.data
+    def last_data(self) -> Any:
+        return self.get_last_layer_data()
 
     @property
     def mouse_event(self):
@@ -502,7 +514,7 @@ class CvWindow(Window):
         self._manager.logging_current_layer()
 
     def do_layer_last(self) -> None:
-        self._manager.set_cursor_last()
+        self._manager.move_last_layer()
         self.logger.info("Change last layer")
 
     def do_frame_prev(self) -> None:

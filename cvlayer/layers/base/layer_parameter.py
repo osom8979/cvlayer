@@ -5,11 +5,16 @@ from enum import Enum
 from math import ceil, floor
 from typing import Any, Callable, Iterable, Optional, Union
 
+from cvlayer.cv.mouse import EventFlags, MouseEvent
+from cvlayer.typing import PointInt, RectInt
+
 LimitedCallable = Callable[[], Any]
 ModifyCallable = Callable[[Any], Any]
 PrintableCallable = Callable[[Any], str]
 GetterCallable = Callable[[Any], Any]
 SetterCallable = Callable[[Any], Any]
+OnKeydownCallable = Callable[[int], Optional[bool]]
+OnMouseCallable = Callable[[MouseEvent, int, int, EventFlags], Optional[bool]]
 
 
 class AlreadyFrozenError(BaseException):
@@ -33,8 +38,11 @@ class LayerParameter:
         getter: Optional[GetterCallable] = None,
         setter: Optional[SetterCallable] = None,
         printable: Optional[PrintableCallable] = None,
+        keydown: Optional[OnKeydownCallable] = None,
+        mouse: Optional[OnMouseCallable] = None,
         nullable=True,
         frozen=False,
+        **kwargs,
     ):
         self._value = value
         self._min_value = min_value
@@ -44,8 +52,11 @@ class LayerParameter:
         self._getter = getter
         self._setter = setter
         self._printable = printable
+        self._keydown = keydown
+        self._mouse = mouse
         self._nullable = nullable
         self._frozen = frozen
+        self._kwargs = kwargs
 
     def freeze(self) -> None:
         self._frozen = True
@@ -66,8 +77,11 @@ class LayerParameter:
         self._getter = None
         self._setter = None
         self._printable = None
+        self._keydown = None
+        self._mouse = None
         self._nullable = True
         self._frozen = False
+        self._kwargs = dict()
 
     def _validate_initialize(self) -> None:
         if self._frozen:
@@ -101,6 +115,14 @@ class LayerParameter:
         self._validate_initialize()
         self._setter = callback
 
+    def _set_keydown(self, callback: OnKeydownCallable):
+        self._validate_initialize()
+        self._keydown = callback
+
+    def _set_mouse(self, callback: OnMouseCallable):
+        self._validate_initialize()
+        self._mouse = callback
+
     def _set_printable(self, callback: PrintableCallable):
         self._validate_initialize()
         self._printable = callback
@@ -116,6 +138,8 @@ class LayerParameter:
     increase = property(None, _set_increase)
     getter = property(None, _set_getter)
     setter = property(None, _set_setter)
+    keydown = property(None, _set_keydown)
+    mouse = property(None, _set_mouse)
     printable = property(None, _set_printable)
     nullable = property(None, _set_nullable)
 
@@ -182,20 +206,46 @@ class LayerParameter:
         else:
             return str(self._value)
 
+    @property
+    def has_keydown(self) -> bool:
+        return self._keydown is not None
+
+    @property
+    def has_mouse(self) -> bool:
+        return self._mouse is not None
+
+    def call_keydown(self, keycode: int) -> Optional[bool]:
+        if self._keydown:
+            return self._keydown(keycode)
+        else:
+            return False
+
+    def call_mouse(
+        self,
+        event: MouseEvent,
+        x: int,
+        y: int,
+        flags: EventFlags,
+    ) -> Optional[bool]:
+        if self._mouse:
+            return self._mouse(event, x, y, flags)
+        else:
+            return False
+
     def __str__(self):
-        return str(self._value)
+        return str(self.value)
 
     def __int__(self):
-        return int(self._value)
+        return int(self.value)
 
     def __float__(self):
-        return float(self._value)
+        return float(self.value)
 
     def __floor__(self):
-        return floor(self._value)
+        return floor(self.value)
 
     def __ceil__(self):
-        return ceil(self._value)
+        return ceil(self.value)
 
     def __repr__(self):
         return self.as_printable_text()
@@ -329,7 +379,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_array(self, items: Iterable[Any], value: Optional[Any] = None):
+    def build_list(self, items: Iterable[Any], value: Optional[Any] = None):
         if self._frozen:
             return self
 
@@ -348,5 +398,79 @@ class LayerParameter:
         self._getter = lambda index: available_items[index]
         self._setter = lambda element: available_items.index(element)
         self._printable = lambda index: f"{index} ({available_items[index]})"
+        self._frozen = True
+        return self
+
+    def build_latest_keycode(self, value=0):
+        if self._frozen:
+            return self
+
+        self._clear_all_properties()
+
+        def _keydown(keycode: int):
+            self._value = keycode
+            return True
+
+        self._value = value
+        self._keydown = _keydown
+        self._frozen = True
+        return self
+
+    def build_select_roi(self, roi: Optional[RectInt] = None):
+        if self._frozen:
+            return self
+
+        self._clear_all_properties()
+
+        def _mouse(event: MouseEvent, mx: int, my: int, _):
+            if event == MouseEvent.LBUTTON_DOWN:
+                self._value = mx, my, self._value[2], self._value[3]
+                self._kwargs["button_down"] = True
+            if self._kwargs["button_down"]:
+                if event == MouseEvent.MOUSE_MOVE:
+                    self._value = self._value[0], self._value[1], mx, my
+                elif event == MouseEvent.LBUTTON_UP:
+                    self._value = self._value[0], self._value[1], mx, my
+                    self._kwargs["button_down"] = False
+            return True
+
+        self._value = roi if roi else (0, 0, 0, 0)
+        self._mouse = _mouse
+        self._frozen = True
+        self._kwargs["button_down"] = False
+        return self
+
+    def build_select_point(self, point: Optional[PointInt] = None):
+        if self._frozen:
+            return self
+
+        self._clear_all_properties()
+
+        def _mouse(event: MouseEvent, mx: int, my: int, _):
+            if event.LBUTTON_DOWN:
+                self._value = mx, my
+            return True
+
+        self._value = point
+        self._mouse = _mouse
+        self._frozen = True
+        return self
+
+    def build_select_points(self, points: Optional[Iterable[PointInt]] = None):
+        if self._frozen:
+            return self
+
+        self._clear_all_properties()
+
+        def _mouse(event: MouseEvent, mx: int, my: int, _):
+            assert isinstance(self._value, list)
+            if event == MouseEvent.LBUTTON_DOWN:
+                self._value.append((mx, my))
+            elif event == MouseEvent.MBUTTON_DOWN:
+                self._value.pop()
+            return True
+
+        self._value = list(points) if points else list()
+        self._mouse = _mouse
         self._frozen = True
         return self

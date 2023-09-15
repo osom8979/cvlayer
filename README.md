@@ -50,22 +50,18 @@ from cvlayer import CvLayer, CvWindow
 
 class YourWindow(CvWindow, CvLayer):
     def __init__(self, source: str):
-        super().__init__(source, window_title="YourWindow")
+        super().__init__(source)
 
     def on_frame(self, image):
-        with self.layer("original") as layer:
-            layer.frame = image
-
         with self.layer("hsv") as layer:
-            prev_frame = self.prev_frame(layer)  # Frame of the 'original' layer
-            layer.frame = self.cvl_cvt_color_bgr2hsv(prev_frame)
+            hsv = layer.frame = self.cvl_cvt_color_bgr2hsv(image)
 
-        with self.layer("hsv-channel") as layer:
-            channel = layer.param("channel").build_unsigned(0, max_value=2)
-            prev_frame = self.prev_frame(layer)  # Frame of the 'hsv' layer
-            layer.frame = prev_frame[:, :, int(channel)].copy()
+        with self.layer("select-hsv-channel") as layer:
+            i = layer.param("i").build_unsigned(0, max_value=2)
+            channel = layer.frame = hsv[:, :, int(i)].copy()
 
-        return self.last_frame
+        return channel
+
 
 if __name__ == "__main__":
     YourWindow(argv[1]).run()

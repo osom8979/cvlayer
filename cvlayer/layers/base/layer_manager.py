@@ -23,10 +23,10 @@ class LayerManager:
         self._name2index = dict()
         self._logger = getLogger(logger_name)
 
-    def __getitem__(self, item: str) -> LayerBase:
-        if not self.has_layer_by_name(item):
-            self.append_layer(LayerBase(item))
-        return self.get_layer_by_name(item)
+    def __getitem__(self, item: Union[int, str]) -> LayerBase:
+        if not self.has_layer(item):
+            self.append_layer(LayerBase(str(item)))
+        return self.get_layer(item)
 
     def __setitem__(self, key: str, value: LayerBase) -> None:
         self.append_layer(value)
@@ -79,9 +79,11 @@ class LayerManager:
         if layer.name:
             self._name2index[layer.name] = len(self._layers) - 1
 
-    def has_layer(self, key: Union[str, LayerBase]) -> bool:
+    def has_layer(self, key: Union[int, str, LayerBase]) -> bool:
         if isinstance(key, LayerBase):
             return self.has_layer_by_layer(key)
+        elif isinstance(key, int):
+            return 0 <= key < self.number_of_layers
         elif isinstance(key, str):
             return self.has_layer_by_name(key)
         else:
@@ -107,23 +109,39 @@ class LayerManager:
     def get_layer_index_by_name(self, name: str) -> int:
         return self._name2index[name]
 
+    def get_layer(self, key: Union[int, str]) -> LayerBase:
+        if isinstance(key, int):
+            return self.get_layer_by_index(key)
+        elif isinstance(key, str):
+            return self.get_layer_by_name(key)
+        else:
+            raise TypeError(f"Unsupported key type: {type(key).__name__}")
+
+    def get_layer_by_index(self, index: int) -> LayerBase:
+        return self._layers[index]
+
     def get_layer_by_name(self, name: str) -> LayerBase:
         return self._layers[self.get_layer_index_by_name(name)]
 
-    def get_layer_frame(self, index: int) -> NDArray:
-        return self._layers[index].frame
+    def get_layer_frame(self, key: Union[int, str]) -> NDArray:
+        return self.get_layer(key).frame
 
-    def get_layer_data(self, index: int) -> Any:
-        return self._layers[index].data
+    def get_layer_data(self, key: Union[int, str]) -> Any:
+        return self.get_layer(key).data
 
-    def has_layer_param(self, index: int, key: str) -> bool:
-        return self._layers[index].has(key)
+    def has_layer_param(self, layer_key: Union[int, str], param_key: str) -> bool:
+        return self.get_layer(layer_key).has(param_key)
 
-    def get_layer_param(self, index: int, key: str) -> Any:
-        return self._layers[index].get(key)
+    def get_layer_param(self, layer_key: Union[int, str], param_key: str) -> Any:
+        return self.get_layer(layer_key).get(param_key)
 
-    def set_layer_param(self, index: int, key: str, value: Any) -> None:
-        self._layers[index].set(key, value)
+    def set_layer_param(
+        self,
+        layer_key: Union[int, str],
+        param_key: str,
+        value: Any,
+    ) -> None:
+        return self.get_layer(layer_key).set(param_key, value)
 
     def set_cursor(self, cursor: int) -> None:
         if cursor == LAST_LAYER_INDEX or cursor == len(self._layers):
@@ -138,7 +156,7 @@ class LayerManager:
         else:
             raise IndexError(f"LayerBase index out of range: {cursor}")
 
-    def set_cursor_last(self) -> None:
+    def move_last_layer(self) -> None:
         self._cursor = LAST_LAYER_INDEX
 
     def move_prev_layer(self) -> None:

@@ -68,7 +68,7 @@ class Orb:
 
 class CvlOrb:
     @staticmethod
-    def create_orb(
+    def cvl_create_orb(
         n_features=DEFAULT_N_FEATURES,
         scale_factor=DEFAULT_SCALE_FACTOR,
         n_levels=DEFAULT_N_LEVELS,

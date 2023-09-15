@@ -6,6 +6,7 @@ anycolor
 anydepth
 aravis
 asctime
+bggr
 bgra
 bgsegm
 bilevel
@@ -31,19 +32,24 @@ exif's
 fireware
 framebytes
 freeratio
+gbrg
 giganetix
 goturn
 gphoto
+grbg
 hwheel
 imwrite
 intelperc
+iyuv
 kcos
 keepratio
 ksize
+lbgr
 lbutton
 levelname
 libtiff's
 libv
+lrgb
 maxval
 mbutton
 medianflow
@@ -62,6 +68,7 @@ pythonpath
 rbutton
 resunit
 retr
+rggb
 sgilog
 shiftkey
 smartek
@@ -72,6 +79,8 @@ tozero
 trackbarname
 tupletype
 unicap
+uynv
+uyvy
 winname
 xdpi
 xiapi
@@ -79,3 +88,6 @@ ximea
 xine
 xvid
 ydpi
+yunv
+yuyv
+yvyu

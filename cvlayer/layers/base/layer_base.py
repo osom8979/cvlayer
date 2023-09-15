@@ -23,11 +23,7 @@ class LayerBase:
     _params: Dict[str, LayerParameter]
     _error: Optional[BaseException]
 
-    def __init__(
-        self,
-        name: Optional[str] = None,
-        **params: LayerParameter,
-    ):
+    def __init__(self, name: Optional[str] = None, **params: LayerParameter):
         self._name = name if name else str()
         self._frame = zeros([])
         self._data = None
@@ -37,11 +33,11 @@ class LayerBase:
         self._begin = datetime.now()
         self._end = datetime.now()
 
+        self._keycode = 0
         self._mouse_event = MouseEvent.MOUSE_MOVE
         self._mouse_x = 0
         self._mouse_y = 0
         self._mouse_flags = 0
-        self._keycode = 0
 
     @property
     def name(self):
@@ -174,12 +170,8 @@ class LayerBase:
     def increase_at_cursor(self) -> None:
         self._params[self.cursor_key].do_increase()
 
-    def defaults(self) -> Dict[str, LayerParameter]:
-        assert self is not None
-        return dict()
-
     def init_defaults(self) -> None:
-        self._params = self.defaults()
+        self._params = self.on_defaults()
 
     def as_help(self) -> str:
         buffer = StringIO()
@@ -209,8 +201,11 @@ class LayerBase:
             raise e
         finally:
             self._end = datetime.now()
-
         return self._frame, self._data
+
+    def on_defaults(self) -> Dict[str, LayerParameter]:
+        assert self is not None
+        return dict()
 
     def on_create(self) -> None:
         pass
@@ -220,6 +215,15 @@ class LayerBase:
 
     def on_keydown(self, keycode: int) -> Optional[bool]:
         self._keycode = keycode
+
+        if self._params:
+            result = list()
+            for param in self._params.values():
+                if param.has_keydown:
+                    result.append(param.call_keydown(keycode))
+            if result:
+                return any(result)
+
         return False
 
     def on_mouse(
@@ -233,6 +237,15 @@ class LayerBase:
         self._mouse_x = x
         self._mouse_y = y
         self._mouse_flags = flags
+
+        if self._params:
+            result = list()
+            for param in self._params.values():
+                if param.has_mouse:
+                    result.append(param.call_mouse(event, x, y, flags))
+            if result:
+                return any(result)
+
         return False
 
     def on_layer(self, frame: NDArray, data: Any) -> Tuple[NDArray, Any]:
