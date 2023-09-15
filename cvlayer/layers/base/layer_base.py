@@ -80,7 +80,7 @@ class LayerBase:
         return self._keycode
 
     def __str__(self):
-        return self._name
+        return self._name  # Important !!
 
     def __repr__(self) -> str:
         if self._name:

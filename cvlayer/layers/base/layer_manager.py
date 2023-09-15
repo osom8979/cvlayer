@@ -17,16 +17,16 @@ class LayerManager:
     _layers: List[LayerBase]
     _name2index: Dict[str, int]
 
-    def __init__(self, index=LAST_LAYER_INDEX, logger_name: Optional[str] = None):
-        self._cursor = index
+    def __init__(self, cursor=LAST_LAYER_INDEX, logger_name: Optional[str] = None):
+        self._cursor = cursor
         self._layers = list()
         self._name2index = dict()
         self._logger = getLogger(logger_name)
 
-    def __getitem__(self, item: Union[int, str]) -> LayerBase:
-        if not self.has_layer(item):
-            self.append_layer(LayerBase(str(item)))
-        return self.get_layer(item)
+    def __getitem__(self, key: Any) -> LayerBase:
+        if not self.has_layer(key):
+            self.append_layer(LayerBase(str(key)))
+        return self.get_layer(key)
 
     def __setitem__(self, key: str, value: LayerBase) -> None:
         self.append_layer(value)
@@ -79,49 +79,20 @@ class LayerManager:
         if layer.name:
             self._name2index[layer.name] = len(self._layers) - 1
 
-    def has_layer(self, key: Union[int, str, LayerBase]) -> bool:
-        if isinstance(key, LayerBase):
-            return self.has_layer_by_layer(key)
-        elif isinstance(key, int):
-            return 0 <= key < self.number_of_layers
-        elif isinstance(key, str):
-            return self.has_layer_by_name(key)
-        else:
-            raise TypeError(f"Unsupported key type: {type(key).__name__}")
+    def has_layer(self, key: Any) -> bool:
+        return str(key) in self._name2index
 
-    def has_layer_by_layer(self, layer: LayerBase) -> bool:
-        return layer.name in self._name2index
+    def get_layer_index(self, key: Any) -> int:
+        return self._name2index[str(key)]
 
-    def has_layer_by_name(self, name: str) -> bool:
-        return name in self._name2index
-
-    def get_layer_index(self, key: Union[str, LayerBase]) -> int:
-        if isinstance(key, LayerBase):
-            return self.get_layer_index_by_layer(key)
-        elif isinstance(key, str):
-            return self.get_layer_index_by_name(key)
-        else:
-            raise TypeError(f"Unsupported key type: {type(key).__name__}")
-
-    def get_layer_index_by_layer(self, layer: LayerBase) -> int:
-        return self._name2index[layer.name]
-
-    def get_layer_index_by_name(self, name: str) -> int:
-        return self._name2index[name]
-
-    def get_layer(self, key: Union[int, str]) -> LayerBase:
-        if isinstance(key, int):
-            return self.get_layer_by_index(key)
-        elif isinstance(key, str):
-            return self.get_layer_by_name(key)
-        else:
-            raise TypeError(f"Unsupported key type: {type(key).__name__}")
+    def get_layer(self, key: Any) -> LayerBase:
+        return self._layers[self._name2index[str(key)]]
 
     def get_layer_by_index(self, index: int) -> LayerBase:
         return self._layers[index]
 
     def get_layer_by_name(self, name: str) -> LayerBase:
-        return self._layers[self.get_layer_index_by_name(name)]
+        return self._layers[self.get_layer_index(name)]
 
     def get_layer_frame(self, key: Union[int, str]) -> NDArray:
         return self.get_layer(key).frame

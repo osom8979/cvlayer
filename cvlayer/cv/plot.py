@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, auto, unique
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Sequence
 
 from numpy.typing import NDArray
 
@@ -14,7 +14,7 @@ from cvlayer.cv.drawable import (
     draw_point,
     draw_rectangle,
 )
-from cvlayer.typing import NumberT, RectInt
+from cvlayer.typing import NumberT, PointT, RectInt
 
 
 @unique
@@ -31,7 +31,7 @@ def draw_absolute_plot_points(
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
-    *points: Tuple[int, int],
+    *points: PointT,
 ) -> None:
     for point in points:
         draw_point(canvas, point[0], point[1], radius, color, thickness, line_type)
@@ -42,7 +42,7 @@ def draw_absolute_plot_lines(
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
-    *points: Tuple[int, int],
+    *points: PointT,
 ) -> None:
     prev = points[0]
     for point in points[1:]:
@@ -52,12 +52,12 @@ def draw_absolute_plot_lines(
 
 def draw_absolute_plot_x_bars(
     canvas: NDArray,
-    bottom: int,
+    bottom: NumberT,
     radius=RADIUS,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
-    *points: Tuple[int, int],
+    *points: PointT,
 ) -> None:
     for point in points:
         x1 = point[0] - radius
@@ -70,12 +70,12 @@ def draw_absolute_plot_x_bars(
 
 def draw_absolute_plot_y_bars(
     canvas: NDArray,
-    left: int,
+    left: NumberT,
     radius=RADIUS,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
-    *points: Tuple[int, int],
+    *points: PointT,
 ) -> None:
     for point in points:
         x1 = left
@@ -136,10 +136,10 @@ def draw_plot_2d(
         raise ValueError("There is no area to draw")
 
     def canvas_x(real_x: NumberT):
-        return round(left + (real_x / x_size * width))
+        return left + (real_x / x_size * width)
 
     def canvas_y(real_y: NumberT):
-        return round(bottom - (real_y / y_size * height))
+        return bottom - (real_y / y_size * height)
 
     points = [(canvas_x(x), canvas_y(y)) for x, y in zip(xs, ys)]
 

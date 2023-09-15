@@ -6,7 +6,7 @@ from enum import Enum, auto, unique
 from io import StringIO
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
-from typing import Any, Final, List, Optional, Union
+from typing import Any, Final, List, Optional
 
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
@@ -15,6 +15,7 @@ from overrides import override
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import FONT_HERSHEY_SIMPLEX, draw_multiline_text_box
 from cvlayer.cv.fourcc import FOURCC_MP4V
+from cvlayer.cv.histogram import draw_histogram_channels
 from cvlayer.cv.image_io import image_write
 from cvlayer.cv.image_resize import Interpolation, resize_ratio
 from cvlayer.cv.keymap import (
@@ -34,11 +35,12 @@ from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layers.base.layer_base import LayerBase
 from cvlayer.layers.base.layer_manager import LayerManager
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
-from cvlayer.typing import PointFloat, PointInt, SizeInt
+from cvlayer.typing import PointFloat, PointInt, RectInt, SizeInt
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
 DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.0
+DEFAULT_PLOT_SIZE: Final[SizeInt] = 256, 256
 
 
 @unique
@@ -121,6 +123,8 @@ class CvWindow(Window):
         logging_step=1000,
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
+        plot_size: Optional[SizeInt] = None,
+        plot_roi: Optional[RectInt] = None,
         use_deepcopy=False,
     ):
         super().__init__(window_title, window_flags)
@@ -142,6 +146,8 @@ class CvWindow(Window):
         self._verbose = verbose
         self._help_offset = help_offset if help_offset else DEFAULT_HELP_OFFSET
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
+        self._plot_size = plot_size if plot_size else DEFAULT_PLOT_SIZE
+        self._plot_roi = plot_roi
         self._use_deepcopy = use_deepcopy
 
         self._manager = LayerManager(logger_name=logger_name)
@@ -238,53 +244,14 @@ class CvWindow(Window):
     def layer(self, name: str) -> LayerBase:
         return self._manager.__getitem__(name)
 
-    def has_layer(self, layer: Union[str, LayerBase]) -> bool:
-        key = layer.name if isinstance(layer, LayerBase) else layer
-        assert isinstance(key, str)
-        if not key:
-            raise KeyError("Empty key name")
-        return self._manager.has_layer_by_name(key)
+    def has_layer(self, layer: Any) -> bool:
+        return self._manager.has_layer(layer)
 
-    def get_layer_index(self, layer: Union[str, LayerBase]) -> int:
-        key = layer.name if isinstance(layer, LayerBase) else layer
-        assert isinstance(key, str)
-        if not key:
-            raise KeyError("Empty key name")
-        return self._manager.get_layer_index_by_name(key)
+    def get_layer_frame(self, key: Any) -> NDArray:
+        return self._manager.get_layer_frame(key)
 
-    def get_first_layer_frame(self) -> NDArray:
-        return self._manager.first_layer.frame
-
-    def get_first_layer_data(self) -> Any:
-        return self._manager.first_layer.data
-
-    def get_prev_layer_frame(self, layer: Union[str, LayerBase]) -> NDArray:
-        index = self.get_layer_index(layer)
-        if index == 0:
-            return self._original_frame
-        else:
-            return self._manager.get_layer_frame(index - 1)
-
-    def get_prev_layer_data(self, layer: Union[str, LayerBase]) -> Any:
-        index = self.get_layer_index(layer)
-        if index == 0:
-            return None
-        else:
-            return self._manager.get_layer_data(index - 1)
-
-    def get_layer_frame(self, layer: Union[str, LayerBase]) -> NDArray:
-        index = self.get_layer_index(layer)
-        return self._manager.get_layer_frame(index)
-
-    def get_layer_data(self, layer: Union[str, LayerBase]) -> Any:
-        index = self.get_layer_index(layer)
-        return self._manager.get_layer_data(index)
-
-    def get_last_layer_frame(self) -> NDArray:
-        return self._manager.last_layer.frame
-
-    def get_last_layer_data(self) -> Any:
-        return self._manager.last_layer.data
+    def get_layer_data(self, key: Any) -> Any:
+        return self._manager.get_layer_data(key)
 
     @property
     def original_frame(self) -> NDArray:
@@ -296,11 +263,11 @@ class CvWindow(Window):
 
     @property
     def last_frame(self) -> NDArray:
-        return self.get_last_layer_frame()
+        return self._manager.last_layer.frame
 
     @property
     def last_data(self) -> Any:
-        return self.get_last_layer_data()
+        return self._manager.last_layer.data
 
     @property
     def mouse_event(self):
@@ -321,6 +288,14 @@ class CvWindow(Window):
     @property
     def keycode(self):
         return self._keycode
+
+    @property
+    def plot_roi(self):
+        return self._plot_roi
+
+    @plot_roi.setter
+    def plot_roi(self, value: Optional[RectInt]) -> None:
+        self._plot_roi = value
 
     def on_keydown_quit(self, keycode: int) -> None:
         raise KeyboardInterrupt("Quit key detected")
@@ -573,6 +548,8 @@ class CvWindow(Window):
         begin = datetime.now()
         try:
             with self._stat:
+                if self._use_deepcopy:
+                    frame = frame.copy()
                 return self.on_frame(frame)
         except BaseException as e:
             self.logger.exception(e)
@@ -580,10 +557,7 @@ class CvWindow(Window):
         finally:
             self._process_duration = (datetime.now() - begin).total_seconds()
 
-    def draw_plot_popup(self, canvas: NDArray, analysis_frame: NDArray) -> None:
-        pass
-
-    def draw_help_popup(self, canvas: NDArray) -> None:
+    def as_information_text(self) -> str:
         buffer = StringIO()
         buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
 
@@ -603,22 +577,7 @@ class CvWindow(Window):
             buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
             buffer.write(self._manager.current_layer.as_help())
 
-        x, y = self._help_offset
-        anchor_x, anchor_y = self._help_anchor
-        font = self._font
-        scale = self._font_scale
-        help_text = buffer.getvalue()
-
-        draw_multiline_text_box(
-            image=canvas,
-            text=help_text,
-            x=x,
-            y=y,
-            font=font,
-            scale=scale,
-            anchor_x=anchor_x,
-            anchor_y=anchor_y,
-        )
+        return buffer.getvalue()
 
     def _select_preview_source(self, result_frame: Optional[NDArray]) -> NDArray:
         if self._show_man:
@@ -639,16 +598,53 @@ class CvWindow(Window):
         if len(frame.shape) == 2:
             return cvt_color(frame, CvtColorCode.GRAY2BGR)
         else:
-            return frame
+            return frame.copy() if self._use_deepcopy else frame
 
     def _resizing(self, frame: NDArray) -> NDArray:
         if isclose(self._preview_scale, 1.0):
-            return frame
+            return frame.copy() if self._use_deepcopy else frame
         else:
             sx = self._preview_scale
             sy = self._preview_scale
             sm = self._preview_scale_method
             return resize_ratio(frame, sx, sy, sm)
+
+    def _draw_information(self, frame: NDArray, analyze_frame: NDArray) -> NDArray:
+        if self._use_deepcopy:
+            frame = frame.copy()
+
+        if self._show_man:
+            return frame
+
+        if self._help_mode == HelpMode.HIDE:
+            return frame
+
+        help_roi = draw_multiline_text_box(
+            image=frame,
+            text=self.as_information_text(),
+            x=self._help_offset[0],
+            y=self._help_offset[1],
+            font=self._font,
+            scale=self._font_scale,
+            anchor_x=self._help_anchor[0],
+            anchor_y=self._help_anchor[1],
+        )
+
+        if self._help_mode == HelpMode.PLOT:
+            hx1, hy1, hx2, hy2 = help_roi
+            dx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
+            dy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]
+            dx2 = dx1 + self._plot_size[0]
+            dy2 = dy1 + self._plot_size[1]
+            draw_roi = dx1, dy1, dx2, dy2
+            draw_histogram_channels(
+                frame,
+                draw_roi,
+                analyze_frame,
+                self._plot_roi,
+            )
+
+        return frame
 
     def _iter(self) -> None:
         if not self._capture.opened:
@@ -660,14 +656,8 @@ class CvWindow(Window):
         result_frame = self.do_process(self._original_frame)
         select_frame = self._select_preview_source(result_frame)
         colored_frame = self._coloring(select_frame)
-        resized_preview = self._resizing(colored_frame)
-
-        if self._help_mode != HelpMode.HIDE:
-            if self._help_mode == HelpMode.PLOT:
-                self.draw_plot_popup(resized_preview, select_frame)
-            self.draw_help_popup(resized_preview)
-
-        self._preview_frame = resized_preview
+        resized_frame = self._resizing(colored_frame)
+        self._preview_frame = self._draw_information(resized_frame, select_frame)
 
         if self._writer is not None:
             assert self._writer.opened
