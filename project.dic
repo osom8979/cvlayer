@@ -9,6 +9,7 @@ asctime
 bggr
 bgra
 bgsegm
+bgsub
 bilevel
 buffersize
 ccoeff
@@ -29,10 +30,12 @@ divx
 dshow
 dtype
 exif's
+fgmask
 fireware
 framebytes
 freeratio
 gbrg
+getk
 giganetix
 goturn
 gphoto
@@ -70,6 +73,7 @@ rbutton
 resunit
 retr
 rggb
+setk
 sgilog
 shiftkey
 smartek
