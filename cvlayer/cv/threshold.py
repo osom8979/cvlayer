@@ -29,6 +29,10 @@ class ThresholdMethod(Enum):
 
 class ThresholdResult(NamedTuple):
     computed_threshold_value: float
+    """
+    The computed threshold value if Otsu's or Triangle methods used.
+    """
+
     threshold_image: NDArray
 
 
@@ -38,9 +42,30 @@ def threshold(
     max_value=PIXEL_8BIT_MAX,
     method=ThresholdMethod.BINARY,
 ) -> ThresholdResult:
-    # The computed threshold value if Otsu's or Triangle methods used.
     computed_threshold_value, threshold_image = cv2.threshold(
         src, thresh, max_value, method.value
+    )
+    return ThresholdResult(computed_threshold_value, threshold_image)
+
+
+def threshold_otsu(
+    src: NDArray,
+    max_value=PIXEL_8BIT_MAX,
+    method=ThresholdMethod.BINARY,
+) -> ThresholdResult:
+    computed_threshold_value, threshold_image = cv2.threshold(
+        src, 0, max_value, method.value | cv2.THRESH_OTSU
+    )
+    return ThresholdResult(computed_threshold_value, threshold_image)
+
+
+def threshold_triangle(
+    src: NDArray,
+    max_value=PIXEL_8BIT_MAX,
+    method=ThresholdMethod.BINARY,
+) -> ThresholdResult:
+    computed_threshold_value, threshold_image = cv2.threshold(
+        src, 0, max_value, method.value | cv2.THRESH_TRIANGLE
     )
     return ThresholdResult(computed_threshold_value, threshold_image)
 
@@ -67,6 +92,22 @@ class CvlThreshold:
         method=ThresholdMethod.BINARY,
     ):
         return threshold(src, thresh, max_value, method)
+
+    @staticmethod
+    def cvl_threshold_otsu(
+        src: NDArray,
+        max_value=PIXEL_8BIT_MAX,
+        method=ThresholdMethod.BINARY,
+    ):
+        return threshold_otsu(src, max_value, method)
+
+    @staticmethod
+    def cvl_threshold_triangle(
+        src: NDArray,
+        max_value=PIXEL_8BIT_MAX,
+        method=ThresholdMethod.BINARY,
+    ):
+        return threshold_triangle(src, max_value, method)
 
     @staticmethod
     def cvl_adaptive_threshold(

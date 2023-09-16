@@ -122,6 +122,8 @@ def draw_plot_2d(
     assert max_y is not None
     x_size = max_x - min_x
     y_size = max_y - min_y
+    if x_size * y_size == 0:
+        raise ValueError("The data range is 0")
 
     roi = roi if roi else (0, 0, canvas.shape[1], canvas.shape[0])
     assert roi is not None
@@ -132,7 +134,7 @@ def draw_plot_2d(
     bottom = max(roi[1], roi[3])
     width = right - left
     height = bottom - top
-    if width * height <= 0:
+    if width * height == 0:
         raise ValueError("There is no area to draw")
 
     def canvas_x(real_x: NumberT):

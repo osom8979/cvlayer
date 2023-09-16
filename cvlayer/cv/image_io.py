@@ -102,7 +102,7 @@ class ImWriteFlags(Enum):
     EXR_TYPE = cv2.IMWRITE_EXR_TYPE
     WEBP_QUALITY = cv2.IMWRITE_WEBP_QUALITY
     """
-    override EXR storage type (FLOAT (FP32) is default)
+    Override EXR storage type (FLOAT (FP32) is default)
 
     For WEBP, it can be a quality from 1 to 100 (the higher is the better).
     By default (without any parameter) and for quality above 100 the lossless

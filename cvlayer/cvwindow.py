@@ -10,7 +10,6 @@ from typing import Any, Final, List, Optional
 
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
-from overrides import override
 
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import FONT_HERSHEY_SIMPLEX, draw_multiline_text_box
@@ -397,7 +396,6 @@ class CvWindow(Window):
             elif keycode == self._highgui_keys[HighGuiKeyCode.ARROW_RIGHT]:
                 self.do_param_up()
 
-    @override
     def on_mouse(self, event: MouseEvent, x: int, y: int, flags: EventFlags) -> None:
         self._mouse_event = event
         self._mouse_x = x
@@ -412,7 +410,6 @@ class CvWindow(Window):
 
         # TODO: Global mouse event implementation to be added later
 
-    @override
     def on_trackbar(self, name: str, value: int) -> None:
         pass
 

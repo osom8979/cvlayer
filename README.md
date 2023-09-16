@@ -46,6 +46,7 @@ Just inherit `cvlayer.CvWindow`.
 from sys import argv
 
 from cvlayer import CvLayer, CvWindow
+from cvlayer.palette.basic import RED
 
 
 class YourWindow(CvWindow, CvLayer):
@@ -54,11 +55,23 @@ class YourWindow(CvWindow, CvLayer):
 
     def on_frame(self, image):
         with self.layer("hsv") as layer:
-            hsv = layer.frame = self.cvl_cvt_color_bgr2hsv(image)
+            layer.frame = hsv = self.cvl_cvt_color_bgr2hsv(image)
 
         with self.layer("select-hsv-channel") as layer:
             i = layer.param("i").build_unsigned(0, max_value=2)
-            channel = layer.frame = hsv[:, :, int(i)].copy()
+            layer.frame = channel = hsv[:, :, int(i)].copy()
+
+        with self.layer("select-roi") as layer:
+            roi = layer.param("roi").build_select_roi()
+            self.plot_roi = roi.value
+            layer.frame = hsv.copy()
+            self.cvl_draw_rectangle(layer.frame, roi.value, color=RED)
+
+        with self.layer("select-points") as layer:
+            points = layer.param("points").build_select_points()
+            layer.frame = select_points = hsv.copy()
+            for x, y in points.value:
+                self.cvl_draw_crosshair_point(select_points, x, y, color=RED)
 
         return channel
 
