@@ -6,8 +6,9 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import PIXEL_8BIT_MAX
-from cvlayer.cv.plot import COLOR, LINE_TYPE, THICKNESS, PlotMode, draw_plot_2d
-from cvlayer.palette.basic import BLUE, GREEN, RED
+from cvlayer.cv.drawable import LINE_AA
+from cvlayer.cv.plot import PlotMode, draw_plot_2d
+from cvlayer.palette.basic import BLUE, GRAY, GREEN, RED
 from cvlayer.typing import Color, PointFloat, RectInt
 
 RANGE_MAX: Final[int] = PIXEL_8BIT_MAX + 1
@@ -63,9 +64,9 @@ def draw_histogram_channel(
     analysis_roi: Optional[RectInt] = None,
     index=0,
     channel_max=float(RANGE_MAX),
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
+    color=GRAY,
+    thickness=1,
+    line_type=LINE_AA,
 ) -> None:
     width = abs(roi[2] - roi[0])
     height = abs(roi[3] - roi[1])
@@ -100,8 +101,8 @@ def draw_histogram_channels(
     analysis_roi: Optional[RectInt] = None,
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
     colors: Sequence[Color] = (BLUE, GREEN, RED),
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
+    thickness=1,
+    line_type=LINE_AA,
 ) -> None:
     if analysis_roi is not None:
         x1, y1, x2, y2 = analysis_roi
@@ -173,9 +174,9 @@ class CvlHistogram:
         analysis_roi: Optional[RectInt] = None,
         index=0,
         channel_max=RANGE_MAX,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
+        color=GRAY,
+        thickness=1,
+        line_type=LINE_AA,
     ):
         return draw_histogram_channel(
             frame=frame,
@@ -197,8 +198,8 @@ class CvlHistogram:
         analysis_roi: Optional[RectInt] = None,
         channels_max=(RANGE_MAX, RANGE_MAX, RANGE_MAX),
         colors=(BLUE, GREEN, RED),
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
+        thickness=1,
+        line_type=LINE_AA,
     ):
         return draw_histogram_channels(
             frame=frame,

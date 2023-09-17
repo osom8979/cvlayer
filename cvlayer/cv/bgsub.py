@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, auto, unique
+from os import path
 from typing import Any, Final, List, Optional
 
 import cv2
@@ -96,6 +97,7 @@ class BackgroundSubtractor:
 
     def clear(self) -> None:
         """Clears the algorithm state"""
+        assert isinstance(self._bgsub, cv2.Algorithm)
         self._bgsub.clear()
 
     @property
@@ -104,20 +106,43 @@ class BackgroundSubtractor:
         Returns true if the Algorithm is empty.
         e.g. in the very beginning or after unsuccessful read.
         """
+        assert isinstance(self._bgsub, cv2.Algorithm)
         return self._bgsub.empty()
 
     @property
     def default_name(self) -> str:
+        assert isinstance(self._bgsub, cv2.Algorithm)
         return self._bgsub.getDefaultName()
 
-    def read(self):
-        return self._bgsub.read()
+    def read(self, node: cv2.FileNode) -> None:
+        assert isinstance(self._bgsub, cv2.Algorithm)
+        self._bgsub.read(node)
 
-    def save(self):
-        return self._bgsub.save()
+    def write(self, storage: cv2.FileStorage, name: Optional[str] = None) -> None:
+        assert isinstance(self._bgsub, cv2.Algorithm)
+        if name is not None:
+            self._bgsub.write(storage, name)
+        else:
+            self._bgsub.write(storage)
 
-    def write(self):
-        return self._bgsub.write()
+    def save(self, filename: str) -> None:
+        assert isinstance(self._bgsub, cv2.Algorithm)
+        self._bgsub.save(filename)
+
+    def load(self, filename: str, name: Optional[str] = None) -> None:
+        assert isinstance(self._bgsub, cv2.Algorithm)
+        if not path.isfile(filename):
+            raise FileNotFoundError(f"File not found error: '{filename}'")
+
+        storage = cv2.FileStorage(filename, cv2.FILE_STORAGE_READ)
+        if not storage.isOpened():
+            raise EOFError("File is not opened error")
+
+        try:
+            node = storage.getNode(name) if name else storage.getFirstTopLevelNode()
+            self._bgsub.read(node)
+        finally:
+            storage.release()
 
     def apply(self, image: NDArray, learning_rate=-1) -> NDArray:
         """
@@ -131,12 +156,14 @@ class BackgroundSubtractor:
             1 means that the background model is completely reinitialized from the
             last frame.
         """
-        self._fgmask = self._bgsub.apply(image, learning_rate)
+        assert isinstance(self._bgsub, cv2.BackgroundSubtractor)
+        self._fgmask = self._bgsub.apply(image, None, learning_rate)
         return self._fgmask
 
     @property
     def background(self) -> NDArray:
         """Computes a background image"""
+        assert isinstance(self._bgsub, cv2.BackgroundSubtractor)
         return self._bgsub.getBackgroundImage()
 
 
