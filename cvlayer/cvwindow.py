@@ -11,6 +11,7 @@ from typing import Any, Final, List, Optional
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
 
+from cvlayer.cv.basic import mean
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import FONT_HERSHEY_SIMPLEX, draw_multiline_text_box
 from cvlayer.cv.fourcc import FOURCC_MP4V
@@ -119,7 +120,7 @@ class CvWindow(Window):
         writer_fps: Optional[float] = None,
         writer_fourcc=FOURCC_MP4V,
         logger_name: Optional[str] = None,
-        logging_step=1000,
+        logging_step=1,
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
         plot_size: Optional[SizeInt] = None,
@@ -544,35 +545,38 @@ class CvWindow(Window):
     def do_process(self, frame: NDArray) -> Optional[NDArray]:
         begin = datetime.now()
         try:
-            with self._stat:
-                if self._use_deepcopy:
-                    frame = frame.copy()
-                return self.on_frame(frame)
+            if self._use_deepcopy:
+                frame = frame.copy()
+            self._manager.update_first_frame_and_data(frame)
+            return self.on_frame(frame)
         except BaseException as e:
             self.logger.exception(e)
             return None
         finally:
             self._process_duration = (datetime.now() - begin).total_seconds()
 
-    def as_information_text(self) -> str:
+    def as_information_text(self, analyze_frame: Optional[NDArray] = None) -> str:
+        duration = self._stat.avg
+        fps = 1.0 / duration if duration != 0 else 0
+        cursor = self._manager.cursor
+        number_of_layers = self._manager.number_of_layers
+
         buffer = StringIO()
         buffer.write(f"Frame {self._capture.pos}/{self._capture.frames}\n")
+        buffer.write(f"FPS: {fps:.1f} (duration={duration:.3f}s)\n")
+        buffer.write(f"Layer index: {cursor}/{number_of_layers}\n")
+        buffer.write(f"Process duration: {self._process_duration:.3f}s\n")
+        buffer.write(f"Layers total duration: {self._manager.total_duration:.3f}s\n")
 
         if self._manager.is_cursor_at_last:
-            duration = self._process_duration
-            fps = 1.0 / duration
-            number_of_layers = self._manager.number_of_layers
-            buffer.write(f"Layer -/{number_of_layers}\n")
-            buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
-            buffer.write(f"Total duration: {self._manager.total_duration:.3f}s\n")
             buffer.write("[Last layer]")
         else:
-            duration = self._manager.current_layer.duration
-            fps = 1.0 / duration
-            number_of_layers = self._manager.number_of_layers
-            buffer.write(f"Layer {self._manager.cursor + 1}/{number_of_layers}\n")
-            buffer.write(f"Duration: {duration:.3f}s ({fps:.2f}fps)\n")
+            layer_duration = self._manager.current_layer.duration
+            buffer.write(f"Layer duration: {layer_duration:.3f}s\n")
             buffer.write(self._manager.current_layer.as_help())
+
+        if analyze_frame is not None:
+            buffer.write(f"\nMeans: {[round(m) for m in mean(analyze_frame)]}")
 
         return buffer.getvalue()
 
@@ -618,7 +622,7 @@ class CvWindow(Window):
 
         help_roi = draw_multiline_text_box(
             image=frame,
-            text=self.as_information_text(),
+            text=self.as_information_text(analyze_frame),
             x=self._help_offset[0],
             y=self._help_offset[1],
             font=self._font,
@@ -682,7 +686,8 @@ class CvWindow(Window):
         self.on_create()
         try:
             while not self._shutdown:
-                self._iter()
+                with self._stat:
+                    self._iter()
         except KeyboardInterrupt as e:
             self.logger.warning(e)
         except InterruptedError as e:

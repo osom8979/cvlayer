@@ -10,7 +10,7 @@ from cvlayer.cv.depth import DEFAULT_OUTPUT_DEPTH, validate_depth_combinations
 
 DEFAULT_DX: Final[int] = 1
 DEFAULT_DY: Final[int] = 1
-DEFAULT_KERNEL_SIZE: Final[int] = 1
+DEFAULT_KERNEL_SIZE: Final[int] = 3
 DEFAULT_SCALE: Final[float] = 1.0
 DEFAULT_DELTA: Final[float] = 0.0
 AVAILABLE_KERNEL_SIZE: Tuple[int, int, int, int] = 1, 3, 5, 7
@@ -31,7 +31,7 @@ def sobel(
     assert kernel_size >= 1
     assert kernel_size in AVAILABLE_KERNEL_SIZE
 
-    validate_depth_combinations(frame, output_depth.value)
+    validate_depth_combinations(frame.dtype, output_depth.value)
 
     if border_type.value == cv2.BORDER_WRAP:
         raise ValueError("Unsupported border type: BORDER_WRAP")

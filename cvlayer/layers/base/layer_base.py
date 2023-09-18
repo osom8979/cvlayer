@@ -5,6 +5,7 @@ from datetime import datetime
 from io import StringIO
 from types import TracebackType
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type
+from weakref import ref
 
 from numpy import zeros
 from numpy.typing import NDArray
@@ -23,7 +24,12 @@ class LayerBase:
     _params: Dict[str, LayerParameter]
     _error: Optional[BaseException]
 
-    def __init__(self, name: Optional[str] = None, **params: LayerParameter):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        prev: Optional[ref["LayerBase"]] = None,
+        **params: LayerParameter,
+    ):
         self._name = name if name else str()
         self._frame = zeros([])
         self._data = None
@@ -32,6 +38,8 @@ class LayerBase:
         self._error = None
         self._begin = datetime.now()
         self._end = datetime.now()
+
+        self._prev = prev
 
         self._keycode = 0
         self._mouse_event = MouseEvent.MOUSE_MOVE
@@ -42,6 +50,20 @@ class LayerBase:
     @property
     def name(self):
         return self._name
+
+    @property
+    def prev_frame(self):
+        assert self._prev is not None
+        prev = self._prev()
+        assert isinstance(prev, LayerBase)
+        return prev.frame
+
+    @property
+    def prev_data(self):
+        assert self._prev is not None
+        prev = self._prev()
+        assert isinstance(prev, LayerBase)
+        return prev.data
 
     @property
     def frame(self):

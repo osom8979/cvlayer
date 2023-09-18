@@ -55,22 +55,21 @@ class YourWindow(CvWindow, CvLayer):
 
     def on_frame(self, image):
         with self.layer("hsv") as layer:
-            layer.frame = hsv = self.cvl_cvt_color_bgr2hsv(image)
+            layer.frame = self.cvl_cvt_color_bgr2hsv(layer.prev_frame)
 
         with self.layer("select-hsv-channel") as layer:
-            i = layer.param("i").build_unsigned(0, max_value=2)
-            layer.frame = channel = hsv[:, :, int(i)].copy()
+            i = layer.param("i").build_unsigned(0, max_value=2).value
+            layer.frame = channel = layer.prev_frame[:, :, i].copy()
 
         with self.layer("select-roi") as layer:
-            roi = layer.param("roi").build_select_roi()
-            self.plot_roi = roi.value
-            layer.frame = hsv.copy()
-            self.cvl_draw_rectangle(layer.frame, roi.value, color=RED)
+            self.plot_roi = roi = layer.param("roi").build_select_roi().value
+            layer.frame = image.copy()
+            self.cvl_draw_rectangle(layer.frame, roi, color=RED)
 
         with self.layer("select-points") as layer:
-            points = layer.param("points").build_select_points()
-            layer.frame = select_points = hsv.copy()
-            for x, y in points.value:
+            points = layer.param("points").build_select_points().value
+            layer.frame = select_points = image.copy()
+            for x, y in points:
                 self.cvl_draw_crosshair_point(select_points, x, y, color=RED)
 
         return channel
@@ -78,6 +77,46 @@ class YourWindow(CvWindow, CvLayer):
 
 if __name__ == "__main__":
     YourWindow(argv[1]).run()
+```
+
+### Samples
+
+```python
+from cvlayer import CvLayer, CvWindow
+
+class YourWindow(CvWindow, CvLayer):
+    def on_frame(self, image):
+        with self.layer("morphology_ex") as layer:
+            ksize = layer.param("ksize").build_unsigned(3, 3).value
+            i = layer.param("iter").build_unsigned(1, 1).value
+            m = self.cvl_get_structuring_element(MorphMethod.ELLIPSE, (ksize, ksize))
+            src = layer.prev_frame
+            opening = cv2.morphologyEx(src, cv2.MORPH_OPEN, m, iterations=i)
+            layer.frame = opening
+```
+
+```python
+from cvlayer import CvLayer, CvWindow
+
+class YourWindow(CvWindow, CvLayer):
+    def on_frame(self, image):
+        with self.layer("dilate") as layer:
+            ksize = layer.param("ksize").build_unsigned(3, 3).value
+            i = layer.param("iter").build_unsigned(1, 1).value
+            m = self.cvl_get_structuring_element(MorphMethod.ELLIPSE, (ksize, ksize))
+            layer.frame = dilate = self.cvl_dilate(layer.prev_frame, m, iterations=i)
+```
+
+```python
+from cvlayer import CvLayer, CvWindow
+
+class YourWindow(CvWindow, CvLayer):
+    def on_frame(self, image):
+        with self.layer("erode") as layer:
+            ksize = layer.param("ksize").build_unsigned(3, 3).value
+            i = layer.param("iter").build_unsigned(1, 1).value
+            m = self.cvl_get_structuring_element(MorphMethod.ELLIPSE, (ksize, ksize))
+            layer.frame = erode = self.cvl_erode(layer.prev_frame, m, iterations=i)
 ```
 
 ## License

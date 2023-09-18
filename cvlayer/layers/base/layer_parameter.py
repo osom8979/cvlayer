@@ -301,15 +301,18 @@ class LayerParameter:
     def build_unsigned(
         self,
         value: int,
+        min_value: Optional[int] = None,
         max_value: Optional[int] = None,
         printable: Optional[PrintableCallable] = None,
         step=1,
     ):
         if self._frozen:
             return self
+        if min_value is not None and min_value < 0:
+            raise ValueError("The unsigned type must be 0 or greater")
         return self.build_integer(
             value=value,
-            min_value=0,
+            min_value=min_value if min_value is not None else 0,
             max_value=max_value,
             printable=printable,
             step=step,
@@ -386,11 +389,11 @@ class LayerParameter:
         self._clear_all_properties()
 
         if not items:
-            raise ValueError("The 'items' is empty.")
+            raise ValueError("The 'items' is empty")
 
         available_items = list(deepcopy(items))
 
-        self._value = available_items.index(value)
+        self._value = available_items.index(value) if value is not None else 0
         self._min_value = lambda: 0
         self._max_value = lambda: len(available_items) - 1
         self._decrease = lambda index: index - 1

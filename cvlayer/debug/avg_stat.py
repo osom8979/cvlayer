@@ -111,11 +111,11 @@ class AvgStat:
         self._end = datetime.now()
         self._total = 0.0
 
-    def get_report(self) -> str:
+    def as_report(self) -> str:
         return self._strfmt.format(name=self.name, step=self._step, avg=self.avg)
 
     def do_logging(self) -> None:
-        self._logger.log(self._level, self.get_report())
+        self._logger.log(self._level, self.as_report())
 
     def do_enter(self, begin: Optional[datetime] = None) -> None:
         self._step += 1

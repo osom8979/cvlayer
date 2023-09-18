@@ -4,6 +4,7 @@ from copy import deepcopy
 from functools import reduce
 from logging import getLogger
 from typing import Any, Dict, Final, List, Optional, Tuple, Union
+from weakref import ref
 
 from numpy.typing import NDArray
 
@@ -23,13 +24,15 @@ class LayerManager:
         self._name2index = dict()
         self._logger = getLogger(logger_name)
 
+        self._pseudo_first = LayerBase("__pseudo__", None)
+
     def __getitem__(self, key: Any) -> LayerBase:
         if not self.has_layer(key):
-            self.append_layer(LayerBase(str(key)))
+            self.append_layer(str(key))
         return self.get_layer(key)
 
     def __setitem__(self, key: str, value: LayerBase) -> None:
-        self.append_layer(value)
+        raise NotImplementedError("Unsupported __setitem__ method")
 
     @property
     def cursor(self):
@@ -71,13 +74,15 @@ class LayerManager:
         else:
             return 0.0
 
-    def append_layer(self, layer: LayerBase) -> None:
-        if layer.name in self._name2index:
-            raise KeyError(f"A layer with the same name already exists: '{layer.name}'")
+    def append_layer(self, name: str) -> None:
+        if name in self._name2index:
+            raise KeyError(f"A layer with the same name already exists: '{name}'")
+
+        prev = self._layers[-1] if self._layers else self._pseudo_first
+        layer = LayerBase(name, ref(prev))
 
         self._layers.append(layer)
-        if layer.name:
-            self._name2index[layer.name] = len(self._layers) - 1
+        self._name2index[name] = len(self._layers) - 1
 
     def has_layer(self, key: Any) -> bool:
         return str(key) in self._name2index
@@ -170,6 +175,10 @@ class LayerManager:
         max_index = len(self._layers) - 1
         name = type(self._layers[index]).__name__
         self._logger.info(f"Change layer ({index}/{max_index}) '{name}'")
+
+    def update_first_frame_and_data(self, frame: NDArray, data=None) -> None:
+        self._pseudo_first.frame = frame
+        self._pseudo_first.data = data
 
     def run(self, frame: NDArray, data=None, use_deepcopy=False) -> Tuple[NDArray, Any]:
         if not self._layers:

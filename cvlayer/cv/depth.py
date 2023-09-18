@@ -23,10 +23,10 @@ def validate_depth_combinations(input_dtype, output_depth: int) -> None:
     https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#filter_depths
     """
 
-    if input_dtype not in DEPTH_COMBINATIONS_TABLE:
+    if input_dtype.type not in DEPTH_COMBINATIONS_TABLE:
         raise TypeError(f"Unsupported input data type: {input_dtype}")
 
-    if output_depth not in DEPTH_COMBINATIONS_TABLE[input_dtype]:
+    if output_depth not in DEPTH_COMBINATIONS_TABLE[input_dtype.type]:
         raise TypeError(f"Mismatch depth combination: {input_dtype} -> {output_depth}")
 
 

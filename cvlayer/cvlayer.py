@@ -3,6 +3,7 @@
 from cvlayer.cv.angle import CvlAngle
 from cvlayer.cv.aspect_ratio import CvlAspectRatio
 from cvlayer.cv.backend import CvlBackend
+from cvlayer.cv.basic import CvlBasic
 from cvlayer.cv.bgsub import CvlBackgroundSubtractor
 from cvlayer.cv.bitwise import CvlBitwise
 from cvlayer.cv.canny import CvlCanny
@@ -41,6 +42,7 @@ from cvlayer.cv.perspective import CvlPerspective
 from cvlayer.cv.plot import CvlPlot
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
 from cvlayer.cv.sobel import CvlSobel
+from cvlayer.cv.stack import CvlStack
 from cvlayer.cv.threshold import CvlThreshold
 from cvlayer.cv.tracker import CvlTracker
 from cvlayer.cv.video_capture import CvlVideoCapture
@@ -52,6 +54,7 @@ class CvLayer(
     CvlAngle,
     CvlAspectRatio,
     CvlBackend,
+    CvlBasic,
     CvlBackgroundSubtractor,
     CvlBitwise,
     CvlCanny,
@@ -90,6 +93,7 @@ class CvLayer(
     CvlRotateTracer,
     CvlShapely,
     CvlSobel,
+    CvlStack,
     CvlThreshold,
     CvlTracker,
     CvlVideoCapture,
