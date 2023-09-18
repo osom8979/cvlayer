@@ -1,6 +1,7 @@
 # IDEA plugin: Dictionary
 # https://plugins.jetbrains.com/plugin/12089-dictionary
 
+absdiff
 altkey
 anycolor
 anydepth
@@ -18,6 +19,7 @@ ccorr
 cholesky
 csrt
 ctrlkey
+cvarr
 cvlayer
 cvwindow
 dasiamrpn
@@ -35,12 +37,15 @@ fireware
 framebytes
 freeratio
 gbrg
+gemm
 getk
 giganetix
 goturn
 gphoto
 grbg
 hwheel
+idct
+idft
 imwrite
 intelperc
 iyuv
@@ -69,6 +74,8 @@ printonly
 prosilica
 pvapi
 pythonpath
+randn
+randu
 rbutton
 resunit
 retr
@@ -77,9 +84,11 @@ setk
 sgilog
 shiftkey
 smartek
+spectrums
 sqdiff
 strfmt
 strftime
+symm
 tozero
 trackbarname
 tupletype

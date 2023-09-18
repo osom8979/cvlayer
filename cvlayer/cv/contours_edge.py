@@ -32,6 +32,22 @@ def _find_edge(
     return [(p[0], p[1]) for p in points] if points else []
 
 
+def find_leftmost_point(contour: NDArray):
+    return tuple(contour[contour[:, :, 0].argmin()][0])
+
+
+def find_rightmost_point(contour: NDArray):
+    return tuple(contour[contour[:, :, 0].argmax()][0])
+
+
+def find_topmost_point(contour: NDArray):
+    return tuple(contour[contour[:, :, 1].argmin()][0])
+
+
+def find_bottommost_point(contour: NDArray):
+    return tuple(contour[contour[:, :, 1].argmax()][0])
+
+
 def _left_edge_filter(contour: NDArray) -> NDArray:
     value = contour[:, 0, 0].min()  # noqa
     return contour[contour[:, 0, 0] == value]
