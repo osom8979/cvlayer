@@ -24,7 +24,7 @@ class LayerManager:
         self._name2index = dict()
         self._logger = getLogger(logger_name)
 
-        self._pseudo_first = LayerBase("__pseudo__", None)
+        self._pseudo_first = LayerBase("__pseudo_first__", None)
 
     def __getitem__(self, key: Any) -> LayerBase:
         if not self.has_layer(key):
