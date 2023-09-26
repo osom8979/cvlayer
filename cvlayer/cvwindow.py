@@ -664,9 +664,10 @@ class CvWindow(Window):
             assert self._writer.opened
             self._writer.write(self._preview_frame)
 
-        if not self._headless:
-            self.draw(self._preview_frame)
+        if self._headless:
+            return
 
+        self.draw(self._preview_frame)
         self._keycode = self.wait_key_ex(self._window_wait)
 
         if not self.visible:
