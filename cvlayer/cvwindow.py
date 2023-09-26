@@ -127,7 +127,7 @@ class CvWindow(Window):
         plot_roi: Optional[RectInt] = None,
         use_deepcopy=False,
     ):
-        super().__init__(window_title, window_flags)
+        super().__init__(window_title, window_flags, suppress_init=headless)
 
         assert 0 <= start_position
         assert 1 <= window_wait
@@ -152,13 +152,13 @@ class CvWindow(Window):
 
         self._manager = LayerManager(logger_name=logger_name)
 
-        if window_size is not None:
+        if not self._headless and window_size is not None:
             win_width, win_height = window_size
             if win_width <= 0 or win_height <= 0:
                 raise ValueError(f"Invalid window size: {window_size}")
             self.resize(win_width, win_height)
 
-        if window_position is not None:
+        if not self._headless and window_position is not None:
             win_x, win_y = window_position
             if win_x <= 0 or win_y <= 0:
                 raise ValueError(f"Invalid window position: {window_position}")

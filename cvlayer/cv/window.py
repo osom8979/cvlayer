@@ -60,7 +60,7 @@ def _create_trackbar(
 
 
 class Window:
-    def __init__(self, title: str, flags=WINDOW_NORMAL):
+    def __init__(self, title: str, flags=WINDOW_NORMAL, suppress_init=False):
         if not title:
             raise ValueError("A window name is required")
 
@@ -68,7 +68,9 @@ class Window:
         self._has_mouse = _has_set_mouse_callback()
         self._has_trackbar = _has_create_trackbar()
 
-        cv2.namedWindow(title, flags)
+        if not suppress_init:
+            cv2.namedWindow(title, flags)
+
         if self._has_mouse:
             _set_mouse_callback(title, self._mouse_callback)
 
