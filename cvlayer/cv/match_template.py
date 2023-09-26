@@ -48,7 +48,7 @@ def match_template(
     x2 = x1 + template_width
     y2 = y1 + template_height
 
-    return MatchResult(x1, y2, x2, y2, match_val)
+    return MatchResult(x1, y1, x2, y2, match_val)
 
 
 class CvlMatchTemplate:
