@@ -68,8 +68,10 @@ class Window:
         self._has_mouse = _has_set_mouse_callback()
         self._has_trackbar = _has_create_trackbar()
 
-        if not suppress_init:
-            cv2.namedWindow(title, flags)
+        if suppress_init:
+            return
+
+        cv2.namedWindow(title, flags)
 
         if self._has_mouse:
             _set_mouse_callback(title, self._mouse_callback)
