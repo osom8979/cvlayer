@@ -157,6 +157,7 @@ def draw_image(
     src: Image,
     x: Number,
     y: Number,
+    alpha=1.0,
 ) -> None:
     canvas_height = canvas.shape[0]
     canvas_width = canvas.shape[1]
@@ -166,7 +167,23 @@ def draw_image(
     y1 = max(int(y), 0)
     x2 = min(x1 + src_width, canvas_width)
     y2 = min(y1 + src_height, canvas_height)
-    canvas[y1:y2, x1:x2] = src
+
+    if alpha == 1.0:
+        canvas[y1:y2, x1:x2] = src
+        return
+
+    if alpha < 0.0:
+        raise ValueError("The 'alpha' argument must be greater than or equal to 0")
+    if alpha > 1.0:
+        raise ValueError("The 'alpha' argument must not exceed 1")
+
+    if alpha == 0.0:
+        return
+
+    assert 0.0 < alpha < 1.0
+    beta = 1.0 - alpha
+    mixed = cv2.addWeighted(src, alpha, canvas[y1:y2, x1:x2], beta, 0)
+    canvas[y1:y2, x1:x2] = mixed
 
 
 def draw_crosshair_point(
@@ -550,6 +567,7 @@ class CvlDrawable:
         src: Image,
         x: Number,
         y: Number,
+        alpha=1.0,
     ):
         return draw_image(canvas, src, x, y)
 

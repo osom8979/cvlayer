@@ -372,6 +372,10 @@ class CvWindow(Window):
     def on_destroy(self) -> None:
         self._manager.on_destroy()
 
+        if self._writer is not None:
+            assert self._writer.opened
+            self._writer.release()
+
     def on_frame(self, image: NDArray) -> Optional[NDArray]:
         self._manager.run(image, self._use_deepcopy)
         return None

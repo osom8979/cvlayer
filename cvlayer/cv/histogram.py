@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.cv.drawable import LINE_AA
 from cvlayer.cv.plot import PlotMode, draw_plot_2d
-from cvlayer.palette.basic import BLUE, GRAY, GREEN, RED
+from cvlayer.palette.basic import AQUA, BLACK, BLUE, FUCHSIA, GRAY, GREEN, RED, YELLOW
 from cvlayer.typing import Color, PointFloat, RectInt
 
 RANGE_MAX: Final[int] = PIXEL_8BIT_MAX + 1
@@ -52,7 +52,7 @@ def normalize_drawable_histogram(
     result = list()
     for i in range(hist_size):
         x = i * width_step
-        y = height - float(normalized[i])
+        y = float(normalized[i])
         result.append((x, y))
     return result
 
@@ -100,7 +100,7 @@ def draw_histogram_channels(
     analysis: NDArray,
     analysis_roi: Optional[RectInt] = None,
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
-    colors: Sequence[Color] = (BLUE, GREEN, RED),
+    colors: Optional[Sequence[Color]] = None,
     thickness=1,
     line_type=LINE_AA,
 ) -> None:
@@ -119,6 +119,20 @@ def draw_histogram_channels(
     else:
         raise ValueError(f"Unsupported analysis shape: {shape_size}")
 
+    if colors:
+        channels_color = colors
+    else:
+        if channels == 1:
+            channels_color = (BLACK,)
+        elif channels == 2:
+            channels_color = AQUA, YELLOW
+        elif channels == 3:
+            channels_color = BLUE, GREEN, RED
+        elif channels == 4:
+            channels_color = BLUE, GREEN, RED, FUCHSIA
+        else:
+            raise ValueError(f"Unsupported channels: {channels}")
+
     for i in range(channels):
         draw_histogram_channel(
             frame,
@@ -127,7 +141,7 @@ def draw_histogram_channels(
             None,
             i,
             channels_max[i],
-            colors[i],
+            channels_color[i],
             thickness,
             line_type,
         )
@@ -197,7 +211,7 @@ class CvlHistogram:
         analysis: NDArray,
         analysis_roi: Optional[RectInt] = None,
         channels_max=(RANGE_MAX, RANGE_MAX, RANGE_MAX),
-        colors=(BLUE, GREEN, RED),
+        colors: Optional[Sequence[Color]] = None,
         thickness=1,
         line_type=LINE_AA,
     ):

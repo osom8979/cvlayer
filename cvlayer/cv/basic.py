@@ -18,11 +18,6 @@ def mean(
 # def abs():
 # def absdiff():
 # def add():
-# def addWeighted():
-# def bitwise_and():
-# def bitwise_not():
-# def bitwise_or():
-# def bitwise_xor():
 # def calcCovarMatrix():
 # def cartToPolar():
 # def checkRange():
@@ -51,11 +46,8 @@ def mean(
 # def LUT():
 # def magnitude():
 # def Mahalanobis():
-# def max():
-# def mean():
 # def meanStdDev():
 # def merge():
-# def min():
 # def minMaxIdx():
 # def minMaxLoc():
 # def mixChannels():
