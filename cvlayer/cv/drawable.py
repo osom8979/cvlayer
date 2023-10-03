@@ -569,7 +569,7 @@ class CvlDrawable:
         y: Number,
         alpha=1.0,
     ):
-        return draw_image(canvas, src, x, y)
+        return draw_image(canvas, src, x, y, alpha)
 
     @staticmethod
     def cvl_draw_crosshair_point(

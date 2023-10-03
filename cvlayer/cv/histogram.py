@@ -3,17 +3,33 @@
 from typing import Final, List, Optional, Sequence, Tuple
 
 import cv2
+from numpy import full, uint8
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import PIXEL_8BIT_MAX
-from cvlayer.cv.drawable import LINE_AA
+from cvlayer.cv.drawable import LINE_AA, draw_image, draw_line
 from cvlayer.cv.plot import PlotMode, draw_plot_2d
-from cvlayer.palette.basic import AQUA, BLACK, BLUE, FUCHSIA, GRAY, GREEN, RED, YELLOW
+from cvlayer.palette.basic import (
+    AQUA,
+    BLACK,
+    BLUE,
+    FUCHSIA,
+    GRAY,
+    GREEN,
+    RED,
+    WHITE,
+    YELLOW,
+)
 from cvlayer.typing import Color, PointFloat, RectInt
 
 RANGE_MAX: Final[int] = PIXEL_8BIT_MAX + 1
 DEFAULT_HIST_SIZE: Final[Sequence[int]] = (RANGE_MAX,)
 DEFAULT_RANGES: Final[Tuple[float, float]] = (0.0, float(RANGE_MAX))
+THICKNESS: Final[int] = 1
+
+BACKGROUND_COLOR: Final[Color] = WHITE
+BACKGROUND_ALPHA: Final[float] = 0.4
+PADDING: Final[int] = 12
 
 
 def calc_hist(
@@ -58,14 +74,14 @@ def normalize_drawable_histogram(
 
 
 def draw_histogram_channel(
-    frame: NDArray,
+    canvas: NDArray,
     roi: RectInt,
     analysis: NDArray,
     analysis_roi: Optional[RectInt] = None,
     index=0,
     channel_max=float(RANGE_MAX),
     color=GRAY,
-    thickness=1,
+    thickness=THICKNESS,
     line_type=LINE_AA,
 ) -> None:
     width = abs(roi[2] - roi[0])
@@ -83,7 +99,7 @@ def draw_histogram_channel(
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     draw_plot_2d(
-        frame,
+        canvas,
         xs,
         ys,
         roi=roi,
@@ -95,13 +111,13 @@ def draw_histogram_channel(
 
 
 def draw_histogram_channels(
-    frame: NDArray,
+    canvas: NDArray,
     roi: RectInt,
     analysis: NDArray,
     analysis_roi: Optional[RectInt] = None,
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
     colors: Optional[Sequence[Color]] = None,
-    thickness=1,
+    thickness=THICKNESS,
     line_type=LINE_AA,
 ) -> None:
     if analysis_roi is not None:
@@ -135,7 +151,7 @@ def draw_histogram_channels(
 
     for i in range(channels):
         draw_histogram_channel(
-            frame,
+            canvas,
             roi,
             analysis,
             None,
@@ -145,6 +161,64 @@ def draw_histogram_channels(
             thickness,
             line_type,
         )
+
+
+def draw_histogram_channels_with_decorate(
+    canvas: NDArray,
+    roi: RectInt,
+    analysis: NDArray,
+    analysis_roi: Optional[RectInt] = None,
+    channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
+    colors: Optional[Sequence[Color]] = None,
+    thickness=THICKNESS,
+    line_type=LINE_AA,
+    background_color=BACKGROUND_COLOR,
+    background_alpha=BACKGROUND_ALPHA,
+    padding=PADDING,
+) -> None:
+    x1, y1, x2, y2 = roi
+    box_left = min(x1, x2)
+    box_right = max(x1, x2)
+    box_top = min(y1, y2)
+    box_bottom = max(y1, y2)
+    box_width = box_right - box_left
+    box_height = box_bottom - box_top
+    assert box_width >= 1
+    assert box_height >= 1
+    box = full((box_height, box_width, 3), background_color, dtype=uint8)
+
+    plot_left = padding
+    plot_top = padding
+    plot_right = box_width - padding
+    plot_bottom = box_height - padding
+    plot_canvas_roi = plot_left, plot_top, plot_right, plot_bottom
+
+    left_top = plot_left, plot_top
+    left_bottom = plot_left, plot_bottom
+    right_bottom = plot_right, plot_bottom
+    draw_line(box, left_bottom, right_bottom, BLACK, 1)
+    draw_line(box, left_bottom, left_top, BLACK, 1)
+
+    center_x_bottom0 = plot_left + (box_width // 2), plot_bottom
+    center_x_bottom1 = center_x_bottom0[0], plot_bottom + (padding // 2)
+    draw_line(box, center_x_bottom0, center_x_bottom1, BLACK, thickness=thickness)
+
+    left_center_y0 = plot_left, plot_top + (box_height // 2)
+    left_center_y1 = plot_left - (padding // 2), left_center_y0[1]
+    draw_line(box, left_center_y0, left_center_y1, BLACK, thickness=thickness)
+
+    draw_histogram_channels(
+        canvas=box,
+        roi=plot_canvas_roi,
+        analysis=analysis,
+        analysis_roi=analysis_roi,
+        channels_max=channels_max,
+        colors=colors,
+        thickness=thickness,
+        line_type=line_type,
+    )
+
+    draw_image(canvas, box, box_left, box_top, background_alpha)
 
 
 class CvlHistogram:
@@ -182,18 +256,18 @@ class CvlHistogram:
 
     @staticmethod
     def cvl_draw_histogram_channel(
-        frame: NDArray,
+        canvas: NDArray,
         roi: RectInt,
         analysis: NDArray,
         analysis_roi: Optional[RectInt] = None,
         index=0,
         channel_max=RANGE_MAX,
         color=GRAY,
-        thickness=1,
+        thickness=THICKNESS,
         line_type=LINE_AA,
     ):
         return draw_histogram_channel(
-            frame=frame,
+            canvas=canvas,
             roi=roi,
             analysis=analysis,
             analysis_roi=analysis_roi,
@@ -206,17 +280,17 @@ class CvlHistogram:
 
     @staticmethod
     def cvl_draw_histogram_channels(
-        frame: NDArray,
+        canvas: NDArray,
         roi: RectInt,
         analysis: NDArray,
         analysis_roi: Optional[RectInt] = None,
         channels_max=(RANGE_MAX, RANGE_MAX, RANGE_MAX),
         colors: Optional[Sequence[Color]] = None,
-        thickness=1,
+        thickness=THICKNESS,
         line_type=LINE_AA,
     ):
         return draw_histogram_channels(
-            frame=frame,
+            canvas=canvas,
             roi=roi,
             analysis=analysis,
             analysis_roi=analysis_roi,
@@ -224,4 +298,32 @@ class CvlHistogram:
             colors=colors,
             thickness=thickness,
             line_type=line_type,
+        )
+
+    @staticmethod
+    def cvl_draw_histogram_channels_with_decorate(
+        canvas: NDArray,
+        roi: RectInt,
+        analysis: NDArray,
+        analysis_roi: Optional[RectInt] = None,
+        channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
+        colors: Optional[Sequence[Color]] = None,
+        thickness=THICKNESS,
+        line_type=LINE_AA,
+        background_color=BACKGROUND_COLOR,
+        background_alpha=BACKGROUND_ALPHA,
+        padding=PADDING,
+    ):
+        return draw_histogram_channels_with_decorate(
+            canvas=canvas,
+            roi=roi,
+            analysis=analysis,
+            analysis_roi=analysis_roi,
+            channels_max=channels_max,
+            colors=colors,
+            thickness=thickness,
+            line_type=line_type,
+            background_color=background_color,
+            background_alpha=background_alpha,
+            padding=padding,
         )

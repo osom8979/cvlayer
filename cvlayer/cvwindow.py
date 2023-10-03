@@ -15,7 +15,7 @@ from cvlayer.cv.basic import mean
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import FONT_HERSHEY_SIMPLEX, draw_multiline_text_box
 from cvlayer.cv.fourcc import FOURCC_MP4V
-from cvlayer.cv.histogram import draw_histogram_channels
+from cvlayer.cv.histogram import draw_histogram_channels_with_decorate
 from cvlayer.cv.image_io import image_write
 from cvlayer.cv.image_resize import Interpolation, resize_ratio
 from cvlayer.cv.keymap import (
@@ -105,7 +105,7 @@ class CvWindow(Window):
         preview_scale=1.0,
         preview_scale_method=Interpolation.INTER_AREA,
         start_position=0,
-        help_mode=HelpMode.INFO,
+        help_mode=HelpMode.PLOT,
         play=False,
         headless=False,
         show_man=False,
@@ -636,17 +636,19 @@ class CvWindow(Window):
         )
 
         if self._help_mode == HelpMode.PLOT:
+            padding = 12
             hx1, hy1, hx2, hy2 = help_roi
-            dx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
-            dy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]
-            dx2 = dx1 + self._plot_size[0]
-            dy2 = dy1 + self._plot_size[1]
-            draw_roi = dx1, dy1, dx2, dy2
-            draw_histogram_channels(
+            hx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
+            hy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]
+            hx2 = hx1 + self._plot_size[0] + (padding * 2)
+            hy2 = hy1 + self._plot_size[1] + (padding * 2)
+            hist_roi = hx1, hy1, hx2, hy2
+            draw_histogram_channels_with_decorate(
                 frame,
-                draw_roi,
+                hist_roi,
                 analyze_frame,
                 self._plot_roi,
+                padding=padding,
             )
 
         return frame
