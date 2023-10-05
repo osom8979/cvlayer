@@ -25,6 +25,6 @@ def install_requires(file: str, encoding="utf-8") -> List[str]:
 
 if __name__ == "__main__":
     setup(
-        requires=install_requires(REQUIREMENTS_MAIN),
+        install_requires=install_requires(REQUIREMENTS_MAIN),
         tests_require=install_requires(REQUIREMENTS_TEST),
     )
