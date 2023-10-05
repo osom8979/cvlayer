@@ -11,9 +11,12 @@ from typing import Any, Final, Optional, Sequence
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
 
-from cvlayer.cv.basic import mean
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
-from cvlayer.cv.drawable import FONT_HERSHEY_SIMPLEX, draw_multiline_text_box
+from cvlayer.cv.drawable import (
+    FONT_HERSHEY_SIMPLEX,
+    draw_multiline_text_box,
+    draw_rectangle,
+)
 from cvlayer.cv.fourcc import FOURCC_MP4V
 from cvlayer.cv.histogram import PADDING as HISTOGRAM_PADDING
 from cvlayer.cv.histogram import draw_histogram_channels_with_decorate
@@ -27,6 +30,7 @@ from cvlayer.cv.keymap import (
     highgui_keys,
 )
 from cvlayer.cv.mouse import EventFlags, MouseEvent
+from cvlayer.cv.roi import normalize_image_roi
 from cvlayer.cv.video_capture import VideoCapture
 from cvlayer.cv.video_writer import VideoWriter
 from cvlayer.cv.window import WINDOW_NORMAL, Window
@@ -35,20 +39,24 @@ from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layers.base.layer_base import LayerBase
 from cvlayer.layers.base.layer_manager import LayerManager
+from cvlayer.np.basic import image_maxs, image_means, image_mins
+from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
-from cvlayer.typing import PointFloat, PointInt, RectInt, SizeInt
+from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
 DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.0
 DEFAULT_PLOT_SIZE: Final[SizeInt] = 256, 256
+DEFAULT_ROI_COLOR: Final[Color] = RED
+DEFAULT_ROI_THICKNESS: Final[int] = 2
 
 
 @unique
 class HelpMode(Enum):
     HIDE = auto()
     INFO = auto()
-    PLOT = auto()
+    DEBUG = auto()
 
 
 @dataclass
@@ -94,6 +102,20 @@ class KeyDefine:
         )
 
 
+def analyze_frame_as_text(frame: NDArray, roi: Optional[RectInt] = None) -> str:
+    if roi is not None:
+        x1, y1, x2, y2 = normalize_image_roi(frame, roi)
+        if (x2 - x1) * (y2 - y1) != 0:
+            frame = frame[y1:y2, x1:x2]
+
+    buffer = StringIO()
+    buffer.write(f"Shape: {list(frame.shape)}\n")
+    buffer.write(f"Means: {[round(m) for m in image_means(frame)]}\n")
+    buffer.write(f"Min: {[round(float(m)) for m in image_mins(frame)]}\n")
+    buffer.write(f"Max: {[round(float(m)) for m in image_maxs(frame)]}")
+    return buffer.getvalue()
+
+
 class CvWindow(Window):
     _writer: Optional[VideoWriter]
 
@@ -106,10 +128,10 @@ class CvWindow(Window):
         preview_scale=1.0,
         preview_scale_method=Interpolation.INTER_AREA,
         start_position=0,
-        help_mode=HelpMode.PLOT,
+        help_mode=HelpMode.DEBUG,
         play=False,
         headless=False,
-        show_man=False,
+        show_manual=False,
         verbose=0,
         keymap: Optional[KeyDefine] = None,
         window_title=DEFAULT_WINDOW_EX_TITLE,
@@ -125,8 +147,11 @@ class CvWindow(Window):
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
         plot_size: Optional[SizeInt] = None,
-        plot_roi: Optional[RectInt] = None,
         plot_padding=HISTOGRAM_PADDING,
+        roi: Optional[RectInt] = None,
+        roi_color=DEFAULT_ROI_COLOR,
+        roi_thickness=DEFAULT_ROI_THICKNESS,
+        roi_draw=True,
         use_deepcopy=False,
     ):
         super().__init__(window_title, window_flags, suppress_init=headless)
@@ -144,13 +169,16 @@ class CvWindow(Window):
         self._help_mode = help_mode
         self._play = play
         self._headless = headless
-        self._show_man = show_man
+        self._show_manual = show_manual
         self._verbose = verbose
         self._help_offset = help_offset if help_offset else DEFAULT_HELP_OFFSET
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
         self._plot_size = plot_size if plot_size else DEFAULT_PLOT_SIZE
-        self._plot_roi = plot_roi
         self._plot_padding = plot_padding
+        self._roi = roi
+        self._roi_color = roi_color
+        self._roi_thickness = roi_thickness
+        self._roi_draw = roi_draw
         self._use_deepcopy = use_deepcopy
 
         self._manager = LayerManager(logger_name=logger_name)
@@ -293,12 +321,12 @@ class CvWindow(Window):
         return self._keycode
 
     @property
-    def plot_roi(self):
-        return self._plot_roi
+    def roi(self):
+        return self._roi
 
-    @plot_roi.setter
-    def plot_roi(self, value: Optional[RectInt]) -> None:
-        self._plot_roi = value
+    @roi.setter
+    def roi(self, value: Optional[RectInt]) -> None:
+        self._roi = value
 
     def on_keydown_quit(self, keycode: int) -> None:
         raise KeyboardInterrupt("Quit key detected")
@@ -446,16 +474,16 @@ class CvWindow(Window):
         if self._help_mode == HelpMode.HIDE:
             self._help_mode = HelpMode.INFO
         elif self._help_mode == HelpMode.INFO:
-            self._help_mode = HelpMode.PLOT
-        elif self._help_mode == HelpMode.PLOT:
+            self._help_mode = HelpMode.DEBUG
+        elif self._help_mode == HelpMode.DEBUG:
             self._help_mode = HelpMode.HIDE
         else:
             assert False, "Inaccessible section"
         self.logger.info(f"{self._help_mode.name} help popup")
 
     def flip_manual_page(self) -> None:
-        self._show_man = not self._show_man
-        popup_state = "Show" if self._show_man else "Hide"
+        self._show_manual = not self._show_manual
+        popup_state = "Show" if self._show_manual else "Hide"
         self.logger.info(f"{popup_state} man page")
 
     def snapshot(self, directory: Optional[str] = None, ext=".png") -> None:
@@ -562,7 +590,7 @@ class CvWindow(Window):
         finally:
             self._process_duration = (datetime.now() - begin).total_seconds()
 
-    def as_information_text(self, analyze_frame: Optional[NDArray] = None) -> str:
+    def as_information_text(self) -> str:
         duration = self._stat.avg
         fps = 1.0 / duration if duration != 0 else 0
         cursor = self._manager.cursor
@@ -582,13 +610,10 @@ class CvWindow(Window):
             buffer.write(f"Layer duration: {layer_duration:.3f}s\n")
             buffer.write(self._manager.current_layer.as_help())
 
-        if analyze_frame is not None:
-            buffer.write(f"\nMeans: {[round(m) for m in mean(analyze_frame)]}")
-
         return buffer.getvalue()
 
     def _select_preview_source(self, result_frame: Optional[NDArray]) -> NDArray:
-        if self._show_man:
+        if self._show_manual:
             return self._manpage
         elif self._manager.is_cursor_at_last:
             if result_frame is not None:
@@ -617,19 +642,47 @@ class CvWindow(Window):
             sm = self._preview_scale_method
             return resize_ratio(frame, sx, sy, sm)
 
-    def _draw_information(self, frame: NDArray, analyze_frame: NDArray) -> NDArray:
-        if self._use_deepcopy:
-            frame = frame.copy()
+    def _draw_histogram(
+        self,
+        frame: NDArray,
+        help_roi: RectInt,
+        analyze_frame: NDArray,
+    ) -> RectInt:
+        hx1, hy1, hx2, hy2 = help_roi
+        hx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
+        hy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]
+        hx2 = hx1 + self._plot_size[0] + (self._plot_padding * 2)
+        hy2 = hy1 + self._plot_size[1] + (self._plot_padding * 2)
+        hist_roi = hx1, hy1, hx2, hy2
+        draw_histogram_channels_with_decorate(
+            frame,
+            hist_roi,
+            analyze_frame,
+            self._roi,
+            padding=self._plot_padding,
+        )
+        return hist_roi
 
-        if self._show_man:
-            return frame
+    def _draw_information(self, frame: NDArray, analyze_frame: NDArray) -> NDArray:
+        # [IMPORTANT] Do not use `self._use_deepcopy` property.
+        canvas = frame.copy()
+
+        if self._show_manual:
+            return canvas
 
         if self._help_mode == HelpMode.HIDE:
-            return frame
+            return canvas
 
+        if self._roi_draw and self._roi is not None:
+            draw_rectangle(canvas, self._roi, self._roi_color, self._roi_thickness)
+
+        buffer = StringIO()
+        buffer.write(self.as_information_text())
+        if self._help_mode == HelpMode.DEBUG:
+            buffer.write("\n" + analyze_frame_as_text(analyze_frame, self._roi))
         help_roi = draw_multiline_text_box(
-            image=frame,
-            text=self.as_information_text(analyze_frame),
+            image=canvas,
+            text=buffer.getvalue(),
             x=self._help_offset[0],
             y=self._help_offset[1],
             font=self._font,
@@ -638,22 +691,10 @@ class CvWindow(Window):
             anchor_y=self._help_anchor[1],
         )
 
-        if self._help_mode == HelpMode.PLOT:
-            hx1, hy1, hx2, hy2 = help_roi
-            hx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
-            hy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]
-            hx2 = hx1 + self._plot_size[0] + (self._plot_padding * 2)
-            hy2 = hy1 + self._plot_size[1] + (self._plot_padding * 2)
-            hist_roi = hx1, hy1, hx2, hy2
-            draw_histogram_channels_with_decorate(
-                frame,
-                hist_roi,
-                analyze_frame,
-                self._plot_roi,
-                padding=self._plot_padding,
-            )
+        if self._help_mode == HelpMode.DEBUG:
+            self._draw_histogram(canvas, help_roi, analyze_frame)
 
-        return frame
+        return canvas
 
     def _iter(self) -> None:
         if not self._capture.opened:

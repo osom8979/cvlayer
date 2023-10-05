@@ -7,7 +7,7 @@ from numpy import full, uint8
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import PIXEL_8BIT_MAX
-from cvlayer.cv.drawable import LINE_AA, draw_image, draw_line
+from cvlayer.cv.drawable import FILLED, LINE_AA, draw_image, draw_line, draw_rectangle
 from cvlayer.cv.plot import PlotMode, draw_plot_2d
 from cvlayer.cv.roi import normalize_image_roi
 from cvlayer.palette.basic import (
@@ -32,6 +32,7 @@ BACKGROUND_COLOR: Final[Color] = WHITE
 BACKGROUND_ALPHA: Final[float] = 0.4
 OUTLINE_COLOR: Final[Color] = GRAY
 PADDING: Final[int] = 12
+GUIDE_THICKNESS: Final[int] = 1
 
 
 def calc_hist(
@@ -174,6 +175,10 @@ def draw_histogram_channels_with_decorate(
     background_alpha=BACKGROUND_ALPHA,
     outline_color=OUTLINE_COLOR,
     padding=PADDING,
+    padding_color=BLACK,
+    guide_thickness=GUIDE_THICKNESS,
+    draw_axis=False,
+    draw_guide=True,
 ) -> None:
     x1, y1, x2, y2 = roi
     box_left = min(x1, x2)
@@ -184,27 +189,30 @@ def draw_histogram_channels_with_decorate(
     box_height = box_bottom - box_top
     assert box_width >= 1
     assert box_height >= 1
-    box = full((box_height, box_width, 3), background_color, dtype=uint8)
+    box = full((box_height, box_width, 3), padding_color, dtype=uint8)
 
     plot_left = padding
     plot_top = padding
     plot_right = box_width - padding
     plot_bottom = box_height - padding
     plot_canvas_roi = plot_left, plot_top, plot_right, plot_bottom
+    draw_rectangle(box, plot_canvas_roi, background_color, FILLED)
 
-    left_top = plot_left, plot_top
-    left_bottom = plot_left, plot_bottom
-    right_bottom = plot_right, plot_bottom
-    draw_line(box, left_bottom, right_bottom, outline_color, 1)
-    draw_line(box, left_bottom, left_top, outline_color, 1)
+    if draw_axis:
+        left_top = plot_left, plot_top
+        left_bottom = plot_left, plot_bottom
+        right_bottom = plot_right, plot_bottom
+        draw_line(box, left_bottom, right_bottom, outline_color, 1)
+        draw_line(box, left_bottom, left_top, outline_color, 1)
 
-    center_x_bottom0 = plot_left + (box_width // 2), plot_bottom
-    center_x_bottom1 = center_x_bottom0[0], plot_bottom + (padding // 2)
-    draw_line(box, center_x_bottom0, center_x_bottom1, outline_color, thickness)
+    if draw_guide:
+        bottom_center0 = plot_left + (box_width // 2), plot_bottom
+        bottom_center1 = bottom_center0[0], plot_bottom + (padding // 2)
+        draw_line(box, bottom_center0, bottom_center1, outline_color, guide_thickness)
 
-    left_center_y0 = plot_left, plot_top + (box_height // 2)
-    left_center_y1 = plot_left - (padding // 2), left_center_y0[1]
-    draw_line(box, left_center_y0, left_center_y1, outline_color, thickness)
+        left_center0 = plot_left, plot_top + (box_height // 2)
+        left_center1 = plot_left - (padding // 2), left_center0[1]
+        draw_line(box, left_center0, left_center1, outline_color, guide_thickness)
 
     draw_histogram_channels(
         canvas=box,
@@ -312,6 +320,10 @@ class CvlHistogram:
         background_color=BACKGROUND_COLOR,
         background_alpha=BACKGROUND_ALPHA,
         padding=PADDING,
+        padding_color=BLACK,
+        guide_thickness=GUIDE_THICKNESS,
+        draw_axis=False,
+        draw_guide=True,
     ):
         return draw_histogram_channels_with_decorate(
             canvas=canvas,
@@ -325,4 +337,8 @@ class CvlHistogram:
             background_color=background_color,
             background_alpha=background_alpha,
             padding=padding,
+            padding_color=padding_color,
+            guide_thickness=guide_thickness,
+            draw_axis=draw_axis,
+            draw_guide=draw_guide,
         )
