@@ -412,7 +412,7 @@ class LayerParameter:
 
         def _keydown(keycode: int):
             self._value = keycode
-            return True
+            return False
 
         self._value = value
         self._keydown = _keydown

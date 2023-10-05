@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto, unique
 from io import StringIO
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
-from typing import Any, Final, List, Optional
+from typing import Any, Final, Optional, Sequence
 
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
@@ -15,6 +15,7 @@ from cvlayer.cv.basic import mean
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import FONT_HERSHEY_SIMPLEX, draw_multiline_text_box
 from cvlayer.cv.fourcc import FOURCC_MP4V
+from cvlayer.cv.histogram import PADDING as HISTOGRAM_PADDING
 from cvlayer.cv.histogram import draw_histogram_channels_with_decorate
 from cvlayer.cv.image_io import image_write
 from cvlayer.cv.image_resize import Interpolation, resize_ratio
@@ -52,23 +53,23 @@ class HelpMode(Enum):
 
 @dataclass
 class KeyDefine:
-    quit: List[str]
-    play: List[str]
-    help: List[str]
-    manpage: List[str]
-    snapshot: List[str]
-    wait_down: List[str]
-    wait_up: List[str]
-    layer_select: List[str]
-    layer_prev: List[str]
-    layer_next: List[str]
-    layer_last: List[str]
-    frame_prev: List[str]
-    frame_next: List[str]
-    param_prev: List[str]
-    param_next: List[str]
-    param_down: List[str]
-    param_up: List[str]
+    quit: Sequence[str] = field(default_factory=list)
+    play: Sequence[str] = field(default_factory=list)
+    help: Sequence[str] = field(default_factory=list)
+    manpage: Sequence[str] = field(default_factory=list)
+    snapshot: Sequence[str] = field(default_factory=list)
+    wait_down: Sequence[str] = field(default_factory=list)
+    wait_up: Sequence[str] = field(default_factory=list)
+    layer_select: Sequence[str] = field(default_factory=list)
+    layer_prev: Sequence[str] = field(default_factory=list)
+    layer_next: Sequence[str] = field(default_factory=list)
+    layer_last: Sequence[str] = field(default_factory=list)
+    frame_prev: Sequence[str] = field(default_factory=list)
+    frame_next: Sequence[str] = field(default_factory=list)
+    param_prev: Sequence[str] = field(default_factory=list)
+    param_next: Sequence[str] = field(default_factory=list)
+    param_down: Sequence[str] = field(default_factory=list)
+    param_up: Sequence[str] = field(default_factory=list)
 
     @classmethod
     def defaults(cls):
@@ -125,6 +126,7 @@ class CvWindow(Window):
         help_anchor: Optional[PointFloat] = None,
         plot_size: Optional[SizeInt] = None,
         plot_roi: Optional[RectInt] = None,
+        plot_padding=HISTOGRAM_PADDING,
         use_deepcopy=False,
     ):
         super().__init__(window_title, window_flags, suppress_init=headless)
@@ -148,6 +150,7 @@ class CvWindow(Window):
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
         self._plot_size = plot_size if plot_size else DEFAULT_PLOT_SIZE
         self._plot_roi = plot_roi
+        self._plot_padding = plot_padding
         self._use_deepcopy = use_deepcopy
 
         self._manager = LayerManager(logger_name=logger_name)
@@ -636,19 +639,18 @@ class CvWindow(Window):
         )
 
         if self._help_mode == HelpMode.PLOT:
-            padding = 12
             hx1, hy1, hx2, hy2 = help_roi
             hx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
             hy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]
-            hx2 = hx1 + self._plot_size[0] + (padding * 2)
-            hy2 = hy1 + self._plot_size[1] + (padding * 2)
+            hx2 = hx1 + self._plot_size[0] + (self._plot_padding * 2)
+            hy2 = hy1 + self._plot_size[1] + (self._plot_padding * 2)
             hist_roi = hx1, hy1, hx2, hy2
             draw_histogram_channels_with_decorate(
                 frame,
                 hist_roi,
                 analyze_frame,
                 self._plot_roi,
-                padding=padding,
+                padding=self._plot_padding,
             )
 
         return frame

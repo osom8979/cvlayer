@@ -9,6 +9,7 @@ from numpy.typing import NDArray
 from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.cv.drawable import LINE_AA, draw_image, draw_line
 from cvlayer.cv.plot import PlotMode, draw_plot_2d
+from cvlayer.cv.roi import normalize_image_roi
 from cvlayer.palette.basic import (
     AQUA,
     BLACK,
@@ -29,6 +30,7 @@ THICKNESS: Final[int] = 1
 
 BACKGROUND_COLOR: Final[Color] = WHITE
 BACKGROUND_ALPHA: Final[float] = 0.4
+OUTLINE_COLOR: Final[Color] = GRAY
 PADDING: Final[int] = 12
 
 
@@ -89,11 +91,9 @@ def draw_histogram_channel(
     hist_size = (height,)
     ranges = 0.0, channel_max
     if analysis_roi is not None:
-        x1, y1, x2, y2 = analysis_roi
-        left, right = min(x1, x2), max(x1, x2)
-        top, bottom = min(y1, y2), max(y1, y2)
-        if (right - left) * (bottom - top) != 0:
-            analysis = analysis[top:bottom, left:right]
+        x1, y1, x2, y2 = normalize_image_roi(analysis, analysis_roi)
+        if (x2 - x1) * (y2 - y1) != 0:
+            analysis = analysis[y1:y2, x1:x2]
     hist = calc_hist([analysis], [index], hist_size=hist_size, ranges=ranges)
     points = normalize_drawable_histogram(hist, width, height)
     xs = [p[0] for p in points]
@@ -121,11 +121,9 @@ def draw_histogram_channels(
     line_type=LINE_AA,
 ) -> None:
     if analysis_roi is not None:
-        x1, y1, x2, y2 = analysis_roi
-        left, right = min(x1, x2), max(x1, x2)
-        top, bottom = min(y1, y2), max(y1, y2)
-        if (right - left) * (bottom - top) != 0:
-            analysis = analysis[top:bottom, left:right]
+        x1, y1, x2, y2 = normalize_image_roi(analysis, analysis_roi)
+        if (x2 - x1) * (y2 - y1) != 0:
+            analysis = analysis[y1:y2, x1:x2]
 
     shape_size = len(analysis.shape)
     if shape_size == 2:
@@ -174,6 +172,7 @@ def draw_histogram_channels_with_decorate(
     line_type=LINE_AA,
     background_color=BACKGROUND_COLOR,
     background_alpha=BACKGROUND_ALPHA,
+    outline_color=OUTLINE_COLOR,
     padding=PADDING,
 ) -> None:
     x1, y1, x2, y2 = roi
@@ -196,16 +195,16 @@ def draw_histogram_channels_with_decorate(
     left_top = plot_left, plot_top
     left_bottom = plot_left, plot_bottom
     right_bottom = plot_right, plot_bottom
-    draw_line(box, left_bottom, right_bottom, BLACK, 1)
-    draw_line(box, left_bottom, left_top, BLACK, 1)
+    draw_line(box, left_bottom, right_bottom, outline_color, 1)
+    draw_line(box, left_bottom, left_top, outline_color, 1)
 
     center_x_bottom0 = plot_left + (box_width // 2), plot_bottom
     center_x_bottom1 = center_x_bottom0[0], plot_bottom + (padding // 2)
-    draw_line(box, center_x_bottom0, center_x_bottom1, BLACK, thickness=thickness)
+    draw_line(box, center_x_bottom0, center_x_bottom1, outline_color, thickness)
 
     left_center_y0 = plot_left, plot_top + (box_height // 2)
     left_center_y1 = plot_left - (padding // 2), left_center_y0[1]
-    draw_line(box, left_center_y0, left_center_y1, BLACK, thickness=thickness)
+    draw_line(box, left_center_y0, left_center_y1, outline_color, thickness)
 
     draw_histogram_channels(
         canvas=box,

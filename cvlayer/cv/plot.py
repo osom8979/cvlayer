@@ -123,7 +123,8 @@ def draw_plot_2d(
     x_size = max_x - min_x
     y_size = max_y - min_y
     if x_size * y_size == 0:
-        raise ValueError("The data range is 0")
+        minmax_roi = min_x, max_x, min_y, max_y
+        raise ValueError(f"The data range is 0. roi is {minmax_roi}")
 
     roi = roi if roi else (0, 0, canvas.shape[1], canvas.shape[0])
     assert roi is not None
