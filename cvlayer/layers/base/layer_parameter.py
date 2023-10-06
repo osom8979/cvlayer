@@ -433,7 +433,10 @@ class LayerParameter:
                 if event == MouseEvent.MOUSE_MOVE:
                     self._value = self._value[0], self._value[1], mx, my
                 elif event == MouseEvent.LBUTTON_UP:
-                    self._value = self._value[0], self._value[1], mx, my
+                    if self._value[0] == mx and self._value[1] == my:
+                        self._value = (0, 0, 0, 0)
+                    else:
+                        self._value = self._value[0], self._value[1], mx, my
                     self._kwargs["button_down"] = False
             return True
 

@@ -39,7 +39,7 @@ from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layers.base.layer_base import LayerBase
 from cvlayer.layers.base.layer_manager import LayerManager
-from cvlayer.np.basic import image_maxs, image_means, image_mins
+from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
@@ -110,9 +110,9 @@ def analyze_frame_as_text(frame: NDArray, roi: Optional[RectInt] = None) -> str:
 
     buffer = StringIO()
     buffer.write(f"Shape: {list(frame.shape)}\n")
-    buffer.write(f"Means: {[round(m) for m in image_means(frame)]}\n")
-    buffer.write(f"Min: {[round(float(m)) for m in image_mins(frame)]}\n")
-    buffer.write(f"Max: {[round(float(m)) for m in image_maxs(frame)]}")
+    buffer.write(f"Means: {[round(m) for m in channels_mean(frame)]}\n")
+    buffer.write(f"Min: {[round(m) for m in channels_min(frame)]}\n")
+    buffer.write(f"Max: {[round(m) for m in channels_max(frame)]}")
     return buffer.getvalue()
 
 

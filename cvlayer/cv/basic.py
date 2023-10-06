@@ -1,9 +1,61 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional, Tuple
+from typing import Any, Optional, List, Tuple, Sequence, Type, overload
 
 import cv2
 from numpy.typing import NDArray
+
+from cvlayer.typing import NumberT
+
+
+# fmt: off
+@overload
+def _cast_numbers(nums: Sequence[Any], cls: Type[int]) -> List[int]: ...
+@overload
+def _cast_numbers(nums: Sequence[Any], cls: Type[float]) -> List[float]: ...
+# fmt: on
+
+
+def _cast_numbers(nums: Sequence[Any], cls: Type[NumberT]):
+    if cls == float:
+        return [float(n) for n in nums]
+    elif cls == int:
+        return [int(n) for n in nums]
+    else:
+        raise TypeError(f"Unsupported cls: {cls.__name__}")
+
+
+def channels_min(array: NDArray, cls=int):
+    shape = array.shape
+    if len(shape) == 2:
+        nums = [array.min()]
+    elif len(shape) == 3:
+        nums = [array[:, :, c].min() for c in range(shape[2])]
+    else:
+        raise ValueError(f"Unsupported array shape: {shape}")
+    return _cast_numbers(nums, cls)
+
+
+def channels_max(array: NDArray, cls=int):
+    shape = array.shape
+    if len(shape) == 2:
+        nums = [array.max()]
+    elif len(shape) == 3:
+        nums = [array[:, :, c].max() for c in range(shape[2])]
+    else:
+        raise ValueError(f"Unsupported array shape: {shape}")
+    return _cast_numbers(nums, cls)
+
+
+def channels_mean(array: NDArray, cls=float):
+    shape = array.shape
+    if len(shape) == 2:
+        nums = [array.mean()]
+    elif len(shape) == 3:
+        nums = [array[:, :, c].mean() for c in range(shape[2])]
+    else:
+        raise ValueError(f"Unsupported array shape: {shape}")
+    return _cast_numbers(nums, cls)
 
 
 def mean(
@@ -83,6 +135,18 @@ def mean(
 
 
 class CvlBasic:
+    @staticmethod
+    def cvl_channels_min(array: NDArray, cls=int):
+        return channels_min(array, cls)
+
+    @staticmethod
+    def cvl_channels_max(array: NDArray, cls=int):
+        return channels_max(array, cls)
+
+    @staticmethod
+    def cvl_channels_mean(array: NDArray, cls=float):
+        return channels_mean(array, cls)
+
     @staticmethod
     def cvl_mean(src: NDArray, mask: Optional[NDArray] = None):
         return mean(src, mask)
