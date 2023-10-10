@@ -6,6 +6,7 @@ from cvlayer.cv.backend import CvlBackend
 from cvlayer.cv.basic import CvlBasic
 from cvlayer.cv.bgsub import CvlBackgroundSubtractor
 from cvlayer.cv.bitwise import CvlBitwise
+from cvlayer.cv.blur import CvlBlur
 from cvlayer.cv.canny import CvlCanny
 from cvlayer.cv.contours import CvlContours
 from cvlayer.cv.contours_edge import CvlContoursEdge
@@ -59,6 +60,7 @@ class CvLayer(
     CvlBasic,
     CvlBackgroundSubtractor,
     CvlBitwise,
+    CvlBlur,
     CvlCanny,
     CvlContours,
     CvlContoursEdge,
