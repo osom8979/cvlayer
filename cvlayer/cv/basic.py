@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Any, Optional, List, Tuple, Sequence, Type, overload
+from typing import Any, List, Optional, Sequence, Tuple, Type, overload
 
 import cv2
 from numpy.typing import NDArray

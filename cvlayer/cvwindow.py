@@ -11,6 +11,7 @@ from typing import Any, Final, Optional, Sequence
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
 
+from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import (
     FONT_HERSHEY_SIMPLEX,
@@ -39,7 +40,6 @@ from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layers.base.layer_base import LayerBase
 from cvlayer.layers.base.layer_manager import LayerManager
-from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
