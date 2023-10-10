@@ -4,6 +4,7 @@ from enum import Enum, unique
 from typing import Final, NamedTuple, Optional
 
 import cv2
+from numpy import float32, ndarray, uint8
 from numpy.typing import NDArray
 
 assert cv2.TERM_CRITERIA_COUNT == cv2.TERM_CRITERIA_MAX_ITER
@@ -101,6 +102,22 @@ def kmeans(
     return KmeansResult(retval, labels, centers)
 
 
+def color_quantization(
+    image: NDArray,
+    k: int,
+    best_labels: Optional[NDArray] = None,
+    criteria=DEFAULT_CRITERIA,
+    attempts=DEFAULT_ATTEMPTS,
+    flags=KmeansFlags.PP_CENTERS,
+) -> NDArray:
+    z = float32(image.reshape((-1, image.shape[-1])))
+    assert isinstance(z, ndarray)
+    result = kmeans(z, k, best_labels, criteria, attempts, flags)
+    center = uint8(result.centers)
+    flatten_labels = result.labels.flatten()
+    return center[flatten_labels].reshape(image.shape)
+
+
 class CvlKmeans:
     @staticmethod
     def cvl_kmeans(
@@ -112,3 +129,14 @@ class CvlKmeans:
         flags=KmeansFlags.PP_CENTERS,
     ):
         return kmeans(data, k, best_labels, criteria, attempts, flags)
+
+    @staticmethod
+    def cvl_color_quantization(
+        image: NDArray,
+        k: int,
+        best_labels: Optional[NDArray] = None,
+        criteria=DEFAULT_CRITERIA,
+        attempts=DEFAULT_ATTEMPTS,
+        flags=KmeansFlags.PP_CENTERS,
+    ):
+        return color_quantization(image, k, best_labels, criteria, attempts, flags)
