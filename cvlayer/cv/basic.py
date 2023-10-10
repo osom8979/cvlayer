@@ -3,8 +3,11 @@
 from typing import Any, List, Optional, Sequence, Tuple, Type, overload
 
 import cv2
+from numpy import abs as np_abs
+from numpy import float32, zeros_like
 from numpy.typing import NDArray
 
+from cvlayer.cv.norm import NormType
 from cvlayer.typing import NumberT
 
 
@@ -67,6 +70,35 @@ def mean(
     return means[0], means[1], means[2], means[3]
 
 
+def channel_mean_abs_diff(src: NDArray) -> NDArray[float32]:
+    b, g, r = cv2.split(float32(src))
+    bg = np_abs(b - g)
+    gr = np_abs(g - r)
+    rb = np_abs(r - b)
+    return (bg + gr + rb) / 3.0
+
+
+def normalize(
+    src: NDArray,
+    alpha=1.0,
+    beta=0.0,
+    norm_type=NormType.L2,
+    dtype=-1,
+    mask: Optional[NDArray] = None,
+):
+    dst = zeros_like(src)
+    cv2.normalize(
+        src,
+        dst,
+        alpha=alpha,
+        beta=beta,
+        norm_type=norm_type.value,
+        dtype=dtype,
+        mask=mask,
+    )
+    return dst
+
+
 # def abs():
 # def absdiff():
 # def add():
@@ -107,7 +139,6 @@ def mean(
 # def multiply():
 # def mulTransposed():
 # def norm():
-# def normalize():
 # def perspectiveTransform():
 # def phase():
 # def polarToCart():
@@ -150,3 +181,18 @@ class CvlBasic:
     @staticmethod
     def cvl_mean(src: NDArray, mask: Optional[NDArray] = None):
         return mean(src, mask)
+
+    @staticmethod
+    def cvl_channel_mean_abs_diff(src: NDArray):
+        return channel_mean_abs_diff(src)
+
+    @staticmethod
+    def cvl_normalize(
+        src: NDArray,
+        alpha=1.0,
+        beta=0.0,
+        norm_type=NormType.L2,
+        dtype=-1,
+        mask: Optional[NDArray] = None,
+    ):
+        return normalize(src, alpha, beta, norm_type, dtype, mask)

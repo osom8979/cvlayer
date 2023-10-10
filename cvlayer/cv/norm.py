@@ -1,7 +1,27 @@
 # -*- coding: utf-8 -*-
 
+from enum import Enum, unique
+
+import cv2
+
 from cvlayer.math.norm import l1_norm, l2_norm, max_norm
 from cvlayer.typing import NumberT
+
+
+@unique
+class NormType(Enum):
+    INF = cv2.NORM_INF
+    L1 = cv2.NORM_L1
+    L2 = cv2.NORM_L2
+    L2SQR = cv2.NORM_L2SQR
+    HAMMING = cv2.NORM_HAMMING
+    HAMMING2 = cv2.NORM_HAMMING2
+
+    # TYPE_MASK = cv2.NORM_TYPE_MASK
+    # bit-mask which can be used to separate norm type from norm flags
+
+    # RELATIVE = cv2.NORM_RELATIVE
+    # MINMAX = cv2.NORM_MINMAX
 
 
 class CvlNorm:
