@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from enum import Enum, unique
+from enum import Enum
 
 import cv2
 
 from cvlayer.math.norm import l1_norm, l2_norm, max_norm
 from cvlayer.typing import NumberT
 
+assert cv2.NORM_HAMMING2 == cv2.NORM_TYPE_MASK
 
-@unique
+
 class NormType(Enum):
     INF = cv2.NORM_INF
     L1 = cv2.NORM_L1

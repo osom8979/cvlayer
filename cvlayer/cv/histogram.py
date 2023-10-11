@@ -34,6 +34,9 @@ OUTLINE_COLOR: Final[Color] = GRAY
 PADDING: Final[int] = 12
 GUIDE_THICKNESS: Final[int] = 1
 
+DEFAULT_CLAHE_CLIP_LIMIT: Final[float] = 40.0
+DEFAULT_CLAHE_TILE_GRID_SIZE: Final[Sequence[int]] = (8, 8)
+
 
 def calc_hist(
     images: Sequence[NDArray],
@@ -51,6 +54,23 @@ def calc_hist(
         ranges=ranges,
         accumulate=accumulate,
     )
+
+
+def calc_back_project(
+    images: Sequence[NDArray],
+    channels: Sequence[int],
+    hist: NDArray,
+    ranges: Sequence[float],
+    scale: float,
+) -> NDArray:
+    return cv2.calcBackProject(images, channels, hist, ranges, scale)
+
+
+def create_clahe(
+    clip_limit=DEFAULT_CLAHE_CLIP_LIMIT,
+    tile_grid_size=DEFAULT_CLAHE_TILE_GRID_SIZE,
+) -> cv2.CLAHE:
+    return cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
 
 
 def normalize_drawable_histogram(
@@ -246,6 +266,23 @@ class CvlHistogram:
             ranges=ranges,
             accumulate=accumulate,
         )
+
+    @staticmethod
+    def cvl_calc_back_project(
+        images: Sequence[NDArray],
+        channels: Sequence[int],
+        hist: NDArray,
+        ranges: Sequence[float],
+        scale: float,
+    ) -> NDArray:
+        return calc_back_project(images, channels, hist, ranges, scale)
+
+    @staticmethod
+    def cvl_create_clahe(
+        clip_limit=DEFAULT_CLAHE_CLIP_LIMIT,
+        tile_grid_size=DEFAULT_CLAHE_TILE_GRID_SIZE,
+    ):
+        return create_clahe(clip_limit, tile_grid_size)
 
     @staticmethod
     def cvl_normalize_drawable_histogram(

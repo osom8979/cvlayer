@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Any, List, Optional, Sequence, Tuple, Type, overload
+from typing import Any, Final, List, Optional, Sequence, Tuple, Type, overload
 
 import cv2
 from numpy import abs as np_abs
@@ -9,6 +9,8 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.norm import NormType
 from cvlayer.typing import NumberT
+
+SAME_DTYPE_AS_SRC: Final[int] = -1
 
 
 # fmt: off
@@ -83,7 +85,7 @@ def normalize(
     alpha=1.0,
     beta=0.0,
     norm_type=NormType.L2,
-    dtype=-1,
+    dtype=SAME_DTYPE_AS_SRC,
     mask: Optional[NDArray] = None,
 ):
     dst = zeros_like(src)
@@ -97,6 +99,14 @@ def normalize(
         mask=mask,
     )
     return dst
+
+
+def normalize_uint8_minmax(
+    src: NDArray,
+    dtype=SAME_DTYPE_AS_SRC,
+    mask: Optional[NDArray] = None,
+):
+    return normalize(src, 0, 255, NormType.MINMAX, dtype, mask)
 
 
 # def abs():
@@ -196,3 +206,11 @@ class CvlBasic:
         mask: Optional[NDArray] = None,
     ):
         return normalize(src, alpha, beta, norm_type, dtype, mask)
+
+    @staticmethod
+    def cvl_normalize_uint8_minmax(
+        src: NDArray,
+        dtype=SAME_DTYPE_AS_SRC,
+        mask: Optional[NDArray] = None,
+    ):
+        return normalize_uint8_minmax(src, dtype, mask)
