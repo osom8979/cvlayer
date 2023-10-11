@@ -273,7 +273,7 @@ class CvWindow(Window):
         return self._manager.logger
 
     def layer(self, name: str) -> LayerBase:
-        return self._manager.__getitem__(name)
+        return self._manager.layer(name)
 
     def has_layer(self, layer: Any) -> bool:
         return self._manager.has_layer(layer)
