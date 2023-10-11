@@ -17,11 +17,11 @@ class NormType(Enum):
     HAMMING = cv2.NORM_HAMMING
     HAMMING2 = cv2.NORM_HAMMING2
 
-    # TYPE_MASK = cv2.NORM_TYPE_MASK
+    TYPE_MASK = cv2.NORM_TYPE_MASK
     # bit-mask which can be used to separate norm type from norm flags
 
-    # RELATIVE = cv2.NORM_RELATIVE
-    # MINMAX = cv2.NORM_MINMAX
+    RELATIVE = cv2.NORM_RELATIVE
+    MINMAX = cv2.NORM_MINMAX
 
 
 class CvlNorm:

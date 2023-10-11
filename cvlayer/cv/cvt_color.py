@@ -6,6 +6,11 @@ from functools import partial
 import cv2
 from numpy.typing import NDArray
 
+assert cv2.COLOR_BGR2YCrCb == cv2.COLOR_BGR2YCR_CB
+assert cv2.COLOR_RGB2YCrCb == cv2.COLOR_RGB2YCR_CB
+assert cv2.COLOR_YCrCb2BGR == cv2.COLOR_YCR_CB2BGR
+assert cv2.COLOR_YCrCb2RGB == cv2.COLOR_YCR_CB2RGB
+
 
 class CvtColorCode(Enum):
     BGR2BGRA = cv2.COLOR_BGR2BGRA
@@ -740,9 +745,33 @@ class CvlCvtColor:
         return cvt_color(image, CvtColorCode.HSV2BGR)
 
     @staticmethod
+    def cvl_cvt_color_bgr2hls(image: NDArray):
+        return cvt_color(image, CvtColorCode.BGR2HLS)
+
+    @staticmethod
+    def cvl_cvt_color_hls2bgr(image: NDArray):
+        return cvt_color(image, CvtColorCode.HLS2BGR)
+
+    @staticmethod
     def cvl_cvt_color_bgr2yuv(image: NDArray):
         return cvt_color(image, CvtColorCode.BGR2YUV)
 
     @staticmethod
     def cvl_cvt_color_yuv2bgr(image: NDArray):
         return cvt_color(image, CvtColorCode.YUV2BGR)
+
+    @staticmethod
+    def cvl_cvt_color_bgr2ycrcb(image: NDArray):
+        return cvt_color(image, CvtColorCode.BGR2YCR_CB)
+
+    @staticmethod
+    def cvl_cvt_color_ycrcb2bgr(image: NDArray):
+        return cvt_color(image, CvtColorCode.YCR_CB2BGR)
+
+    @staticmethod
+    def cvl_cvt_color_bgr2lab(image: NDArray):
+        return cvt_color(image, CvtColorCode.BGR2LAB)
+
+    @staticmethod
+    def cvl_cvt_color_lab2bgr(image: NDArray):
+        return cvt_color(image, CvtColorCode.LAB2BGR)
