@@ -45,25 +45,25 @@ class MatrixDecomposition(Enum):
 
 
 def cast_perspective_int(points: Any) -> PerspectivePointsInt:
-    assert isinstance(points, list)
+    assert isinstance(points, (tuple, list))
     assert len(points) == 4
 
-    assert isinstance(points[0], list)
+    assert isinstance(points[0], (tuple, list))
     assert len(points[0]) == 2
     assert isinstance(points[0][0], int)
     assert isinstance(points[0][1], int)
 
-    assert isinstance(points[1], list)
+    assert isinstance(points[1], (tuple, list))
     assert len(points[1]) == 2
     assert isinstance(points[1][0], int)
     assert isinstance(points[1][1], int)
 
-    assert isinstance(points[2], list)
+    assert isinstance(points[2], (tuple, list))
     assert len(points[2]) == 2
     assert isinstance(points[2][0], int)
     assert isinstance(points[2][1], int)
 
-    assert isinstance(points[3], list)
+    assert isinstance(points[3], (tuple, list))
     assert len(points[3]) == 2
     assert isinstance(points[3][0], int)
     assert isinstance(points[3][1], int)
