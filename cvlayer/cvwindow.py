@@ -4,9 +4,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto, unique
 from io import StringIO
+from logging import Logger, getLogger
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
-from typing import Any, Final, Optional, Sequence
+from typing import Any, Final, Optional, Sequence, Union
 
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
@@ -35,16 +36,17 @@ from cvlayer.cv.roi import normalize_image_roi
 from cvlayer.cv.video_capture import VideoCapture
 from cvlayer.cv.video_writer import VideoWriter
 from cvlayer.cv.window import WINDOW_NORMAL, Window
+from cvlayer.cvmanager import CvManager
 from cvlayer.debug.avg_stat import AvgStat
 from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
-from cvlayer.layers.base.layer_base import LayerBase
-from cvlayer.layers.base.layer_manager import LayerManager
+from cvlayer.layers.layer_base import LayerBase
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
+DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvwindow"
 DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
 DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.0
 DEFAULT_PLOT_SIZE: Final[SizeInt] = 256, 256
@@ -142,7 +144,7 @@ class CvWindow(Window):
         writer_size: Optional[SizeInt] = None,
         writer_fps: Optional[float] = None,
         writer_fourcc=FOURCC_MP4V,
-        logger_name: Optional[str] = None,
+        logger: Optional[Union[Logger, str]] = None,
         logging_step=1,
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
@@ -152,6 +154,7 @@ class CvWindow(Window):
         roi_color=DEFAULT_ROI_COLOR,
         roi_thickness=DEFAULT_ROI_THICKNESS,
         roi_draw=True,
+        manager: Optional[CvManager] = None,
         use_deepcopy=False,
     ):
         super().__init__(window_title, window_flags, suppress_init=headless)
@@ -181,7 +184,14 @@ class CvWindow(Window):
         self._roi_draw = roi_draw
         self._use_deepcopy = use_deepcopy
 
-        self._manager = LayerManager(logger_name=logger_name)
+        if isinstance(logger, Logger):
+            self._logger = logger
+        elif isinstance(logger, str):
+            self._logger = getLogger(logger)
+        else:
+            self._logger = getLogger(DEFAULT_LOGGER_NAME)
+
+        self._manager = manager if manager else CvManager(logger=self._logger)
 
         if not self._headless and window_size is not None:
             win_width, win_height = window_size
@@ -270,7 +280,7 @@ class CvWindow(Window):
 
     @property
     def logger(self):
-        return self._manager.logger
+        return self._logger
 
     def layer(self, name: str) -> LayerBase:
         return self._manager.layer(name)

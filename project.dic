@@ -21,6 +21,7 @@ csrt
 ctrlkey
 cvarr
 cvlayer
+cvmanager
 cvwindow
 dasiamrpn
 datefmt
@@ -105,8 +106,8 @@ xiapi
 ximea
 xine
 xvid
-ycrcb
 ycbcr
+ycrcb
 ydpi
 yunv
 yuyv

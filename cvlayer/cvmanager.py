@@ -2,27 +2,37 @@
 
 from copy import deepcopy
 from functools import reduce
-from logging import getLogger
+from logging import Logger, getLogger
 from typing import Any, Dict, Final, List, Optional, Tuple, Union
 from weakref import ref
 
 from numpy.typing import NDArray
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
-from cvlayer.layers.base.layer_base import LayerBase, SkipError
+from cvlayer.layers.layer_base import LayerBase, SkipError
 
 LAST_LAYER_INDEX: Final[int] = -1
+DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvmanager"
 
 
-class LayerManager:
+class CvManager:
     _layers: List[LayerBase]
     _name2index: Dict[str, int]
 
-    def __init__(self, cursor=LAST_LAYER_INDEX, logger_name: Optional[str] = None):
+    def __init__(
+        self,
+        cursor=LAST_LAYER_INDEX,
+        logger: Optional[Union[Logger, str]] = None,
+    ):
         self._cursor = cursor
         self._layers = list()
         self._name2index = dict()
-        self._logger = getLogger(logger_name)
+        if isinstance(logger, Logger):
+            self._logger = logger
+        elif isinstance(logger, str):
+            self._logger = getLogger(logger)
+        else:
+            self._logger = getLogger(DEFAULT_LOGGER_NAME)
         self._pseudo_first = LayerBase("__pseudo_first__", None)
 
     def __getitem__(self, key: Any) -> LayerBase:
