@@ -17,15 +17,15 @@ def image_flip(src: NDArray, flip_code: FlipCode) -> NDArray:
     return cv2.flip(src, flip_code.value)
 
 
-def image_flip_x(src: NDArray) -> NDArray:
+def image_flip_x_axis(src: NDArray) -> NDArray:
     return image_flip(src, FlipCode.X_AXIS)
 
 
-def image_flip_y(src: NDArray) -> NDArray:
+def image_flip_y_axis(src: NDArray) -> NDArray:
     return image_flip(src, FlipCode.Y_AXIS)
 
 
-def image_flip_xy(src: NDArray) -> NDArray:
+def image_flip_xy_axis(src: NDArray) -> NDArray:
     return image_flip(src, FlipCode.XY_AXIS)
 
 
@@ -35,13 +35,13 @@ class CvlImageFlip:
         return image_flip(src, flip_code)
 
     @staticmethod
-    def cvl_image_flip_x(src: NDArray) -> NDArray:
-        return image_flip_x(src)
+    def cvl_image_flip_x_axis(src: NDArray) -> NDArray:
+        return image_flip_x_axis(src)
 
     @staticmethod
-    def cvl_image_flip_y(src: NDArray) -> NDArray:
-        return image_flip_y(src)
+    def cvl_image_flip_y_axis(src: NDArray) -> NDArray:
+        return image_flip_y_axis(src)
 
     @staticmethod
-    def cvl_image_flip_xy(src: NDArray) -> NDArray:
-        return image_flip_xy(src)
+    def cvl_image_flip_xy_axis(src: NDArray) -> NDArray:
+        return image_flip_xy_axis(src)

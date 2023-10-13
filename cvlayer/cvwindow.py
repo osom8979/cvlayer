@@ -23,7 +23,8 @@ from cvlayer.cv.fourcc import FOURCC_MP4V
 from cvlayer.cv.histogram import PADDING as HISTOGRAM_PADDING
 from cvlayer.cv.histogram import draw_histogram_channels_with_decorate
 from cvlayer.cv.image_io import image_write
-from cvlayer.cv.image_resize import Interpolation, resize_ratio
+from cvlayer.cv.image_resize import resize_ratio
+from cvlayer.cv.interpolation import Interpolation
 from cvlayer.cv.keymap import (
     KEYCODE_NULL,
     KEYCODE_TIMEOUT,

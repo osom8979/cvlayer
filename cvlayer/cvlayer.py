@@ -29,6 +29,7 @@ from cvlayer.cv.image_io import CvlImageIo
 from cvlayer.cv.image_make import CvlImageMake
 from cvlayer.cv.image_move import CvlImageMove
 from cvlayer.cv.image_resize import CvlImageResize
+from cvlayer.cv.image_rotation import CvlImageRotation
 from cvlayer.cv.in_range import CvlInRange
 from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
 from cvlayer.cv.iou import CvlIou
@@ -83,6 +84,7 @@ class CvLayer(
     CvlImageMake,
     CvlImageMove,
     CvlImageResize,
+    CvlImageRotation,
     CvlInRange,
     CvlIntrusionDetection,
     CvlIou,
