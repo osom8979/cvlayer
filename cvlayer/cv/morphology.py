@@ -46,6 +46,18 @@ def get_structuring_element(
     return cv2.getStructuringElement(shape.value, ksize, anchor)
 
 
+def get_morph_rect(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR) -> NDArray:
+    return get_structuring_element(MorphMethod.RECT, ksize, anchor)
+
+
+def get_morph_cross(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR) -> NDArray:
+    return get_structuring_element(MorphMethod.CROSS, ksize, anchor)
+
+
+def get_morph_ellipse(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR) -> NDArray:
+    return get_structuring_element(MorphMethod.ELLIPSE, ksize, anchor)
+
+
 def erode(
     src: NDArray,
     kernel=DEFAULT_KERNEL,
@@ -206,6 +218,18 @@ class CvlMorphology:
         anchor=DEFAULT_ANCHOR,
     ):
         return get_structuring_element(shape, ksize, anchor)
+
+    @staticmethod
+    def cvl_get_morph_rect(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR):
+        return get_morph_rect(ksize, anchor)
+
+    @staticmethod
+    def cvl_get_morph_cross(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR):
+        return get_morph_cross(ksize, anchor)
+
+    @staticmethod
+    def cvl_get_morph_ellipse(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR):
+        return get_morph_ellipse(ksize, anchor)
 
     @staticmethod
     def cvl_erode(

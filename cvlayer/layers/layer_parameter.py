@@ -13,6 +13,7 @@ ModifyCallable = Callable[[Any], Any]
 PrintableCallable = Callable[[Any], str]
 GetterCallable = Callable[[Any], Any]
 SetterCallable = Callable[[Any], Any]
+CacherCallable = Callable[[Any, Any], Any]
 OnKeydownCallable = Callable[[int], Optional[bool]]
 OnMouseCallable = Callable[[MouseEvent, int, int, EventFlags], Optional[bool]]
 
@@ -37,6 +38,7 @@ class LayerParameter:
         increase: Optional[ModifyCallable] = None,
         getter: Optional[GetterCallable] = None,
         setter: Optional[SetterCallable] = None,
+        cacher: Optional[CacherCallable] = None,
         printable: Optional[PrintableCallable] = None,
         keydown: Optional[OnKeydownCallable] = None,
         mouse: Optional[OnMouseCallable] = None,
@@ -51,12 +53,14 @@ class LayerParameter:
         self._increase = increase
         self._getter = getter
         self._setter = setter
+        self._cacher = cacher
         self._printable = printable
         self._keydown = keydown
         self._mouse = mouse
         self._nullable = nullable
         self._frozen = frozen
-        self._kwargs = kwargs
+        self.kwargs = kwargs
+        self.cache = None
 
     def freeze(self) -> None:
         self._frozen = True
@@ -76,12 +80,14 @@ class LayerParameter:
         self._increase = None
         self._getter = None
         self._setter = None
+        self._cacher = None
         self._printable = None
         self._keydown = None
         self._mouse = None
         self._nullable = True
         self._frozen = False
-        self._kwargs = dict()
+        self.kwargs = dict()
+        self.cache = None
 
     def _validate_initialize(self) -> None:
         if self._frozen:
@@ -115,6 +121,10 @@ class LayerParameter:
         self._validate_initialize()
         self._setter = callback
 
+    def _set_cacher(self, callback: CacherCallable):
+        self._validate_initialize()
+        self._cacher = callback
+
     def _set_keydown(self, callback: OnKeydownCallable):
         self._validate_initialize()
         self._keydown = callback
@@ -138,6 +148,7 @@ class LayerParameter:
     increase = property(None, _set_increase)
     getter = property(None, _set_getter)
     setter = property(None, _set_setter)
+    cacher = property(None, _set_cacher)
     keydown = property(None, _set_keydown)
     mouse = property(None, _set_mouse)
     printable = property(None, _set_printable)
@@ -180,24 +191,30 @@ class LayerParameter:
     def value(self, val: Any) -> None:
         self.validate()
         normalized = self.normalize_by_candidate_value(val)
-        if self._setter:
-            self._value = self._setter(normalized)
-        else:
-            self._value = normalized
+        next_value = self._setter(normalized) if self._setter else normalized
+        if self._cacher and self._value != next_value:
+            self.cache = self._cacher(self._value, next_value)
+        self._value = next_value
 
     def do_decrease(self) -> None:
         self.validate()
         if not self._decrease:
             return
         candidate = self._decrease(self._value)
-        self._value = self.normalize_by_candidate_value(candidate)
+        normalized = self.normalize_by_candidate_value(candidate)
+        if self._cacher and self._value != normalized:
+            self.cache = self._cacher(self._value, normalized)
+        self._value = normalized
 
     def do_increase(self) -> None:
         self.validate()
         if not self._increase:
             return
         candidate = self._increase(self._value)
-        self._value = self.normalize_by_candidate_value(candidate)
+        normalized = self.normalize_by_candidate_value(candidate)
+        if self._cacher and self._value != normalized:
+            self.cache = self._cacher(self._value, normalized)
+        self._value = normalized
 
     def as_printable_text(self) -> str:
         self.validate()
@@ -267,7 +284,12 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_boolean(self, value: bool, printable: Optional[PrintableCallable] = None):
+    def build_boolean(
+        self,
+        value: bool,
+        printable: Optional[PrintableCallable] = None,
+        cacher: Optional[CacherCallable] = None,
+    ):
         if self._frozen:
             return self
         self._clear_all_properties()
@@ -275,6 +297,9 @@ class LayerParameter:
         self._decrease = lambda x: not x
         self._increase = lambda x: not x
         self._printable = printable
+        self._cacher = cacher
+        if cacher:
+            self.cache = cacher(None, value)
         self._frozen = True
         return self
 
@@ -284,6 +309,7 @@ class LayerParameter:
         min_value: Optional[int] = None,
         max_value: Optional[int] = None,
         printable: Optional[PrintableCallable] = None,
+        cacher: Optional[CacherCallable] = None,
         step=1,
     ):
         if self._frozen:
@@ -295,6 +321,9 @@ class LayerParameter:
         self._decrease = lambda x: x - step
         self._increase = lambda x: x + step
         self._printable = printable
+        self._cacher = cacher
+        if cacher:
+            self.cache = cacher(None, value)
         self._frozen = True
         return self
 
@@ -304,6 +333,7 @@ class LayerParameter:
         min_value: Optional[int] = None,
         max_value: Optional[int] = None,
         printable: Optional[PrintableCallable] = None,
+        cacher: Optional[CacherCallable] = None,
         step=1,
     ):
         if self._frozen:
@@ -315,6 +345,7 @@ class LayerParameter:
             min_value=min_value if min_value is not None else 0,
             max_value=max_value,
             printable=printable,
+            cacher=cacher,
             step=step,
         )
 
@@ -324,6 +355,7 @@ class LayerParameter:
         min_value: Optional[float] = None,
         max_value: Optional[float] = None,
         printable: Optional[PrintableCallable] = None,
+        cacher: Optional[CacherCallable] = None,
         step=0.01,
     ):
         if self._frozen:
@@ -335,6 +367,9 @@ class LayerParameter:
         self._decrease = lambda x: x - step
         self._increase = lambda x: x + step
         self._printable = printable
+        self._cacher = cacher
+        if cacher:
+            self.cache = cacher(None, value)
         self._frozen = True
         return self
 
@@ -342,6 +377,7 @@ class LayerParameter:
         self,
         value: Enum,
         excludes: Optional[Union[Enum, Iterable[Enum]]] = None,
+        cacher: Optional[CacherCallable] = None,
     ):
         if self._frozen:
             return self
@@ -379,10 +415,18 @@ class LayerParameter:
         self._getter = lambda index: available_items[index]
         self._setter = lambda element: available_items.index(element)
         self._printable = lambda index: f"{index} ({available_items[index].name})"
+        self._cacher = cacher
+        if cacher:
+            self.cache = cacher(None, value)
         self._frozen = True
         return self
 
-    def build_list(self, items: Iterable[Any], value: Optional[Any] = None):
+    def build_list(
+        self,
+        items: Iterable[Any],
+        value: Optional[Any] = None,
+        cacher: Optional[CacherCallable] = None,
+    ):
         if self._frozen:
             return self
 
@@ -401,6 +445,9 @@ class LayerParameter:
         self._getter = lambda index: available_items[index]
         self._setter = lambda element: available_items.index(element)
         self._printable = lambda index: f"{index} ({available_items[index]})"
+        self._cacher = cacher
+        if cacher:
+            self.cache = cacher(None, value)
         self._frozen = True
         return self
 
@@ -428,8 +475,8 @@ class LayerParameter:
         def _mouse(event: MouseEvent, mx: int, my: int, _):
             if event == MouseEvent.LBUTTON_DOWN:
                 self._value = mx, my, self._value[2], self._value[3]
-                self._kwargs["button_down"] = True
-            if self._kwargs["button_down"]:
+                self.kwargs["button_down"] = True
+            if self.kwargs["button_down"]:
                 if event == MouseEvent.MOUSE_MOVE:
                     self._value = self._value[0], self._value[1], mx, my
                 elif event == MouseEvent.LBUTTON_UP:
@@ -437,13 +484,13 @@ class LayerParameter:
                         self._value = (0, 0, 0, 0)
                     else:
                         self._value = self._value[0], self._value[1], mx, my
-                    self._kwargs["button_down"] = False
+                    self.kwargs["button_down"] = False
             return True
 
         self._value = roi if roi else (0, 0, 0, 0)
         self._mouse = _mouse
         self._frozen = True
-        self._kwargs["button_down"] = False
+        self.kwargs["button_down"] = False
         return self
 
     def build_select_point(self, point: Optional[PointInt] = None):
