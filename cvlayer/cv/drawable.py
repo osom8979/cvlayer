@@ -159,25 +159,34 @@ def draw_image(
     y: Number,
     alpha=1.0,
 ) -> None:
-    canvas_height = canvas.shape[0]
-    canvas_width = canvas.shape[1]
-    src_height = src.shape[0]
-    src_width = src.shape[1]
-    x1 = max(int(x), 0)
-    y1 = max(int(y), 0)
-    x2 = min(x1 + src_width, canvas_width)
-    y2 = min(y1 + src_height, canvas_height)
-
-    if alpha == 1.0:
-        canvas[y1:y2, x1:x2] = src
+    if alpha == 0.0:
         return
-
     if alpha < 0.0:
         raise ValueError("The 'alpha' argument must be greater than or equal to 0")
     if alpha > 1.0:
         raise ValueError("The 'alpha' argument must not exceed 1")
 
-    if alpha == 0.0:
+    canvas_height = canvas.shape[0]
+    canvas_width = canvas.shape[1]
+    src_height = src.shape[0]
+    src_width = src.shape[1]
+    x1 = max(0, int(x))
+    y1 = max(0, int(y))
+    x2 = min(x1 + src_width, canvas_width)
+    y2 = min(y1 + src_height, canvas_height)
+    w = x2 - x1
+    h = y2 - y1
+    if w == 0 or h == 0:
+        return
+
+    assert w > 0
+    assert h > 0
+
+    if w != src_width or h != src_height:
+        src = src[0:h, 0:w]
+
+    if alpha == 1.0:
+        canvas[y1:y2, x1:x2] = src
         return
 
     assert 0.0 < alpha < 1.0

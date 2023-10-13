@@ -691,6 +691,7 @@ class CvWindow(Window):
         buffer.write(self.as_information_text())
         if self._help_mode == HelpMode.DEBUG:
             buffer.write("\n" + analyze_frame_as_text(analyze_frame, self._roi))
+
         help_roi = draw_multiline_text_box(
             image=canvas,
             text=buffer.getvalue(),
