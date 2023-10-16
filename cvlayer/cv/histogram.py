@@ -73,6 +73,10 @@ def create_clahe(
     return cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
 
 
+def equalize_hist(src: NDArray) -> NDArray:
+    return cv2.equalizeHist(src)
+
+
 def normalize_drawable_histogram(
     hist: NDArray,
     width: int,
@@ -283,6 +287,10 @@ class CvlHistogram:
         tile_grid_size=DEFAULT_CLAHE_TILE_GRID_SIZE,
     ):
         return create_clahe(clip_limit, tile_grid_size)
+
+    @staticmethod
+    def cvl_equalize_hist(src: NDArray):
+        return equalize_hist(src)
 
     @staticmethod
     def cvl_normalize_drawable_histogram(
