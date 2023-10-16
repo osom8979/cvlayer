@@ -20,14 +20,14 @@ DEFAULT_KERNEL = cv2.getStructuringElement(
 
 
 @unique
-class MorphMethod(Enum):
+class MorphShape(Enum):
     RECT = cv2.MORPH_RECT
     CROSS = cv2.MORPH_CROSS
     ELLIPSE = cv2.MORPH_ELLIPSE
 
 
 @unique
-class MorphTypes(Enum):
+class MorphOperator(Enum):
     ERODE = cv2.MORPH_ERODE
     DILATE = cv2.MORPH_DILATE
     OPEN = cv2.MORPH_OPEN
@@ -39,7 +39,7 @@ class MorphTypes(Enum):
 
 
 def get_structuring_element(
-    shape=MorphMethod.RECT,
+    shape=MorphShape.RECT,
     ksize=DEFAULT_KSIZE,
     anchor=DEFAULT_ANCHOR,
 ) -> NDArray:
@@ -47,15 +47,15 @@ def get_structuring_element(
 
 
 def get_morph_rect(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR) -> NDArray:
-    return get_structuring_element(MorphMethod.RECT, ksize, anchor)
+    return get_structuring_element(MorphShape.RECT, ksize, anchor)
 
 
 def get_morph_cross(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR) -> NDArray:
-    return get_structuring_element(MorphMethod.CROSS, ksize, anchor)
+    return get_structuring_element(MorphShape.CROSS, ksize, anchor)
 
 
 def get_morph_ellipse(ksize=DEFAULT_KSIZE, anchor=DEFAULT_ANCHOR) -> NDArray:
-    return get_structuring_element(MorphMethod.ELLIPSE, ksize, anchor)
+    return get_structuring_element(MorphShape.ELLIPSE, ksize, anchor)
 
 
 def erode(
@@ -90,7 +90,7 @@ def dilate(
 
 def morphology_ex(
     src: NDArray,
-    op: MorphTypes,
+    op: MorphOperator,
     kernel=DEFAULT_KERNEL,
     anchor=DEFAULT_ANCHOR,
     iterations=DEFAULT_ITERATIONS,
@@ -115,7 +115,13 @@ def morphology_ex_erode(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.ERODE, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.ERODE,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -128,7 +134,13 @@ def morphology_ex_dilate(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.DILATE, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.DILATE,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -141,7 +153,13 @@ def morphology_ex_open(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.OPEN, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.OPEN,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -154,7 +172,13 @@ def morphology_ex_close(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.CLOSE, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.CLOSE,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -167,7 +191,13 @@ def morphology_ex_gradient(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.GRADIENT, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.GRADIENT,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -180,7 +210,13 @@ def morphology_ex_tophat(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.TOPHAT, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.TOPHAT,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -193,7 +229,13 @@ def morphology_ex_blackhat(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.BLACKHAT, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.BLACKHAT,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
@@ -206,14 +248,20 @@ def morphology_ex_hitmiss(
     border_value: Optional[Sequence[float]] = None,
 ):
     return morphology_ex(
-        src, MorphTypes.HITMISS, kernel, anchor, iterations, border_type, border_value
+        src,
+        MorphOperator.HITMISS,
+        kernel,
+        anchor,
+        iterations,
+        border_type,
+        border_value,
     )
 
 
 class CvlMorphology:
     @staticmethod
     def cvl_get_structuring_element(
-        shape=MorphMethod.RECT,
+        shape=MorphShape.RECT,
         ksize=DEFAULT_KSIZE,
         anchor=DEFAULT_ANCHOR,
     ):
@@ -256,7 +304,7 @@ class CvlMorphology:
     @staticmethod
     def cvl_morphology_ex(
         src: NDArray,
-        op=MorphTypes.OPEN,
+        op=MorphOperator.OPEN,
         kernel=DEFAULT_KERNEL,
         anchor=DEFAULT_ANCHOR,
         iterations=DEFAULT_ITERATIONS,
