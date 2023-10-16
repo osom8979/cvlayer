@@ -9,7 +9,7 @@ from weakref import ref
 from numpy.typing import NDArray
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
-from cvlayer.layers.layer_base import LayerBase, SkipError
+from cvlayer.layer.layer_base import LayerBase, SkipError
 
 LAST_LAYER_INDEX: Final[int] = -1
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvmanager"

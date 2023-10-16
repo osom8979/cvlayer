@@ -41,7 +41,7 @@ from cvlayer.cvmanager import CvManager
 from cvlayer.debug.avg_stat import AvgStat
 from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
-from cvlayer.layers.layer_base import LayerBase
+from cvlayer.layer.layer_base import LayerBase
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
