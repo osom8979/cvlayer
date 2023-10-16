@@ -11,7 +11,7 @@ from numpy import zeros
 from numpy.typing import NDArray
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
-from cvlayer.layer.layer_parameter import LayerParameter
+from cvlayer.layer.parameter import LayerParameter
 
 
 class SkipError(ValueError):

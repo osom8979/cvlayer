@@ -7,15 +7,17 @@ from typing import Any, Dict, Final, List, Optional, Tuple, Union
 from weakref import ref
 
 from numpy.typing import NDArray
+from overrides import override
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
-from cvlayer.layer.layer_base import LayerBase, SkipError
+from cvlayer.layer.base import LayerBase, SkipError
+from cvlayer.layer.manager.interface import LayerManagerInterface
 
 LAST_LAYER_INDEX: Final[int] = -1
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvmanager"
 
 
-class CvManager:
+class CvManager(LayerManagerInterface):
     _layers: List[LayerBase]
     _name2index: Dict[str, int]
 
@@ -41,6 +43,7 @@ class CvManager:
     def __setitem__(self, key: str, value: LayerBase) -> None:
         raise NotImplementedError("Unsupported __setitem__ method")
 
+    @override
     def layer(self, key: Any) -> LayerBase:
         if not self.has_layer(key):
             self.append_layer(str(key))

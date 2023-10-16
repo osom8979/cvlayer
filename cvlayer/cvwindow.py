@@ -11,6 +11,7 @@ from typing import Any, Final, Optional, Sequence, Union
 
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
+from overrides import override
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
@@ -41,7 +42,8 @@ from cvlayer.cvmanager import CvManager
 from cvlayer.debug.avg_stat import AvgStat
 from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
-from cvlayer.layer.layer_base import LayerBase
+from cvlayer.layer.base import LayerBase
+from cvlayer.layer.manager.interface import LayerManagerInterface
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
@@ -119,7 +121,7 @@ def analyze_frame_as_text(frame: NDArray, roi: Optional[RectInt] = None) -> str:
     return buffer.getvalue()
 
 
-class CvWindow(Window):
+class CvWindow(LayerManagerInterface, Window):
     _writer: Optional[VideoWriter]
 
     def __init__(
@@ -283,8 +285,9 @@ class CvWindow(Window):
     def logger(self):
         return self._logger
 
-    def layer(self, name: str) -> LayerBase:
-        return self._manager.layer(name)
+    @override
+    def layer(self, key: Any) -> LayerBase:
+        return self._manager.layer(key)
 
     def has_layer(self, layer: Any) -> bool:
         return self._manager.has_layer(layer)
