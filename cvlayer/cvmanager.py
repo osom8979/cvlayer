@@ -24,17 +24,16 @@ class CvManager(LayerManagerInterface):
     def __init__(
         self,
         cursor=LAST_LAYER_INDEX,
-        logger: Optional[Union[Logger, str]] = None,
+        logger: Optional[Union[Logger, str]] = DEFAULT_LOGGER_NAME,
     ):
         self._cursor = cursor
         self._layers = list()
         self._name2index = dict()
-        if isinstance(logger, Logger):
-            self._logger = logger
-        elif isinstance(logger, str):
-            self._logger = getLogger(logger)
-        else:
-            self._logger = getLogger(DEFAULT_LOGGER_NAME)
+        if logger is not None:
+            if isinstance(logger, Logger):
+                self._logger = logger
+            elif isinstance(logger, str):
+                self._logger = getLogger(logger)
         self._pseudo_first = LayerBase("__pseudo_first__", None)
 
     def __getitem__(self, key: Any) -> LayerBase:
