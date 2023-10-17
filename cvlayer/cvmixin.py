@@ -6,6 +6,8 @@ from cvlayer.layer.manager.mixins.cvt_color import CvmCvtColor
 from cvlayer.layer.manager.mixins.histogram import CvmHistogram
 from cvlayer.layer.manager.mixins.kmeans import CvmKmeans
 from cvlayer.layer.manager.mixins.morphology import CvmMorphology
+from cvlayer.layer.manager.mixins.select import CvmSelect
+from cvlayer.layer.manager.mixins.threshold import CvmThreshold
 
 
 class CvMixin(
@@ -15,5 +17,7 @@ class CvMixin(
     CvmHistogram,
     CvmKmeans,
     CvmMorphology,
+    CvmSelect,
+    CvmThreshold,
 ):
     pass

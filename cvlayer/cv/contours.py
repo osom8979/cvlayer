@@ -95,8 +95,8 @@ class CvlContours:
         return find_contours(image, mode, method)
 
     @staticmethod
-    def cvl_find_largest_contour_index(contour: NDArray, oriented=False):
-        return find_largest_contour_index(contour, oriented)
+    def cvl_find_largest_contour_index(contours: Iterable[NDArray], oriented=False):
+        return find_largest_contour_index(contours, oriented)
 
     @staticmethod
     def cvl_bitwise_intersection_contours(

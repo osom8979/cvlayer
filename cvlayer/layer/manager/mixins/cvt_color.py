@@ -35,18 +35,18 @@ class CvmCvtColor(_LayerManagerMixinBase):
             layer.frame = hsv_h = hsv[:, :, 0]
         with self.layer("cvm_cvt_color_bgr2hsv_l") as layer:
             layer.frame = hsv_s = hsv[:, :, 1]
-        with self.layer("cvm_cvt_color_bgr2hsv_s") as layer:
+        with self.layer("cvm_cvt_color_bgr2hsv_v") as layer:
             layer.frame = hsv_v = hsv[:, :, 2]
         return hsv, hsv_h, hsv_s, hsv_v
 
     def cvm_cvt_color_bgr2yuv(self):
         with self.layer("cvm_cvt_color_bgr2yuv") as layer:
             layer.frame = yuv = cvt_color_BGR2YUV(layer.prev_frame)
-        with self.layer("cvm_cvt_color_bgr2yuv_h") as layer:
+        with self.layer("cvm_cvt_color_bgr2yuv_y") as layer:
             layer.frame = yuv_y = yuv[:, :, 0]
-        with self.layer("cvm_cvt_color_bgr2yuv_l") as layer:
+        with self.layer("cvm_cvt_color_bgr2yuv_u") as layer:
             layer.frame = yuv_u = yuv[:, :, 1]
-        with self.layer("cvm_cvt_color_bgr2yuv_s") as layer:
+        with self.layer("cvm_cvt_color_bgr2yuv_v") as layer:
             layer.frame = yuv_v = yuv[:, :, 2]
         return yuv, yuv_y, yuv_u, yuv_v
 

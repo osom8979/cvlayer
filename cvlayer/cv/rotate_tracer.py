@@ -68,6 +68,18 @@ class RotateTracer:
         return self._missing_count >= self._max_missing_count
 
     @property
+    def max_missing_count(self) -> int:
+        return self._max_missing_count
+
+    @max_missing_count.setter
+    def max_missing_count(self, value: int) -> None:
+        self._max_missing_count = value
+
+    @property
+    def missing_count(self) -> int:
+        return self._missing_count
+
+    @property
     def current_center(self) -> Optional[Tuple[float, float]]:
         return self._current_center
 
