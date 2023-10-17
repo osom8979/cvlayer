@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from numpy.typing import NDArray
 from shapely.geometry import Point, Polygon
@@ -11,9 +11,10 @@ from cvlayer.cv.cvt_shapely import (
     cvt_line2linestring,
     cvt_roi2polygon,
 )
+from cvlayer.cv.orientation import Orientation
 from cvlayer.shape.points import raw_points
 from cvlayer.shape.polygons import filter_polygons
-from cvlayer.typing import LineT, PointT, RectT
+from cvlayer.typing import LineInt, LineT, PointInt, PointT, RectT
 
 
 def intersection_polygon_and_polygon(
@@ -52,6 +53,29 @@ def intersection_line_and_line(line1: LineT, line2: LineT) -> Optional[PointT]:
 
     assert isinstance(intersection, Point)
     return intersection.x, intersection.y
+
+
+def intersection_minmax(
+    line: LineInt,
+    contour: NDArray,
+    orientation=Orientation.Horizontal,
+) -> Tuple[PointInt, PointInt]:
+    points = intersection_line_and_contour(line, contour)
+    if not points:
+        raise IndexError("Not found intersection")
+
+    if len(points) == 1:
+        return points[0], points[0]
+
+    assert len(points) >= 2
+    if orientation == Orientation.Horizontal:
+        coords = [x for x, y in points]
+    else:
+        coords = [y for x, y in points]
+
+    left_or_top = points[coords.index(min(coords))]
+    right_or_bottom = points[coords.index(max(coords))]
+    return left_or_top, right_or_bottom
 
 
 class CvlContoursIntersection:
