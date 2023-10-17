@@ -2,10 +2,9 @@
 
 from typing import Any
 
-from overrides import override
-
 from cvlayer.layer.base import LayerBase
 from cvlayer.layer.manager.interface import LayerManagerInterface
+from cvlayer.typing import override
 
 
 class _LayerManagerMixinBase(LayerManagerInterface):

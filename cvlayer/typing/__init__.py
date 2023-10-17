@@ -23,6 +23,7 @@ from cvlayer.typing.geomerty import (
     SizeT,
 )
 from cvlayer.typing.np import Image, ImageShape
+from cvlayer.typing.overrides import override
 
 __all__ = [
     "Color",
@@ -47,4 +48,5 @@ __all__ = [
     "SizeFloat",
     "SizeInt",
     "SizeT",
+    "override",
 ]

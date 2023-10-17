@@ -11,7 +11,6 @@ from typing import Any, Final, Optional, Sequence, Union
 
 from numpy import full_like, uint8, zeros_like
 from numpy.typing import NDArray
-from overrides import override
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
@@ -46,7 +45,7 @@ from cvlayer.layer.base import LayerBase
 from cvlayer.layer.manager.interface import LayerManagerInterface
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
-from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt
+from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt, override
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvwindow"

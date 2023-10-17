@@ -7,11 +7,11 @@ from typing import Any, Dict, Final, List, Optional, Tuple, Union
 from weakref import ref
 
 from numpy.typing import NDArray
-from overrides import override
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.layer.base import LayerBase, SkipError
 from cvlayer.layer.manager.interface import LayerManagerInterface
+from cvlayer.typing import override
 
 LAST_LAYER_INDEX: Final[int] = -1
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvmanager"
