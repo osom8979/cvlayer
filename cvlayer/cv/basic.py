@@ -80,6 +80,14 @@ def channel_mean_abs_diff(src: NDArray) -> NDArray[float32]:
     return (bg + gr + rb) / 3.0
 
 
+def split(m: NDArray) -> Sequence[NDArray]:
+    return cv2.split(m)
+
+
+def merge(mv: Sequence[NDArray]) -> NDArray:
+    return cv2.merge(mv)
+
+
 def normalize(
     src: NDArray,
     alpha=1.0,
@@ -195,6 +203,14 @@ class CvlBasic:
     @staticmethod
     def cvl_channel_mean_abs_diff(src: NDArray):
         return channel_mean_abs_diff(src)
+
+    @staticmethod
+    def cvl_split(m: NDArray):
+        return split(m)
+
+    @staticmethod
+    def cvl_merge(mv: Sequence[NDArray]):
+        return merge(mv)
 
     @staticmethod
     def cvl_normalize(
