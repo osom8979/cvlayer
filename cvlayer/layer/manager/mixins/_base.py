@@ -11,3 +11,7 @@ class _LayerManagerMixinBase(LayerManagerInterface):
     @override
     def layer(self, key: Any) -> LayerBase:
         raise NotImplementedError
+
+    @override
+    def set_roi(self, roi: Any) -> None:
+        raise NotImplementedError

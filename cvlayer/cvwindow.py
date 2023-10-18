@@ -9,10 +9,11 @@ from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
 from typing import Any, Final, Optional, Sequence, Union
 
-from numpy import full_like, uint8, zeros_like
+from numpy import float32, float64, full_like, uint8, zeros_like
 from numpy.typing import NDArray
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
+from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
 from cvlayer.cv.drawable import (
     FONT_HERSHEY_SIMPLEX,
@@ -146,7 +147,7 @@ class CvWindow(LayerManagerInterface, Window):
         writer_size: Optional[SizeInt] = None,
         writer_fps: Optional[float] = None,
         writer_fourcc=FOURCC_MP4V,
-        logger: Optional[Union[Logger, str]] = None,
+        logger: Optional[Union[Logger, str]] = DEFAULT_LOGGER_NAME,
         logging_step=1,
         help_offset: Optional[PointInt] = None,
         help_anchor: Optional[PointFloat] = None,
@@ -180,20 +181,19 @@ class CvWindow(LayerManagerInterface, Window):
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
         self._plot_size = plot_size if plot_size else DEFAULT_PLOT_SIZE
         self._plot_padding = plot_padding
-        self._roi = roi
         self._roi_color = roi_color
         self._roi_thickness = roi_thickness
         self._roi_draw = roi_draw
         self._use_deepcopy = use_deepcopy
 
-        if isinstance(logger, Logger):
-            self._logger = logger
-        elif isinstance(logger, str):
-            self._logger = getLogger(logger)
-        else:
-            self._logger = getLogger(DEFAULT_LOGGER_NAME)
+        if logger is not None:
+            if isinstance(logger, Logger):
+                self._logger = logger
+            elif isinstance(logger, str):
+                self._logger = getLogger(logger)
 
         self._manager = manager if manager else CvManager(logger=self._logger)
+        self._manager.set_roi(roi)
 
         if not self._headless and window_size is not None:
             win_width, win_height = window_size
@@ -280,22 +280,25 @@ class CvWindow(LayerManagerInterface, Window):
         self._process_duration = 0.0
         self._shutdown = False
 
-    @property
-    def logger(self):
-        return self._logger
-
     @override
     def layer(self, key: Any) -> LayerBase:
         return self._manager.layer(key)
 
-    def has_layer(self, layer: Any) -> bool:
-        return self._manager.has_layer(layer)
+    @override
+    def set_roi(self, roi: Any) -> None:
+        self._manager.set_roi(roi)
 
-    def get_layer_frame(self, key: Any) -> NDArray:
-        return self._manager.get_layer_frame(key)
+    @property
+    def logger(self):
+        return self._logger
 
-    def get_layer_data(self, key: Any) -> Any:
-        return self._manager.get_layer_data(key)
+    @property
+    def roi(self):
+        return self._manager.roi
+
+    @roi.setter
+    def roi(self, value: Optional[RectInt]) -> None:
+        self._manager.set_roi(value)
 
     @property
     def original_frame(self) -> NDArray:
@@ -332,14 +335,6 @@ class CvWindow(LayerManagerInterface, Window):
     @property
     def keycode(self):
         return self._keycode
-
-    @property
-    def roi(self):
-        return self._roi
-
-    @roi.setter
-    def roi(self, value: Optional[RectInt]) -> None:
-        self._roi = value
 
     def on_keydown_quit(self, keycode: int) -> None:
         raise KeyboardInterrupt("Quit key detected")
@@ -640,7 +635,11 @@ class CvWindow(LayerManagerInterface, Window):
                 return self._empty_frame
 
     def _coloring(self, frame: NDArray) -> NDArray:
-        assert self
+        if frame.dtype in (float32, float64):
+            assert frame.min() >= 0.0
+            assert frame.max() <= 1.0
+            assert PIXEL_8BIT_MAX == 255
+            frame = (frame * PIXEL_8BIT_MAX).astype(uint8)
         if len(frame.shape) == 2:
             return cvt_color(frame, CvtColorCode.GRAY2BGR)
         else:
@@ -671,7 +670,7 @@ class CvWindow(LayerManagerInterface, Window):
             frame,
             hist_roi,
             analyze_frame,
-            self._roi,
+            self.roi,
             padding=self._plot_padding,
         )
         return hist_roi
@@ -686,13 +685,13 @@ class CvWindow(LayerManagerInterface, Window):
         if self._help_mode == HelpMode.HIDE:
             return canvas
 
-        if self._roi_draw and self._roi is not None:
-            draw_rectangle(canvas, self._roi, self._roi_color, self._roi_thickness)
+        if self._roi_draw and self.roi is not None:
+            draw_rectangle(canvas, self.roi, self._roi_color, self._roi_thickness)
 
         buffer = StringIO()
         buffer.write(self.as_information_text())
         if self._help_mode == HelpMode.DEBUG:
-            buffer.write("\n" + analyze_frame_as_text(analyze_frame, self._roi))
+            buffer.write("\n" + analyze_frame_as_text(analyze_frame, self.roi))
 
         help_roi = draw_multiline_text_box(
             image=canvas,

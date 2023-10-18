@@ -10,3 +10,7 @@ class LayerManagerInterface(metaclass=ABCMeta):
     @abstractmethod
     def layer(self, key: Any) -> LayerBase:
         raise NotImplementedError
+
+    @abstractmethod
+    def set_roi(self, roi: Any) -> None:
+        raise NotImplementedError

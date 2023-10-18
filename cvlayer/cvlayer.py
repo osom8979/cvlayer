@@ -12,6 +12,7 @@ from cvlayer.cv.color import CvlColor
 from cvlayer.cv.contours import CvlContours
 from cvlayer.cv.contours_edge import CvlContoursEdge
 from cvlayer.cv.contours_intersection import CvlContoursIntersection
+from cvlayer.cv.contours_moments import CvlContoursMoments
 from cvlayer.cv.convert_scale_abs import CvlConvertScaleAbs
 from cvlayer.cv.cvt_color import CvlCvtColor
 from cvlayer.cv.cvt_shapely import CvlShapely
@@ -28,6 +29,7 @@ from cvlayer.cv.image_flip import CvlImageFlip
 from cvlayer.cv.image_io import CvlImageIo
 from cvlayer.cv.image_make import CvlImageMake
 from cvlayer.cv.image_move import CvlImageMove
+from cvlayer.cv.image_normalize import CvlImageNormalize
 from cvlayer.cv.image_resize import CvlImageResize
 from cvlayer.cv.image_rotation import CvlImageRotation
 from cvlayer.cv.in_range import CvlInRange
@@ -68,6 +70,7 @@ class CvLayer(
     CvlContours,
     CvlContoursEdge,
     CvlContoursIntersection,
+    CvlContoursMoments,
     CvlConvertScaleAbs,
     CvlCvtColor,
     CvlDehaze,
@@ -83,6 +86,7 @@ class CvLayer(
     CvlImageIo,
     CvlImageMake,
     CvlImageMove,
+    CvlImageNormalize,
     CvlImageResize,
     CvlImageRotation,
     CvlInRange,

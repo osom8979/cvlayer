@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.layer.base import LayerBase, SkipError
 from cvlayer.layer.manager.interface import LayerManagerInterface
-from cvlayer.typing import override
+from cvlayer.typing import RectInt, override
 
 LAST_LAYER_INDEX: Final[int] = -1
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvmanager"
@@ -25,6 +25,7 @@ class CvManager(LayerManagerInterface):
         self,
         cursor=LAST_LAYER_INDEX,
         logger: Optional[Union[Logger, str]] = DEFAULT_LOGGER_NAME,
+        roi: Optional[RectInt] = None,
     ):
         self._cursor = cursor
         self._layers = list()
@@ -35,6 +36,7 @@ class CvManager(LayerManagerInterface):
             elif isinstance(logger, str):
                 self._logger = getLogger(logger)
         self._pseudo_first = LayerBase("__pseudo_first__", None)
+        self._roi = roi
 
     def __getitem__(self, key: Any) -> LayerBase:
         return self.layer(key)
@@ -47,6 +49,24 @@ class CvManager(LayerManagerInterface):
         if not self.has_layer(key):
             self.append_layer(str(key))
         return self.get_layer(key)
+
+    @override
+    def set_roi(self, roi: Any) -> None:
+        if roi is None:
+            self._roi = None
+        elif isinstance(roi, (list, tuple)):
+            x1, y1, x2, y2 = roi
+            assert isinstance(x1, int)
+            assert isinstance(y1, int)
+            assert isinstance(x2, int)
+            assert isinstance(y2, int)
+            self._roi = x1, y1, x2, y2
+        else:
+            raise TypeError(f"Unsupported roi type: {type(roi).__name__}")
+
+    @property
+    def roi(self):
+        return self._roi
 
     @property
     def cursor(self):
