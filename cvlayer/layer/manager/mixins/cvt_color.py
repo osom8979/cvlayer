@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from cvlayer.cv.basic import merge, split
+from cvlayer.cv.color import shift_degree_channel
 from cvlayer.cv.cvt_color import (
     cvt_color_BGR2GRAY,
     cvt_color_BGR2HLS,
@@ -71,3 +73,19 @@ class CvmCvtColor(_LayerManagerMixinBase):
         with self.layer("cvm_cvt_color_bgr2lab_b") as layer:
             layer.frame = lab_b = lab[:, :, 2]
         return lab, lab_l, lab_a, lab_b
+
+    def cvm_cvt_color_bgr2hsv_h_shift(self):
+        with self.layer("cvm_cvt_color_bgr2hsv_h_shift") as layer:
+            h_shift = layer.param("h_shift").build_unsigned(20, 1).value
+            _hsv = cvt_color_BGR2HSV(layer.prev_frame)
+            _h, s, v = split(_hsv)
+            h = shift_degree_channel(_h, h_shift)
+            hsv = merge([h, s, v])
+            layer.frame = hsv
+        with self.layer("cvm_cvt_color_bgr2hsv_h_shift_h") as layer:
+            layer.frame = h
+        with self.layer("cvm_cvt_color_bgr2hsv_h_shift_s") as layer:
+            layer.frame = s
+        with self.layer("cvm_cvt_color_bgr2hsv_h_shift_v") as layer:
+            layer.frame = v
+        return hsv, h, s, v
