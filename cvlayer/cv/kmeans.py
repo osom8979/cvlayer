@@ -7,42 +7,18 @@ import cv2
 from numpy import float32, ndarray, uint8
 from numpy.typing import NDArray
 
-assert cv2.TERM_CRITERIA_COUNT == cv2.TERM_CRITERIA_MAX_ITER
+from cvlayer.cv.term_criteria import TermCriteria, TermCriteriaType
 
+DEFAULT_TERM_CRITERIA_TYPE: Final[TermCriteriaType] = TermCriteriaType.COUNT_EPS
+DEFAULT_TERM_CRITERIA_MAX_COUNT: Final[int] = 10
+DEFAULT_TERM_CRITERIA_EPSILON: Final[float] = 1.0
 
-@unique
-class TermCriteriaType(Enum):
-    COUNT = cv2.TERM_CRITERIA_COUNT
-    """
-    the maximum number of iterations or elements to compute
-    """
-
-    EPS = cv2.TERM_CRITERIA_EPS
-    """
-    the desired accuracy or change in parameters at which the iterative algorithm stops
-    """
-
-    COUNT_EPS = cv2.TERM_CRITERIA_COUNT + cv2.TERM_CRITERIA_EPS
-    """
-    COUNT + EPS
-    """
-
-
-class TermCriteria(NamedTuple):
-    type: TermCriteriaType
-    """
-    The type of termination criteria: COUNT, EPS or COUNT + EPS
-    """
-
-    max_count: int
-    """
-    The maximum number of iterations/elements
-    """
-
-    epsilon: float
-    """
-    The desired accuracy
-    """
+DEFAULT_TERM_CRITERIA: Final[TermCriteria] = TermCriteria(
+    DEFAULT_TERM_CRITERIA_TYPE,
+    DEFAULT_TERM_CRITERIA_MAX_COUNT,
+    DEFAULT_TERM_CRITERIA_EPSILON,
+)
+DEFAULT_ATTEMPTS: Final[int] = 10
 
 
 @unique
@@ -72,32 +48,27 @@ class KmeansResult(NamedTuple):
     centers: NDArray
 
 
-DEFAULT_CRITERIA_TYPE: Final[TermCriteriaType] = TermCriteriaType.COUNT_EPS
-DEFAULT_CRITERIA_MAX_COUNT: Final[int] = 10
-DEFAULT_CRITERIA_EPSILON: Final[float] = 1.0
-DEFAULT_CRITERIA: Final[TermCriteria] = TermCriteria(
-    DEFAULT_CRITERIA_TYPE,
-    DEFAULT_CRITERIA_MAX_COUNT,
-    DEFAULT_CRITERIA_EPSILON,
-)
-DEFAULT_ATTEMPTS: Final[int] = 10
-
-
 def kmeans(
     data: NDArray,
     k: int,
     best_labels: Optional[NDArray] = None,
-    criteria=DEFAULT_CRITERIA,
+    term_criteria=DEFAULT_TERM_CRITERIA,
     attempts=DEFAULT_ATTEMPTS,
     flags=KmeansFlags.PP_CENTERS,
 ) -> KmeansResult:
+    criteria = (
+        term_criteria.type.value,
+        term_criteria.max_count,
+        term_criteria.epsilon,
+    )
     retval, labels, centers = cv2.kmeans(
-        data,
-        k,
-        best_labels,
-        (criteria.type.value, criteria.max_count, criteria.epsilon),
-        attempts,
-        flags.value,
+        data=data,
+        K=k,
+        bestLabels=best_labels,
+        criteria=criteria,
+        attempts=attempts,
+        flags=flags.value,
+        centers=None,
     )
     return KmeansResult(retval, labels, centers)
 
@@ -106,7 +77,7 @@ def color_quantization(
     image: NDArray,
     k: int,
     best_labels: Optional[NDArray] = None,
-    criteria=DEFAULT_CRITERIA,
+    criteria=DEFAULT_TERM_CRITERIA,
     attempts=DEFAULT_ATTEMPTS,
     flags=KmeansFlags.PP_CENTERS,
 ) -> NDArray:
@@ -124,7 +95,7 @@ class CvlKmeans:
         data: NDArray,
         k: int,
         best_labels: Optional[NDArray] = None,
-        criteria=DEFAULT_CRITERIA,
+        criteria=DEFAULT_TERM_CRITERIA,
         attempts=DEFAULT_ATTEMPTS,
         flags=KmeansFlags.PP_CENTERS,
     ):
@@ -135,7 +106,7 @@ class CvlKmeans:
         image: NDArray,
         k: int,
         best_labels: Optional[NDArray] = None,
-        criteria=DEFAULT_CRITERIA,
+        criteria=DEFAULT_TERM_CRITERIA,
         attempts=DEFAULT_ATTEMPTS,
         flags=KmeansFlags.PP_CENTERS,
     ):

@@ -46,6 +46,7 @@ from cvlayer.cv.orb import CvlOrb
 from cvlayer.cv.palette import CvlPalette
 from cvlayer.cv.perspective import CvlPerspective
 from cvlayer.cv.plot import CvlPlot
+from cvlayer.cv.pyramid import CvlPyramid
 from cvlayer.cv.roi import CvlRoi
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
 from cvlayer.cv.sobel import CvlSobel
@@ -103,6 +104,7 @@ class CvLayer(
     CvlPalette,
     CvlPerspective,
     CvlPlot,
+    CvlPyramid,
     CvlRoi,
     CvlRotateTracer,
     CvlShapely,
