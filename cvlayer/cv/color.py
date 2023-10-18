@@ -3,7 +3,7 @@
 from typing import Final, Optional
 
 import cv2
-from numpy import clip, uint8
+from numpy import clip, int32, uint8
 from numpy.typing import NDArray
 
 from cvlayer.typing import Number
@@ -39,6 +39,17 @@ def convert_scale_abs(
     return cv2.convertScaleAbs(src, None, alpha, beta)
 
 
+def shift_degree_channel(
+    src: NDArray,
+    shift=0,
+    maxval=180,
+) -> NDArray:
+    if 0 <= shift < 256 - 180:
+        return (src + shift) % maxval
+    else:
+        return uint8((int32(src) + shift) % maxval)  # type: ignore[return-value]
+
+
 class CvlColor:
     @staticmethod
     def cvl_saturate(
@@ -56,3 +67,11 @@ class CvlColor:
         beta=0.0,
     ) -> NDArray:
         return convert_scale_abs(src, alpha, beta)
+
+    @staticmethod
+    def cvl_shift_degree_channel(
+        src: NDArray,
+        shift: int,
+        maxval=180,
+    ):
+        return shift_degree_channel(src, shift, maxval)
