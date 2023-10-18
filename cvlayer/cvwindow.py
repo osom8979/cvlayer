@@ -14,7 +14,8 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.cv.color import PIXEL_8BIT_MAX
-from cvlayer.cv.cvt_color import CvtColorCode, cvt_color
+from cvlayer.cv.cvt_color import cvt_color
+from cvlayer.cv.cvt_color_code import CvtColorCode
 from cvlayer.cv.drawable import (
     FONT_HERSHEY_SIMPLEX,
     draw_multiline_text_box,
