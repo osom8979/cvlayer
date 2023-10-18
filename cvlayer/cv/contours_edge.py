@@ -6,7 +6,7 @@ from typing import Callable, List, NamedTuple, Tuple
 from numpy import int32, ndarray
 from numpy.typing import NDArray
 
-from cvlayer.typing import PolygonT
+from cvlayer.typing import PointInt, PolygonT
 
 
 @unique
@@ -32,20 +32,24 @@ def _find_edge(
     return [(p[0], p[1]) for p in points] if points else []
 
 
-def find_leftmost_point(contour: NDArray):
-    return tuple(contour[contour[:, :, 0].argmin()][0])
+def find_leftmost_point(contour: NDArray) -> PointInt:
+    p = contour[contour[:, :, 0].argmin()][0]
+    return int(p[0]), int(p[1])
 
 
-def find_rightmost_point(contour: NDArray):
-    return tuple(contour[contour[:, :, 0].argmax()][0])
+def find_rightmost_point(contour: NDArray) -> PointInt:
+    p = contour[contour[:, :, 0].argmax()][0]
+    return int(p[0]), int(p[1])
 
 
-def find_topmost_point(contour: NDArray):
-    return tuple(contour[contour[:, :, 1].argmin()][0])
+def find_topmost_point(contour: NDArray) -> PointInt:
+    p = contour[contour[:, :, 1].argmin()][0]
+    return int(p[0]), int(p[1])
 
 
-def find_bottommost_point(contour: NDArray):
-    return tuple(contour[contour[:, :, 1].argmax()][0])
+def find_bottommost_point(contour: NDArray) -> PointInt:
+    p = contour[contour[:, :, 1].argmax()][0]
+    return int(p[0]), int(p[1])
 
 
 def _left_edge_filter(contour: NDArray) -> NDArray:
@@ -168,6 +172,22 @@ def find_best_contour_edge_points(
 
 
 class CvlContoursEdge:
+    @staticmethod
+    def cvl_find_leftmost_point(contour: NDArray):
+        return find_leftmost_point(contour)
+
+    @staticmethod
+    def cvl_find_rightmost_point(contour: NDArray):
+        return find_rightmost_point(contour)
+
+    @staticmethod
+    def cvl_find_topmost_point(contour: NDArray):
+        return find_topmost_point(contour)
+
+    @staticmethod
+    def cvl_find_bottommost_point(contour: NDArray):
+        return find_bottommost_point(contour)
+
     @staticmethod
     def cvl_find_leftmost_contour(contours: List[NDArray]):
         return find_best_contour_edge_points(FindContourEdgeMethod.LEFT, contours)
