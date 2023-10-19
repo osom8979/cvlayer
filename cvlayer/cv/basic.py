@@ -88,6 +88,13 @@ def merge(mv: Sequence[NDArray]) -> NDArray:
     return cv2.merge(mv)
 
 
+def add(*arrays: NDArray) -> NDArray:
+    result = zeros_like(arrays[0])
+    for a in arrays:
+        result = cv2.add(result, a)
+    return result
+
+
 def normalize(
     src: NDArray,
     alpha=1.0,
@@ -119,7 +126,6 @@ def normalize_uint8_minmax(
 
 # def abs():
 # def absdiff():
-# def add():
 # def calcCovarMatrix():
 # def cartToPolar():
 # def checkRange():
@@ -149,7 +155,6 @@ def normalize_uint8_minmax(
 # def magnitude():
 # def Mahalanobis():
 # def meanStdDev():
-# def merge():
 # def minMaxIdx():
 # def minMaxLoc():
 # def mixChannels():
@@ -173,7 +178,6 @@ def normalize_uint8_minmax(
 # def solvePoly():
 # def sort():
 # def sortIdx():
-# def split():
 # def sqrt():
 # def subtract():
 # def sum():
@@ -211,6 +215,10 @@ class CvlBasic:
     @staticmethod
     def cvl_merge(mv: Sequence[NDArray]):
         return merge(mv)
+
+    @staticmethod
+    def cvl_add(*arrays: NDArray):
+        return add(*arrays)
 
     @staticmethod
     def cvl_normalize(
