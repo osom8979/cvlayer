@@ -6,7 +6,7 @@ from typing import Callable, List, NamedTuple, Tuple
 from numpy import int32, ndarray
 from numpy.typing import NDArray
 
-from cvlayer.typing import PointInt, PolygonT
+from cvlayer.typing import PointI, PolygonT
 
 
 @unique
@@ -32,22 +32,22 @@ def _find_edge(
     return [(p[0], p[1]) for p in points] if points else []
 
 
-def find_leftmost_point(contour: NDArray) -> PointInt:
+def find_leftmost_point(contour: NDArray) -> PointI:
     p = contour[contour[:, :, 0].argmin()][0]
     return int(p[0]), int(p[1])
 
 
-def find_rightmost_point(contour: NDArray) -> PointInt:
+def find_rightmost_point(contour: NDArray) -> PointI:
     p = contour[contour[:, :, 0].argmax()][0]
     return int(p[0]), int(p[1])
 
 
-def find_topmost_point(contour: NDArray) -> PointInt:
+def find_topmost_point(contour: NDArray) -> PointI:
     p = contour[contour[:, :, 1].argmin()][0]
     return int(p[0]), int(p[1])
 
 
-def find_bottommost_point(contour: NDArray) -> PointInt:
+def find_bottommost_point(contour: NDArray) -> PointI:
     p = contour[contour[:, :, 1].argmax()][0]
     return int(p[0]), int(p[1])
 

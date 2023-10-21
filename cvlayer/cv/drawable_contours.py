@@ -6,7 +6,7 @@ import cv2
 from numpy import int64
 from numpy.typing import NDArray
 
-from cvlayer.cv.contours import MinAreaRectResult, box_points
+from cvlayer.cv.contours import RotatedRect, box_points
 from cvlayer.cv.drawable import COLOR, LINE_TYPE, THICKNESS
 from cvlayer.typing import Image
 
@@ -45,7 +45,7 @@ def draw_contours(
 
 def draw_min_area_rect(
     image: Image,
-    box: MinAreaRectResult,
+    box: RotatedRect,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
@@ -95,7 +95,7 @@ class CvlDrawableContours:
     @staticmethod
     def cvl_draw_min_box_area(
         image: Image,
-        box: MinAreaRectResult,
+        box: RotatedRect,
         color=COLOR,
         thickness=THICKNESS,
         line_type=LINE_TYPE,

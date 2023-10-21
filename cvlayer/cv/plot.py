@@ -14,7 +14,7 @@ from cvlayer.cv.drawable import (
     draw_point,
     draw_rectangle,
 )
-from cvlayer.typing import NumberT, PointT, RectInt
+from cvlayer.typing import NumberT, PointT, RectI
 
 
 @unique
@@ -89,7 +89,7 @@ def draw_absolute_plot_y_bars(
 def draw_plot_2d(
     canvas: NDArray,
     *datasets: Sequence[NumberT],
-    roi: Optional[RectInt] = None,
+    roi: Optional[RectI] = None,
     color=COLOR,
     thickness=THICKNESS,
     line_type=LINE_TYPE,
@@ -192,7 +192,7 @@ class CvlPlot:
     def cvl_draw_plot_2d(
         canvas: NDArray,
         *datasets: Sequence[NumberT],
-        roi: Optional[RectInt] = None,
+        roi: Optional[RectI] = None,
         color=COLOR,
         thickness=THICKNESS,
         line_type=LINE_TYPE,

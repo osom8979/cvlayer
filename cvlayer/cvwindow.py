@@ -47,13 +47,13 @@ from cvlayer.layer.base import LayerBase
 from cvlayer.layer.manager.interface import LayerManagerInterface
 from cvlayer.palette.basic import RED
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
-from cvlayer.typing import Color, PointFloat, PointInt, RectInt, SizeInt, override
+from cvlayer.typing import Color, PointF, PointI, RectI, SizeI, override
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvwindow"
-DEFAULT_HELP_OFFSET: Final[PointInt] = 0, 0
-DEFAULT_HELP_ANCHOR: Final[PointFloat] = 0.0, 0.0
-DEFAULT_PLOT_SIZE: Final[SizeInt] = 256, 256
+DEFAULT_HELP_OFFSET: Final[PointI] = 0, 0
+DEFAULT_HELP_ANCHOR: Final[PointF] = 0.0, 0.0
+DEFAULT_PLOT_SIZE: Final[SizeI] = 256, 256
 DEFAULT_ROI_COLOR: Final[Color] = RED
 DEFAULT_ROI_THICKNESS: Final[int] = 2
 
@@ -108,7 +108,7 @@ class KeyDefine:
         )
 
 
-def analyze_frame_as_text(frame: NDArray, roi: Optional[RectInt] = None) -> str:
+def analyze_frame_as_text(frame: NDArray, roi: Optional[RectI] = None) -> str:
     if roi is not None:
         x1, y1, x2, y2 = normalize_image_roi(frame, roi)
         if (x2 - x1) * (y2 - y1) != 0:
@@ -143,18 +143,18 @@ class CvWindow(LayerManagerInterface, Window):
         window_title=DEFAULT_WINDOW_EX_TITLE,
         window_flags=WINDOW_NORMAL,
         window_wait=1,
-        window_size: Optional[SizeInt] = None,
-        window_position: Optional[PointInt] = None,
-        writer_size: Optional[SizeInt] = None,
+        window_size: Optional[SizeI] = None,
+        window_position: Optional[PointI] = None,
+        writer_size: Optional[SizeI] = None,
         writer_fps: Optional[float] = None,
         writer_fourcc=FOURCC_MP4V,
         logger: Optional[Union[Logger, str]] = DEFAULT_LOGGER_NAME,
         logging_step=1,
-        help_offset: Optional[PointInt] = None,
-        help_anchor: Optional[PointFloat] = None,
-        plot_size: Optional[SizeInt] = None,
+        help_offset: Optional[PointI] = None,
+        help_anchor: Optional[PointF] = None,
+        plot_size: Optional[SizeI] = None,
         plot_padding=HISTOGRAM_PADDING,
-        roi: Optional[RectInt] = None,
+        roi: Optional[RectI] = None,
         roi_color=DEFAULT_ROI_COLOR,
         roi_thickness=DEFAULT_ROI_THICKNESS,
         roi_draw=True,
@@ -298,7 +298,7 @@ class CvWindow(LayerManagerInterface, Window):
         return self._manager.roi
 
     @roi.setter
-    def roi(self, value: Optional[RectInt]) -> None:
+    def roi(self, value: Optional[RectI]) -> None:
         self._manager.set_roi(value)
 
     @property
@@ -658,9 +658,9 @@ class CvWindow(LayerManagerInterface, Window):
     def _draw_histogram(
         self,
         frame: NDArray,
-        help_roi: RectInt,
+        help_roi: RectI,
         analyze_frame: NDArray,
-    ) -> RectInt:
+    ) -> RectI:
         hx1, hy1, hx2, hy2 = help_roi
         hx1 = hx1 if self._help_anchor[0] < 0.5 else hx2 - self._plot_size[0]
         hy1 = hy2 if self._help_anchor[1] < 0.5 else hy1 - self._plot_size[1]

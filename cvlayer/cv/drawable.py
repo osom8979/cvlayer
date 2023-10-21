@@ -6,13 +6,26 @@ from typing import Final, List, Tuple
 import cv2
 from numpy import full, uint8
 
-from cvlayer.typing import Color, Image, Number, PointT, RectInt, RectT, SizeInt
+from cvlayer.typing import Color, Image, Number, PointT, RectI, RectT, SizeI
 
 FILLED: Final[int] = cv2.FILLED
 
 LINE_4: Final[int] = cv2.LINE_4  # Bresenham 4 Connect
 LINE_8: Final[int] = cv2.LINE_8  # Bresenham 8 Connect
 LINE_AA: Final[int] = cv2.LINE_AA  # Anti-Aliasing
+
+
+@unique
+class LineType(Enum):
+    B4 = LINE_4
+    """Bresenham 4 Connect"""
+
+    B8 = LINE_8
+    """Bresenham 8 Connect"""
+
+    AA = LINE_AA
+    """Anti-Aliasing"""
+
 
 MARKER_SIZE: Final[int] = 20
 
@@ -349,7 +362,7 @@ def get_text_size(
     font=FONT,
     scale=FONT_SCALE,
     thickness=THICKNESS,
-) -> Tuple[SizeInt, int]:
+) -> Tuple[SizeI, int]:
     text_size = cv2.getTextSize(text, font, scale, thickness)
     text_width, text_height = text_size[0]
     baseline = text_size[1]
@@ -363,7 +376,7 @@ def measure_multiline_text_box_size(
     thickness=THICKNESS,
     linefeed=MULTILINE_LINEFEED,
     line_spacing=MULTILINE_LINE_SPACING,
-) -> Tuple[int, int, List[Tuple[str, SizeInt, int]]]:
+) -> Tuple[int, int, List[Tuple[str, SizeI, int]]]:
     tws = list()
     ths = list()
     lines = list()
@@ -383,7 +396,7 @@ def measure_multiline_text_box_size(
 
 def draw_multiline_text_with_lines(
     image: Image,
-    lines: List[Tuple[str, SizeInt, int]],
+    lines: List[Tuple[str, SizeI, int]],
     x: Number,
     y: Number,
     font=FONT,
@@ -465,7 +478,7 @@ def draw_multiline_text_box(
     margin=MULTILINE_BOX_MARGIN,
     anchor_x=MULTILINE_BOX_ANCHOR_X,
     anchor_y=MULTILINE_BOX_ANCHOR_Y,
-) -> RectInt:
+) -> RectI:
     assert 0 <= anchor_x <= 1
     assert 0 <= anchor_y <= 1
     assert 0 <= background_alpha <= 1
@@ -730,7 +743,7 @@ class CvlDrawable:
     @staticmethod
     def cvl_draw_multiline_text_with_lines(
         image: Image,
-        lines: List[Tuple[str, SizeInt, int]],
+        lines: List[Tuple[str, SizeI, int]],
         x: Number,
         y: Number,
         font=FONT,

@@ -7,7 +7,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.fourcc import DEFAULT_FOURCC, get_fourcc
-from cvlayer.typing import SizeInt
+from cvlayer.typing import SizeI
 
 DEFAULT_FPS: Final[float] = 30.0
 AUTO_DETECTION_NSTRIPES: Final[int] = -1
@@ -35,7 +35,7 @@ class VideoWriter:
     def __init__(
         self,
         filename: Optional[str] = None,
-        size: Optional[SizeInt] = None,
+        size: Optional[SizeI] = None,
         fps=DEFAULT_FPS,
         fourcc=DEFAULT_FOURCC,
         *,
@@ -93,7 +93,7 @@ class VideoWriter:
     def open(
         self,
         filename: str,
-        size: SizeInt,
+        size: SizeI,
         fps=DEFAULT_FPS,
         fourcc=DEFAULT_FOURCC,
         *,
@@ -204,7 +204,7 @@ class CvlVideoWriter:
     @staticmethod
     def cvl_create_video_writer(
         filename: Optional[str] = None,
-        size: Optional[SizeInt] = None,
+        size: Optional[SizeI] = None,
         fps=DEFAULT_FPS,
         fourcc=DEFAULT_FOURCC,
         *,

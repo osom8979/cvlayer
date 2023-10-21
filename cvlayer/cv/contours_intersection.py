@@ -14,7 +14,7 @@ from cvlayer.cv.cvt_shapely import (
 from cvlayer.cv.orientation import Orientation
 from cvlayer.shape.points import raw_points
 from cvlayer.shape.polygons import filter_polygons
-from cvlayer.typing import LineInt, LineT, PointInt, PointT, RectT
+from cvlayer.typing import LineI, LineT, PointI, PointT, RectT
 
 
 def intersection_polygon_and_polygon(
@@ -56,10 +56,10 @@ def intersection_line_and_line(line1: LineT, line2: LineT) -> Optional[PointT]:
 
 
 def intersection_minmax(
-    line: LineInt,
+    line: LineI,
     contour: NDArray,
     orientation=Orientation.Horizontal,
-) -> Tuple[PointInt, PointInt]:
+) -> Tuple[PointI, PointI]:
     points = intersection_line_and_contour(line, contour)
     if not points:
         raise IndexError("Not found intersection")

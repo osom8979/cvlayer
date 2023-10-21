@@ -9,7 +9,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.mouse import MouseEvent
-from cvlayer.typing import RectInt
+from cvlayer.typing import RectI
 
 FUNC_SET_MOUSE_CALLBACK: Final[str] = "setMouseCallback"
 FUNC_CREATE_TRACKBAR: Final[str] = "createTrackbar"
@@ -89,7 +89,7 @@ class Window:
         self._title = title
 
     @property
-    def image_rect(self) -> RectInt:
+    def image_rect(self) -> RectI:
         x1, y1, x2, y2 = cv2.getWindowImageRect(self._title)
         return x1, y1, x2, y2
 

@@ -7,7 +7,7 @@ import cv2
 from numpy import int32, logical_and, uint8, zeros
 from numpy.typing import NDArray
 
-from cvlayer.typing import Image, PointFloat, SizeFloat
+from cvlayer.typing import Image, PointF, SizeF
 
 
 @unique
@@ -27,9 +27,9 @@ class FindContoursMethod(Enum):
     TC89_L1 = cv2.CHAIN_APPROX_TC89_L1
 
 
-class MinAreaRectResult(NamedTuple):
-    center: PointFloat
-    size: SizeFloat
+class RotatedRect(NamedTuple):
+    center: PointF
+    size: SizeF
     rotation: float
 
 
@@ -85,14 +85,14 @@ def approx_poly_dp(curve: NDArray, epsilon: float, closed=False) -> NDArray:
     return cv2.approxPolyDP(curve, epsilon=epsilon, closed=closed)
 
 
-def min_area_rect(points: NDArray) -> MinAreaRectResult:
+def min_area_rect(points: NDArray) -> RotatedRect:
     center, size, rotation = cv2.minAreaRect(points)
     cx, cy = center
     w, h = size
-    return MinAreaRectResult((cx, cy), (w, h), rotation)
+    return RotatedRect((cx, cy), (w, h), rotation)
 
 
-def box_points(box: MinAreaRectResult) -> NDArray:
+def box_points(box: RotatedRect) -> NDArray:
     return cv2.boxPoints(box)
 
 
@@ -139,5 +139,5 @@ class CvlContours:
         return min_area_rect(points)
 
     @staticmethod
-    def cvl_box_points(box: MinAreaRectResult):
+    def cvl_box_points(box: RotatedRect):
         return box_points(box)

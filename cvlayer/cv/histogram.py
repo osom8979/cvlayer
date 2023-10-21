@@ -21,7 +21,7 @@ from cvlayer.palette.basic import (
     WHITE,
     YELLOW,
 )
-from cvlayer.typing import Color, PointFloat, RectInt
+from cvlayer.typing import Color, PointF, RectI
 
 RANGE_MAX: Final[int] = PIXEL_8BIT_MAX + 1
 DEFAULT_HIST_SIZE: Final[Sequence[int]] = (RANGE_MAX,)
@@ -82,7 +82,7 @@ def normalize_drawable_histogram(
     width: int,
     height: int,
     hist_size=RANGE_MAX,
-) -> List[PointFloat]:
+) -> List[PointF]:
     normalized = hist.copy()
     cv2.normalize(
         src=hist,
@@ -102,9 +102,9 @@ def normalize_drawable_histogram(
 
 def draw_histogram_channel(
     canvas: NDArray,
-    roi: RectInt,
+    roi: RectI,
     analysis: NDArray,
-    analysis_roi: Optional[RectInt] = None,
+    analysis_roi: Optional[RectI] = None,
     index=0,
     channel_max=float(RANGE_MAX),
     color=GRAY,
@@ -137,9 +137,9 @@ def draw_histogram_channel(
 
 def draw_histogram_channels(
     canvas: NDArray,
-    roi: RectInt,
+    roi: RectI,
     analysis: NDArray,
-    analysis_roi: Optional[RectInt] = None,
+    analysis_roi: Optional[RectI] = None,
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
     colors: Optional[Sequence[Color]] = None,
     thickness=THICKNESS,
@@ -188,9 +188,9 @@ def draw_histogram_channels(
 
 def draw_histogram_channels_with_decorate(
     canvas: NDArray,
-    roi: RectInt,
+    roi: RectI,
     analysis: NDArray,
-    analysis_roi: Optional[RectInt] = None,
+    analysis_roi: Optional[RectI] = None,
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
     colors: Optional[Sequence[Color]] = None,
     thickness=THICKNESS,
@@ -309,9 +309,9 @@ class CvlHistogram:
     @staticmethod
     def cvl_draw_histogram_channel(
         canvas: NDArray,
-        roi: RectInt,
+        roi: RectI,
         analysis: NDArray,
-        analysis_roi: Optional[RectInt] = None,
+        analysis_roi: Optional[RectI] = None,
         index=0,
         channel_max=RANGE_MAX,
         color=GRAY,
@@ -333,9 +333,9 @@ class CvlHistogram:
     @staticmethod
     def cvl_draw_histogram_channels(
         canvas: NDArray,
-        roi: RectInt,
+        roi: RectI,
         analysis: NDArray,
-        analysis_roi: Optional[RectInt] = None,
+        analysis_roi: Optional[RectI] = None,
         channels_max=(RANGE_MAX, RANGE_MAX, RANGE_MAX),
         colors: Optional[Sequence[Color]] = None,
         thickness=THICKNESS,
@@ -355,9 +355,9 @@ class CvlHistogram:
     @staticmethod
     def cvl_draw_histogram_channels_with_decorate(
         canvas: NDArray,
-        roi: RectInt,
+        roi: RectI,
         analysis: NDArray,
-        analysis_roi: Optional[RectInt] = None,
+        analysis_roi: Optional[RectI] = None,
         channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
         colors: Optional[Sequence[Color]] = None,
         thickness=THICKNESS,

@@ -7,10 +7,10 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.border import BorderType
-from cvlayer.typing import PointInt, SizeInt
+from cvlayer.typing import PointI, SizeI
 
-DEFAULT_KSIZE: Final[SizeInt] = (3, 3)
-DEFAULT_ANCHOR: Final[PointInt] = (-1, -1)
+DEFAULT_KSIZE: Final[SizeI] = (3, 3)
+DEFAULT_ANCHOR: Final[PointI] = (-1, -1)
 DEFAULT_ITERATIONS: Final[int] = 1
 DEFAULT_KERNEL = cv2.getStructuringElement(
     cv2.MORPH_RECT,

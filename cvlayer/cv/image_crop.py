@@ -5,10 +5,10 @@ from typing import Optional, Sequence
 from numpy import full
 from numpy.typing import NDArray
 
-from cvlayer.typing import RectInt
+from cvlayer.typing import RectI
 
 
-def image_crop(src: NDArray, roi: RectInt, copy=False) -> NDArray:
+def image_crop(src: NDArray, roi: RectI, copy=False) -> NDArray:
     x1, y1, x2, y2 = roi
     width = x2 - x1
     height = y2 - y1
@@ -40,7 +40,7 @@ def image_crop(src: NDArray, roi: RectInt, copy=False) -> NDArray:
 
 def image_crop_adjusted(
     src: NDArray,
-    roi: RectInt,
+    roi: RectI,
     copy=False,
 ) -> NDArray:
     x1, y1, x2, y2 = roi
@@ -65,7 +65,7 @@ def image_crop_adjusted(
 
 def image_crop_extended(
     src: NDArray,
-    roi: RectInt,
+    roi: RectI,
     fill: Optional[Sequence[int]] = None,
 ) -> NDArray:
     x1, y1, x2, y2 = roi
@@ -109,13 +109,13 @@ def image_crop_extended(
 
 class CvlImageCrop:
     @staticmethod
-    def cvl_image_crop(src: NDArray, roi: RectInt, copy=False):
+    def cvl_image_crop(src: NDArray, roi: RectI, copy=False):
         return image_crop(src, roi, copy)
 
     @staticmethod
     def cvl_image_crop_adjusted(
         src: NDArray,
-        roi: RectInt,
+        roi: RectI,
         copy=False,
     ) -> NDArray:
         return image_crop_adjusted(src, roi, copy)
@@ -123,7 +123,7 @@ class CvlImageCrop:
     @staticmethod
     def cvl_image_crop_extended(
         src: NDArray,
-        roi: RectInt,
+        roi: RectI,
         fill: Optional[Sequence[int]] = None,
     ) -> NDArray:
         return image_crop_extended(src, roi, fill)

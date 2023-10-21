@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.border import DEFAULT_BORDER_TYPE
 from cvlayer.cv.term_criteria import TermCriteria, TermCriteriaType
-from cvlayer.typing import SizeInt
+from cvlayer.typing import SizeI
 
 DEFAULT_SPATIAL_WINDOW_RADIUS: Final[float] = 20.0
 DEFAULT_COLOR_WINDOW_RADIUS: Final[float] = 20.0
@@ -48,7 +48,7 @@ def pyr_mean_shift_filtering(
 
 def pyr_down(
     src: NDArray,
-    output_size: Optional[SizeInt] = None,
+    output_size: Optional[SizeI] = None,
     border_type=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
     return cv2.pyrDown(
@@ -60,7 +60,7 @@ def pyr_down(
 
 def pyr_up(
     src: NDArray,
-    output_size: Optional[SizeInt] = None,
+    output_size: Optional[SizeI] = None,
     border_type=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
     return cv2.pyrUp(
@@ -84,7 +84,7 @@ class CvlPyramid:
     @staticmethod
     def cvl_pyr_down(
         src: NDArray,
-        output_size: Optional[SizeInt] = None,
+        output_size: Optional[SizeI] = None,
         border_type=DEFAULT_BORDER_TYPE,
     ):
         return pyr_down(src, output_size, border_type)
@@ -92,7 +92,7 @@ class CvlPyramid:
     @staticmethod
     def cvl_pyr_up(
         src: NDArray,
-        output_size: Optional[SizeInt] = None,
+        output_size: Optional[SizeI] = None,
         border_type=DEFAULT_BORDER_TYPE,
     ):
         return pyr_up(src, output_size, border_type)

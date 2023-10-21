@@ -14,4 +14,4 @@ def _fake_override(func):
 try:
     from overrides import override
 except ImportError:
-    override = _fake_override
+    override = _fake_override  # type: ignore[assignment]

@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.layer.base import LayerBase, SkipError
 from cvlayer.layer.manager.interface import LayerManagerInterface
-from cvlayer.typing import RectInt, override
+from cvlayer.typing import RectI, override
 
 LAST_LAYER_INDEX: Final[int] = -1
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvmanager"
@@ -25,7 +25,7 @@ class CvManager(LayerManagerInterface):
         self,
         cursor=LAST_LAYER_INDEX,
         logger: Optional[Union[Logger, str]] = DEFAULT_LOGGER_NAME,
-        roi: Optional[RectInt] = None,
+        roi: Optional[RectI] = None,
     ):
         self._cursor = cursor
         self._layers = list()

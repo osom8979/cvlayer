@@ -7,7 +7,7 @@ import cv2
 from numpy import array, float32
 from numpy.typing import NDArray
 
-from cvlayer.typing import PerspectivePointsInt, PointFloat, RectFloat, Scalar, SizeInt
+from cvlayer.typing import PerspectivePointsI, PointF, RectF, ScalarF, SizeI
 
 
 @unique
@@ -44,7 +44,7 @@ class MatrixDecomposition(Enum):
     """
 
 
-def cast_perspective_int(points: Any) -> PerspectivePointsInt:
+def cast_perspective_int(points: Any) -> PerspectivePointsI:
     assert isinstance(points, (tuple, list))
     assert len(points) == 4
 
@@ -85,11 +85,11 @@ def get_perspective_transform(
 
 
 def get_perspective_transform_with_quadrilateral(
-    left_top: PointFloat,
-    left_bottom: PointFloat,
-    right_top: PointFloat,
-    right_bottom: PointFloat,
-    destination_roi: RectFloat,
+    left_top: PointF,
+    left_bottom: PointF,
+    right_top: PointF,
+    right_bottom: PointF,
+    destination_roi: RectF,
     solve_method=MatrixDecomposition.LU,
 ) -> NDArray:
     points = left_top, left_bottom, right_top, right_bottom
@@ -126,10 +126,10 @@ class WarpPerspectiveBorderMode(Enum):
 def warp_perspective(
     image: NDArray,
     matrix: NDArray,
-    dsize: SizeInt,
+    dsize: SizeI,
     flags=WarpPerspectiveFlags.LINEAR,
     border_mode=WarpPerspectiveBorderMode.CONSTANT,
-    border_value: Optional[Scalar] = None,
+    border_value: Optional[ScalarF] = None,
 ) -> NDArray:
     return cv2.warpPerspective(
         image,
@@ -143,7 +143,7 @@ def warp_perspective(
 
 class CvlPerspective:
     @staticmethod
-    def cvl_cast_perspective_int(points: Any) -> PerspectivePointsInt:
+    def cvl_cast_perspective_int(points: Any) -> PerspectivePointsI:
         return cast_perspective_int(points)
 
     @staticmethod
@@ -156,11 +156,11 @@ class CvlPerspective:
 
     @staticmethod
     def cvl_get_perspective_transform_with_quadrilateral(
-        left_top: PointFloat,
-        left_bottom: PointFloat,
-        right_top: PointFloat,
-        right_bottom: PointFloat,
-        destination_roi: RectFloat,
+        left_top: PointF,
+        left_bottom: PointF,
+        right_top: PointF,
+        right_bottom: PointF,
+        destination_roi: RectF,
         solve_method=MatrixDecomposition.LU,
     ):
         return get_perspective_transform_with_quadrilateral(
@@ -176,10 +176,10 @@ class CvlPerspective:
     def cvl_warp_perspective(
         image: NDArray,
         matrix: NDArray,
-        dsize: SizeInt,
+        dsize: SizeI,
         flags=WarpPerspectiveFlags.LINEAR,
         border_mode=WarpPerspectiveBorderMode.CONSTANT,
-        border_value: Optional[Scalar] = None,
+        border_value: Optional[ScalarF] = None,
     ):
         return warp_perspective(
             image,

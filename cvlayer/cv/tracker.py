@@ -6,7 +6,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.tracking import TrackingMethod, tracker_create_method_name
-from cvlayer.typing import RectInt
+from cvlayer.typing import RectI
 
 
 class Tracker:
@@ -39,14 +39,14 @@ class Tracker:
         return self._updated
 
     @property
-    def bounding_box(self) -> RectInt:
+    def bounding_box(self) -> RectI:
         return self._bounding_box
 
-    def init(self, frame: NDArray, roi: RectInt) -> bool:
+    def init(self, frame: NDArray, roi: RectI) -> bool:
         self._initialized = self._tracker.init(frame, roi)
         return self._initialized
 
-    def update(self, frame: NDArray) -> Tuple[bool, RectInt]:
+    def update(self, frame: NDArray) -> Tuple[bool, RectI]:
         if self._initialized is None:
             raise RuntimeError("Tracker not initialized")
 

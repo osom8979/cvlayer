@@ -6,7 +6,7 @@ from math import ceil, floor
 from typing import Any, Callable, Iterable, Optional, Union
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
-from cvlayer.typing import PointInt, RectInt
+from cvlayer.typing import PointI, RectI
 
 LimitedCallable = Callable[[], Any]
 ModifyCallable = Callable[[Any], Any]
@@ -466,7 +466,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_select_roi(self, roi: Optional[RectInt] = None):
+    def build_select_roi(self, roi: Optional[RectI] = None):
         if self._frozen:
             return self
 
@@ -493,7 +493,7 @@ class LayerParameter:
         self.kwargs["button_down"] = False
         return self
 
-    def build_select_point(self, point: Optional[PointInt] = None):
+    def build_select_point(self, point: Optional[PointI] = None):
         if self._frozen:
             return self
 
@@ -509,7 +509,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_select_points(self, points: Optional[Iterable[PointInt]] = None):
+    def build_select_points(self, points: Optional[Iterable[PointI]] = None):
         if self._frozen:
             return self
 
