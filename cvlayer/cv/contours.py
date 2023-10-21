@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Iterable, NamedTuple
+from typing import Iterable, NamedTuple, Sequence
 
 import cv2
-from numpy import logical_and, zeros
+from numpy import int32, logical_and, uint8, zeros
 from numpy.typing import NDArray
 
 from cvlayer.typing import Image, PointFloat, SizeFloat
@@ -16,7 +16,7 @@ class FindContoursMode(Enum):
     EXTERNAL = cv2.RETR_EXTERNAL
     LIST = cv2.RETR_LIST
     TREE = cv2.RETR_TREE
-    # FLOODFILL = cv2.RETR_FLOODFILL
+    FLOODFILL = cv2.RETR_FLOODFILL
 
 
 @unique
@@ -33,12 +33,23 @@ class MinAreaRectResult(NamedTuple):
     rotation: float
 
 
+class FindContoursResult(NamedTuple):
+    contours: Sequence[NDArray[int32]]
+    hierarchy: NDArray[int32]
+
+
 def find_contours(
     image: Image,
     mode=FindContoursMode.TREE,
     method=FindContoursMethod.SIMPLE,
-):
-    return cv2.findContours(image, mode.value, method.value)
+) -> FindContoursResult:
+    if mode != FindContoursMode.FLOODFILL:
+        if image.dtype != uint8:
+            raise ValueError("Only uint8 is supported as image.dtype")
+        if len(image.shape) != 2:
+            raise ValueError("Only single-channel is supported")
+    contours, hierarchy = cv2.findContours(image, mode.value, method.value)
+    return FindContoursResult(contours, hierarchy)
 
 
 def find_largest_contour_index(contours: Iterable[NDArray], oriented=False) -> int:

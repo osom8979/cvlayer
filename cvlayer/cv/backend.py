@@ -26,8 +26,13 @@ HIGHGUI_BACKEND_TYPE_LINUX = (
 
 
 @lru_cache
+def get_build_information() -> str:
+    return cv2.getBuildInformation()
+
+
+@lru_cache
 def highgui_backend() -> str:
-    infos = cv2.getBuildInformation()
+    infos = get_build_information()
     assert isinstance(infos, str)
     for line in infos.split("\n"):
         strip_line = line.strip()
@@ -57,9 +62,17 @@ def highgui_backend_type() -> HighGuiBackend:
 
 class CvlBackend:
     @staticmethod
+    def cvl_get_build_information():
+        return get_build_information()
+
+    @staticmethod
     def cvl_highgui_backend():
         return highgui_backend()
 
     @staticmethod
     def cvl_highgui_backend_type():
         return highgui_backend_type()
+
+
+if __name__ == "__main__":
+    print(get_build_information())
