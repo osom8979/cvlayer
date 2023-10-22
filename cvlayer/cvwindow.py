@@ -16,11 +16,9 @@ from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.cv.cvt_color import cvt_color
 from cvlayer.cv.cvt_color_code import CvtColorCode
-from cvlayer.cv.drawable import (
-    FONT_HERSHEY_SIMPLEX,
-    draw_multiline_text_box,
-    draw_rectangle,
-)
+from cvlayer.cv.drawable.defaults import DEFAULT_FONT_FACE
+from cvlayer.cv.drawable.rectangle import draw_rectangle
+from cvlayer.cv.drawable.text.multiline.box import draw_multiline_text_box
 from cvlayer.cv.fourcc import FOURCC_MP4V
 from cvlayer.cv.histogram import PADDING as HISTOGRAM_PADDING
 from cvlayer.cv.histogram import draw_histogram_channels_with_decorate
@@ -129,7 +127,7 @@ class CvWindow(LayerManagerInterface, Window):
         self,
         input: str,  # noqa
         output: Optional[str] = None,
-        font=FONT_HERSHEY_SIMPLEX,
+        font=DEFAULT_FONT_FACE,
         font_scale=1.0,
         preview_scale=1.0,
         preview_scale_method=Interpolation.INTER_AREA,
@@ -260,8 +258,7 @@ class CvWindow(LayerManagerInterface, Window):
         draw_multiline_text_box(
             self._manpage,
             buffer.getvalue(),
-            0,
-            0,
+            pos=(0, 0),
             font=font,
             scale=font_scale,
             color=CLOUDS_50,
@@ -694,11 +691,10 @@ class CvWindow(LayerManagerInterface, Window):
         if self._help_mode == HelpMode.DEBUG:
             buffer.write("\n" + analyze_frame_as_text(analyze_frame, self.roi))
 
-        help_roi = draw_multiline_text_box(
+        _, help_roi = draw_multiline_text_box(
             image=canvas,
             text=buffer.getvalue(),
-            x=self._help_offset[0],
-            y=self._help_offset[1],
+            pos=self._help_offset,
             font=self._font,
             scale=self._font_scale,
             anchor_x=self._help_anchor[0],

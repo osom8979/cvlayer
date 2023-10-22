@@ -6,11 +6,23 @@ import cv2
 from numpy import clip, int32, uint8
 from numpy.typing import NDArray
 
-from cvlayer.typing import Number
+from cvlayer.palette import css4_palette
+from cvlayer.typing import Color, ColorLike, Number
 
 PIXEL_8BIT_MIN: Final[int] = 0
 PIXEL_8BIT_MAX: Final[int] = 255
 PIXEL_8BIT_HALF: Final[int] = PIXEL_8BIT_MAX // 2
+
+
+def normalize_color(color: ColorLike) -> Color:
+    if isinstance(color, (int, float)):
+        return (color,)
+    elif isinstance(color, str):
+        return css4_palette()[color.upper()]
+    elif isinstance(color, (tuple, list)):
+        return tuple(c for c in color)
+    else:
+        raise TypeError(f"Unsupported color type: {type(color).__name__}")
 
 
 def saturate(

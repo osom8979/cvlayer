@@ -5,16 +5,17 @@ from typing import Optional, Sequence
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.drawable import (
-    COLOR,
-    LINE_TYPE,
-    RADIUS,
-    THICKNESS,
-    draw_line,
-    draw_point,
-    draw_rectangle,
+from cvlayer.cv.drawable.defaults import (
+    DEFAULT_COLOR,
+    DEFAULT_LINE_TYPE,
+    DEFAULT_RADIUS,
+    DEFAULT_SHIFT,
+    DEFAULT_THICKNESS,
 )
-from cvlayer.typing import NumberT, PointT, RectI
+from cvlayer.cv.drawable.line import draw_line
+from cvlayer.cv.drawable.point import draw_point
+from cvlayer.cv.drawable.rectangle import draw_rectangle
+from cvlayer.typing import Number, PointN, RectI
 
 
 @unique
@@ -27,79 +28,87 @@ class PlotMode(Enum):
 
 def draw_absolute_plot_points(
     canvas: NDArray,
-    radius=RADIUS,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
-    *points: PointT,
-) -> None:
+    *points: PointN,
+    radius=DEFAULT_RADIUS,
+    color=DEFAULT_COLOR,
+    line=DEFAULT_LINE_TYPE,
+    shift=DEFAULT_SHIFT,
+) -> NDArray:
     for point in points:
-        draw_point(canvas, point[0], point[1], radius, color, thickness, line_type)
+        draw_point(canvas, point, radius, color, line, shift)
+    return canvas
 
 
 def draw_absolute_plot_lines(
     canvas: NDArray,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
-    *points: PointT,
-) -> None:
+    *points: PointN,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line=DEFAULT_LINE_TYPE,
+    shift=DEFAULT_SHIFT,
+) -> NDArray:
     prev = points[0]
     for point in points[1:]:
-        draw_line(canvas, prev, point, color, thickness, line_type)
+        draw_line(canvas, prev, point, color, thickness, line, shift)
         prev = point
+    return canvas
 
 
 def draw_absolute_plot_x_bars(
     canvas: NDArray,
-    bottom: NumberT,
-    radius=RADIUS,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
-    *points: PointT,
-) -> None:
+    *points: PointN,
+    bottom: Number = 0,
+    radius=DEFAULT_RADIUS,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line=DEFAULT_LINE_TYPE,
+    shift=DEFAULT_SHIFT,
+) -> NDArray:
     for point in points:
         x1 = point[0] - radius
         y1 = point[1]
         x2 = point[0] + radius
         y2 = bottom
         roi = x1, y1, x2, y2
-        draw_rectangle(canvas, roi, color, thickness, line_type)
+        draw_rectangle(canvas, roi, color, thickness, line, shift)
+    return canvas
 
 
 def draw_absolute_plot_y_bars(
     canvas: NDArray,
-    left: NumberT,
-    radius=RADIUS,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
-    *points: PointT,
-) -> None:
+    *points: PointN,
+    left: Number = 0,
+    radius=DEFAULT_RADIUS,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line=DEFAULT_LINE_TYPE,
+    shift=DEFAULT_SHIFT,
+) -> NDArray:
     for point in points:
         x1 = left
         y1 = point[1] - radius
         x2 = point[0]
         y2 = point[1] + radius
         roi = x1, y1, x2, y2
-        draw_rectangle(canvas, roi, color, thickness, line_type)
+        draw_rectangle(canvas, roi, color, thickness, line, shift)
+    return canvas
 
 
 def draw_plot_2d(
     canvas: NDArray,
-    *datasets: Sequence[NumberT],
+    *datasets: Sequence[Number],
     roi: Optional[RectI] = None,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
     mode=PlotMode.POINT,
-    radius=RADIUS,
-    min_x: Optional[NumberT] = None,
-    max_x: Optional[NumberT] = None,
-    min_y: Optional[NumberT] = None,
-    max_y: Optional[NumberT] = None,
-) -> None:
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line=DEFAULT_LINE_TYPE,
+    shift=DEFAULT_SHIFT,
+    radius=DEFAULT_RADIUS,
+    min_x: Optional[Number] = None,
+    max_x: Optional[Number] = None,
+    min_y: Optional[Number] = None,
+    max_y: Optional[Number] = None,
+) -> NDArray:
     if len(datasets) != 2:
         raise ValueError("There must be 2 datasets")
     if datasets[0] == 0:
@@ -138,10 +147,10 @@ def draw_plot_2d(
     if width * height == 0:
         raise ValueError("There is no area to draw")
 
-    def canvas_x(real_x: NumberT):
+    def canvas_x(real_x: Number):
         return left + (real_x / x_size * width)
 
-    def canvas_y(real_y: NumberT):
+    def canvas_y(real_y: Number):
         return bottom - (real_y / y_size * height)
 
     points = [(canvas_x(x), canvas_y(y)) for x, y in zip(xs, ys)]
@@ -149,59 +158,64 @@ def draw_plot_2d(
     if mode == PlotMode.POINT:
         draw_absolute_plot_points(
             canvas,
-            radius,
-            color,
-            thickness,
-            line_type,
             *points,
+            radius=radius,
+            color=color,
+            line=line,
         )
     elif mode == PlotMode.LINE:
         draw_absolute_plot_lines(
             canvas,
-            color,
-            thickness,
-            line_type,
             *points,
+            color=color,
+            thickness=thickness,
+            line=line,
+            shift=shift,
         )
     elif mode == PlotMode.BAR_X:
         draw_absolute_plot_x_bars(
             canvas,
-            bottom,
-            radius,
-            color,
-            thickness,
-            line_type,
             *points,
+            bottom=bottom,
+            radius=radius,
+            color=color,
+            thickness=thickness,
+            line=line,
+            shift=shift,
         )
     elif mode == PlotMode.BAR_Y:
         draw_absolute_plot_y_bars(
             canvas,
-            left,
-            radius,
-            color,
-            thickness,
-            line_type,
             *points,
+            left=left,
+            radius=radius,
+            color=color,
+            thickness=thickness,
+            line=line,
+            shift=shift,
         )
     else:
         raise ValueError(f"Unknown plot mode: {mode}")
 
+    return canvas
 
-class CvlPlot:
+
+class CvlDrawablePlot:
     @staticmethod
     def cvl_draw_plot_2d(
         canvas: NDArray,
-        *datasets: Sequence[NumberT],
+        *datasets: Sequence[Number],
         roi: Optional[RectI] = None,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
+        color=DEFAULT_COLOR,
+        thickness=DEFAULT_THICKNESS,
+        line=DEFAULT_LINE_TYPE,
+        shift=DEFAULT_SHIFT,
         mode=PlotMode.POINT,
-        radius=RADIUS,
-        min_x: Optional[NumberT] = None,
-        max_x: Optional[NumberT] = None,
-        min_y: Optional[NumberT] = None,
-        max_y: Optional[NumberT] = None,
+        radius=DEFAULT_RADIUS,
+        min_x: Optional[Number] = None,
+        max_x: Optional[Number] = None,
+        min_y: Optional[Number] = None,
+        max_y: Optional[Number] = None,
     ) -> None:
         draw_plot_2d(
             canvas,
@@ -209,7 +223,8 @@ class CvlPlot:
             roi=roi,
             color=color,
             thickness=thickness,
-            line_type=line_type,
+            line=line,
+            shift=shift,
             mode=mode,
             radius=radius,
             min_x=min_x,

@@ -13,8 +13,9 @@ from cvlayer.cv.contours import (
 )
 from cvlayer.cv.contours_moments import moments
 from cvlayer.cv.cvt_color import cvt_color_GRAY2BGR
-from cvlayer.cv.drawable import draw_outline_text, draw_point
-from cvlayer.cv.drawable_contours import draw_contour
+from cvlayer.cv.drawable.contours import draw_contour
+from cvlayer.cv.drawable.point import draw_point
+from cvlayer.cv.drawable.text.outline import draw_outline_text
 from cvlayer.layer.manager.mixins._base import _LayerManagerMixinBase
 from cvlayer.palette import xkcd_palette
 from cvlayer.typing import Color
@@ -61,11 +62,10 @@ class CvmContours(_LayerManagerMixinBase):
                 if m.m00 == 0:
                     continue
 
-                cx = m.center_x
-                cy = m.center_y
+                center = m.center
                 draw_contour(canvas, contour, color)
-                draw_point(canvas, cx, cy, color=color)
-                draw_outline_text(canvas, f"{area:.2f}", cx, cy, outline_color=color)
+                draw_point(canvas, center, color=color)
+                draw_outline_text(canvas, f"{area:.2f}", center, outline_color=color)
                 filtered_contours.append(contour)
 
             layer.frame = canvas

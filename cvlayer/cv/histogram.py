@@ -7,9 +7,13 @@ from numpy import full, uint8
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import PIXEL_8BIT_MAX
-from cvlayer.cv.drawable import FILLED, LINE_AA, draw_image, draw_line, draw_rectangle
-from cvlayer.cv.plot import PlotMode, draw_plot_2d
+from cvlayer.cv.drawable.defaults import DEFAULT_LINE_TYPE
+from cvlayer.cv.drawable.image import draw_image_coord
+from cvlayer.cv.drawable.line import draw_line
+from cvlayer.cv.drawable.plot import PlotMode, draw_plot_2d
+from cvlayer.cv.drawable.rectangle import draw_rectangle
 from cvlayer.cv.roi import normalize_image_roi
+from cvlayer.cv.types.thickness import FILLED
 from cvlayer.palette.basic import (
     AQUA,
     BLACK,
@@ -109,7 +113,7 @@ def draw_histogram_channel(
     channel_max=float(RANGE_MAX),
     color=GRAY,
     thickness=THICKNESS,
-    line_type=LINE_AA,
+    line=DEFAULT_LINE_TYPE,
 ) -> None:
     width = abs(roi[2] - roi[0])
     height = abs(roi[3] - roi[1])
@@ -123,6 +127,7 @@ def draw_histogram_channel(
     points = normalize_drawable_histogram(hist, width, height)
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
+
     draw_plot_2d(
         canvas,
         xs,
@@ -130,7 +135,7 @@ def draw_histogram_channel(
         roi=roi,
         color=color,
         thickness=thickness,
-        line_type=line_type,
+        line=line,
         mode=PlotMode.LINE,
     )
 
@@ -143,7 +148,7 @@ def draw_histogram_channels(
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
     colors: Optional[Sequence[Color]] = None,
     thickness=THICKNESS,
-    line_type=LINE_AA,
+    line=DEFAULT_LINE_TYPE,
 ) -> None:
     if analysis_roi is not None:
         x1, y1, x2, y2 = normalize_image_roi(analysis, analysis_roi)
@@ -182,7 +187,7 @@ def draw_histogram_channels(
             channels_max[i],
             channels_color[i],
             thickness,
-            line_type,
+            line,
         )
 
 
@@ -194,7 +199,7 @@ def draw_histogram_channels_with_decorate(
     channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
     colors: Optional[Sequence[Color]] = None,
     thickness=THICKNESS,
-    line_type=LINE_AA,
+    line=DEFAULT_LINE_TYPE,
     background_color=BACKGROUND_COLOR,
     background_alpha=BACKGROUND_ALPHA,
     outline_color=OUTLINE_COLOR,
@@ -246,10 +251,10 @@ def draw_histogram_channels_with_decorate(
         channels_max=channels_max,
         colors=colors,
         thickness=thickness,
-        line_type=line_type,
+        line=line,
     )
 
-    draw_image(canvas, box, box_left, box_top, background_alpha)
+    draw_image_coord(canvas, box, box_left, box_top, background_alpha)
 
 
 class CvlHistogram:
@@ -316,7 +321,7 @@ class CvlHistogram:
         channel_max=RANGE_MAX,
         color=GRAY,
         thickness=THICKNESS,
-        line_type=LINE_AA,
+        line=DEFAULT_LINE_TYPE,
     ):
         return draw_histogram_channel(
             canvas=canvas,
@@ -327,7 +332,7 @@ class CvlHistogram:
             channel_max=channel_max,
             color=color,
             thickness=thickness,
-            line_type=line_type,
+            line=line,
         )
 
     @staticmethod
@@ -339,7 +344,7 @@ class CvlHistogram:
         channels_max=(RANGE_MAX, RANGE_MAX, RANGE_MAX),
         colors: Optional[Sequence[Color]] = None,
         thickness=THICKNESS,
-        line_type=LINE_AA,
+        line=DEFAULT_LINE_TYPE,
     ):
         return draw_histogram_channels(
             canvas=canvas,
@@ -349,7 +354,7 @@ class CvlHistogram:
             channels_max=channels_max,
             colors=colors,
             thickness=thickness,
-            line_type=line_type,
+            line=line,
         )
 
     @staticmethod
@@ -361,7 +366,7 @@ class CvlHistogram:
         channels_max: Sequence[float] = (RANGE_MAX, RANGE_MAX, RANGE_MAX),
         colors: Optional[Sequence[Color]] = None,
         thickness=THICKNESS,
-        line_type=LINE_AA,
+        line=DEFAULT_LINE_TYPE,
         background_color=BACKGROUND_COLOR,
         background_alpha=BACKGROUND_ALPHA,
         padding=PADDING,
@@ -378,7 +383,7 @@ class CvlHistogram:
             channels_max=channels_max,
             colors=colors,
             thickness=thickness,
-            line_type=line_type,
+            line=line,
             background_color=background_color,
             background_alpha=background_alpha,
             padding=padding,

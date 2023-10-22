@@ -7,29 +7,32 @@ from numpy import int64
 from numpy.typing import NDArray
 
 from cvlayer.cv.contours import RotatedRect, box_points
-from cvlayer.cv.drawable import COLOR, LINE_TYPE, THICKNESS
-from cvlayer.typing import Image
+from cvlayer.cv.drawable.defaults import (
+    DEFAULT_COLOR,
+    DEFAULT_LINE_TYPE,
+    DEFAULT_THICKNESS,
+)
 
 DRAW_ALL_CONTOURS: Final[int] = -1
 
 
 def draw_contour(
-    image: Image,
+    image: NDArray,
     contour: NDArray,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line_type=DEFAULT_LINE_TYPE,
 ) -> None:
     cv2.drawContours(image, [contour], 0, color, thickness, line_type)
 
 
 def draw_contours(
-    image: Image,
+    image: NDArray,
     contours: Sequence[NDArray],
     contour_index=DRAW_ALL_CONTOURS,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line_type=DEFAULT_LINE_TYPE,
     hierarchy: Optional[NDArray] = None,
 ) -> None:
     cv2.drawContours(
@@ -44,11 +47,11 @@ def draw_contours(
 
 
 def draw_min_area_rect(
-    image: Image,
+    image: NDArray,
     box: RotatedRect,
-    color=COLOR,
-    thickness=THICKNESS,
-    line_type=LINE_TYPE,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line_type=DEFAULT_LINE_TYPE,
 ) -> None:
     points = box_points(box)
     int64_points = int64(points)
@@ -64,22 +67,22 @@ def draw_min_area_rect(
 class CvlDrawableContours:
     @staticmethod
     def cvl_draw_contour(
-        image: Image,
+        image: NDArray,
         contour: NDArray,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
+        color=DEFAULT_COLOR,
+        thickness=DEFAULT_THICKNESS,
+        line_type=DEFAULT_LINE_TYPE,
     ):
         draw_contour(image, contour, color, thickness, line_type)
 
     @staticmethod
     def cvl_draw_contours(
-        image: Image,
+        image: NDArray,
         contours: Sequence[NDArray],
         contour_index=DRAW_ALL_CONTOURS,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
+        color=DEFAULT_COLOR,
+        thickness=DEFAULT_THICKNESS,
+        line_type=DEFAULT_LINE_TYPE,
         hierarchy: Optional[NDArray] = None,
     ):
         draw_contours(
@@ -94,10 +97,10 @@ class CvlDrawableContours:
 
     @staticmethod
     def cvl_draw_min_box_area(
-        image: Image,
+        image: NDArray,
         box: RotatedRect,
-        color=COLOR,
-        thickness=THICKNESS,
-        line_type=LINE_TYPE,
+        color=DEFAULT_COLOR,
+        thickness=DEFAULT_THICKNESS,
+        line_type=DEFAULT_LINE_TYPE,
     ):
         draw_min_area_rect(image, box, color, thickness, line_type)

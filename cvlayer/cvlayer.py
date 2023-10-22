@@ -18,7 +18,6 @@ from cvlayer.cv.cvt_color import CvlCvtColor
 from cvlayer.cv.cvt_shapely import CvlShapely
 from cvlayer.cv.dehaze import CvlDehaze
 from cvlayer.cv.drawable import CvlDrawable
-from cvlayer.cv.drawable_contours import CvlDrawableContours
 from cvlayer.cv.fourcc import CvlFourcc
 from cvlayer.cv.fourier_transform import CvlFourierTransform
 from cvlayer.cv.histogram import CvlHistogram
@@ -45,7 +44,6 @@ from cvlayer.cv.norm import CvlNorm
 from cvlayer.cv.orb import CvlOrb
 from cvlayer.cv.palette import CvlPalette
 from cvlayer.cv.perspective import CvlPerspective
-from cvlayer.cv.plot import CvlPlot
 from cvlayer.cv.pyramid import CvlPyramid
 from cvlayer.cv.roi import CvlRoi
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
@@ -76,7 +74,6 @@ class CvLayer(
     CvlCvtColor,
     CvlDehaze,
     CvlDrawable,
-    CvlDrawableContours,
     CvlFourcc,
     CvlFourierTransform,
     CvlHistogram,
@@ -103,7 +100,6 @@ class CvLayer(
     CvlOrb,
     CvlPalette,
     CvlPerspective,
-    CvlPlot,
     CvlPyramid,
     CvlRoi,
     CvlRotateTracer,

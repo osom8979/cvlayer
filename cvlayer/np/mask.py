@@ -3,10 +3,10 @@
 from typing import Final, Tuple
 
 from numpy import bool_ as np_bool
-from numpy import concatenate, uint8, where
+from numpy import concatenate, equal, uint8, where
 from numpy.typing import NDArray
 
-from cvlayer.typing import Color, Image
+from cvlayer.typing import Color
 
 BLACK_COLOR: Final[Color] = (0, 0, 0)
 DEFAULT_CHROMA_COLOR: Final[Color] = BLACK_COLOR
@@ -15,17 +15,17 @@ CHANNEL_MIN: Final[int] = 0
 CHANNEL_MAX: Final[int] = 255
 
 
-def generate_mask(image: Image, chroma_color=DEFAULT_CHROMA_COLOR) -> Image:
+def generate_mask(image: NDArray, chroma_color=DEFAULT_CHROMA_COLOR) -> NDArray:
     assert image.dtype == uint8
     assert len(image.shape) == 3
     assert image.shape[-1] == 3
 
-    channels_cmp: NDArray[np_bool] = image == chroma_color
+    channels_cmp: NDArray[np_bool] = equal(image, chroma_color)
     pixel_cmp: NDArray[np_bool] = channels_cmp.all(axis=-1, keepdims=True)
     return where(pixel_cmp, CHANNEL_MIN, CHANNEL_MAX).astype(uint8)
 
 
-def split_mask_on_off(mask: Image) -> Tuple[Image, Image]:
+def split_mask_on_off(mask: NDArray) -> Tuple[NDArray, NDArray]:
     assert len(mask.shape) == 3
     assert mask.shape[-1] == 1
 
@@ -44,7 +44,7 @@ def split_mask_on_off(mask: Image) -> Tuple[Image, Image]:
     return mask_on, mask_off  # type: ignore[return-value]
 
 
-def merge_to_bgra32(image: Image, mask: Image) -> Image:
+def merge_to_bgra32(image: NDArray, mask: NDArray) -> NDArray:
     assert image.dtype == uint8
     assert len(image.shape) == 3
     assert image.shape[-1] == 3
