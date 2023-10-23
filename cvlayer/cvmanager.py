@@ -108,6 +108,15 @@ class CvManager(LayerManagerInterface):
         else:
             return 0.0
 
+    def keys(self) -> List[str]:
+        return list(self._name2index.keys())
+
+    def values(self) -> List[LayerBase]:
+        return self._layers.copy()
+
+    def items(self) -> List[Tuple[str, LayerBase]]:
+        return [(layer.name, layer) for layer in self._layers]
+
     def append_layer(self, name: str) -> None:
         if name in self._name2index:
             raise KeyError(f"A layer with the same name already exists: '{name}'")
@@ -126,32 +135,6 @@ class CvManager(LayerManagerInterface):
 
     def get_layer(self, key: Any) -> LayerBase:
         return self._layers[self._name2index[str(key)]]
-
-    def get_layer_by_index(self, index: int) -> LayerBase:
-        return self._layers[index]
-
-    def get_layer_by_name(self, name: str) -> LayerBase:
-        return self._layers[self.get_layer_index(name)]
-
-    def get_layer_frame(self, key: Union[int, str]) -> NDArray:
-        return self.get_layer(key).frame
-
-    def get_layer_data(self, key: Union[int, str]) -> Any:
-        return self.get_layer(key).data
-
-    def has_layer_param(self, layer_key: Union[int, str], param_key: str) -> bool:
-        return self.get_layer(layer_key).has(param_key)
-
-    def get_layer_param(self, layer_key: Union[int, str], param_key: str) -> Any:
-        return self.get_layer(layer_key).get(param_key)
-
-    def set_layer_param(
-        self,
-        layer_key: Union[int, str],
-        param_key: str,
-        value: Any,
-    ) -> None:
-        return self.get_layer(layer_key).set(param_key, value)
 
     def set_cursor(self, cursor: int) -> None:
         if cursor == LAST_LAYER_INDEX or cursor == len(self._layers):

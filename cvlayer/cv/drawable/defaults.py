@@ -8,10 +8,10 @@ from cvlayer.cv.types.text_origin import TextOrigin
 from cvlayer.palette.basic import BLACK, WHITE
 from cvlayer.typing import Color
 
-DEFAULT_RADIUS: Final[int] = 1
-DEFAULT_THICKNESS: Final[int] = 1
+DEFAULT_RADIUS: Final[int] = 4
+DEFAULT_THICKNESS: Final[int] = 2
 DEFAULT_COLOR: Final[Union[Color, int, str]] = BLACK
-DEFAULT_LINE_TYPE: Final[Union[LineType, int]] = LineType.B8
+DEFAULT_LINE_TYPE: Final[Union[LineType, int]] = LineType.AA
 DEFAULT_SHIFT: Final[int] = 0
 
 DEFAULT_FONT_COLOR: Final[Union[Color, int, str]] = BLACK
@@ -25,7 +25,7 @@ DEFAULT_FONT_OUTLINE_THICKNESS: Final[int] = 2
 MULTILINE_COLOR: Final[Union[Color, int, str]] = (220, 220, 220)
 MULTILINE_LINEFEED: Final[str] = "\n"
 MULTILINE_LINE_SPACING: Final[int] = 4
-MULTILINE_BACKGROUND_COLOR: Final[Union[Color, int, str]] = WHITE
+MULTILINE_BACKGROUND_COLOR: Final[Union[Color, int, str]] = BLACK
 MULTILINE_BACKGROUND_ALPHA: Final[float] = 0.4
 MULTILINE_BOX_MARGIN: Final[int] = 8
 MULTILINE_BOX_ANCHOR_X: Final[float] = 0.0

@@ -493,16 +493,24 @@ class CvWindow(LayerManagerInterface, Window):
         self.logger.info(f"{popup_state} man page")
 
     def snapshot(self, directory: Optional[str] = None, ext=".png") -> None:
-        base = directory if directory else (self._output if self._output else getcwd())
-        basedir = path.basename(base)
+        if directory:
+            base = directory
+        else:
+            if self._output:
+                if path.isdir(self._output):
+                    base = self._output
+                else:
+                    base = path.dirname(self._output)
+            else:
+                base = getcwd()
 
-        if not path.isdir(basedir):
+        if not path.isdir(base):
             raise NotADirectoryError(f"'{base}' is not a directory")
-        if not access(basedir, W_OK):
+        if not access(base, W_OK):
             raise PermissionError(f"Write access to directory '{base}' is required")
 
         now = datetime.now().strftime("%Y%m%d_%H%M%S")
-        prefix = path.join(basedir, f"{self._capture.pos}-{now}")
+        prefix = path.join(base, f"{self._capture.pos}-{now}")
 
         if not path.isdir(prefix):
             mkdir(prefix)
@@ -510,10 +518,8 @@ class CvWindow(LayerManagerInterface, Window):
 
         self.logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
 
-        for index in range(self._manager.number_of_layers):
-            layer_path = path.join(prefix, f"layer{index}-{ext}")
-            layer_frame = self._manager.get_layer_frame(index)
-            image_write(layer_path, layer_frame)
+        for index, layer in enumerate(self._manager.values()):
+            image_write(path.join(prefix, f"layer{index}-{ext}"), layer.frame)
 
         image_write(path.join(prefix, f"original{ext}"), self._original_frame)
         image_write(path.join(prefix, f"preview{ext}"), self._preview_frame)
