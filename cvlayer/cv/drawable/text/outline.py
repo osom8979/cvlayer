@@ -118,7 +118,7 @@ class CvlDrawableTextOutline:
         )
 
     @staticmethod
-    def draw_outline_text(
+    def cvl_draw_outline_text(
         image: NDArray,
         text: str,
         pos: PointN,

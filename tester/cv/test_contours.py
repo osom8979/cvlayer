@@ -2,14 +2,16 @@
 
 from unittest import TestCase, main
 
+import cv2
 from numpy import int32, ndarray
 
 from cvlayer.cv.contours import FindContoursMethod, FindContoursMode, find_contours
-from cvlayer.cv.cvt_color import cvt_color_BGR2GRAY
+from cvlayer.cv.cvt_color import cvt_color_BGR2GRAY, cvt_color_GRAY2BGR
 from cvlayer.cv.drawable.rectangle import draw_rectangle
 from cvlayer.cv.image_make import make_image_empty
 from cvlayer.cv.types.thickness import FILLED
 from cvlayer.palette.basic import BLACK, WHITE
+from cvlayer.cv.image_io import image_write
 
 
 class ContoursTestCase(TestCase):
@@ -34,12 +36,17 @@ class ContoursTestCase(TestCase):
         self.assertIsInstance(c0, ndarray)
         self.assertIsInstance(c1, ndarray)
         self.assertIsInstance(c2, ndarray)
-        # self.assertEqual((8, 1, 2), c0.shape)
-        # self.assertEqual((8, 1, 2), c1.shape)
-        # self.assertEqual((8, 1, 2), c2.shape)
+        self.assertTupleEqual((4, 1, 2), c0.shape)
+        c0_expect = [[100, 100], [100, 600], [600, 600], [600, 100]]
+        self.assertListEqual(c0_expect, c0[:, 0, :].tolist())
+        # self.assertTupleEqual((8, 1, 2), c1.shape)
+        # self.assertTupleEqual((4, 1, 2), c2.shape)
         self.assertEqual(int32, c0.dtype)
         self.assertEqual(int32, c1.dtype)
         self.assertEqual(int32, c2.dtype)
+        self.image = cvt_color_GRAY2BGR(self.image)
+        cv2.drawContours(self.image, contours, 1, (0, 0, 255), 2)
+        image_write("aaa.png", self.image)
 
         self.assertIsInstance(hierarchy, ndarray)
         self.assertEqual((1, 3, 4), hierarchy.shape)
