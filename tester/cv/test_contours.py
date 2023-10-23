@@ -8,10 +8,10 @@ from numpy import int32, ndarray
 from cvlayer.cv.contours import FindContoursMethod, FindContoursMode, find_contours
 from cvlayer.cv.cvt_color import cvt_color_BGR2GRAY, cvt_color_GRAY2BGR
 from cvlayer.cv.drawable.rectangle import draw_rectangle
+from cvlayer.cv.image_io import image_write
 from cvlayer.cv.image_make import make_image_empty
 from cvlayer.cv.types.thickness import FILLED
 from cvlayer.palette.basic import BLACK, WHITE
-from cvlayer.cv.image_io import image_write
 
 
 class ContoursTestCase(TestCase):

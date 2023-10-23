@@ -6,14 +6,44 @@ import cv2
 from numpy import int64
 from numpy.typing import NDArray
 
+from cvlayer.cv.color import normalize_color
 from cvlayer.cv.contours import RotatedRect, box_points
 from cvlayer.cv.drawable.defaults import (
     DEFAULT_COLOR,
     DEFAULT_LINE_TYPE,
     DEFAULT_THICKNESS,
 )
+from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.math.limit import INT_MAX
+from cvlayer.typing import PointI
 
 DRAW_ALL_CONTOURS: Final[int] = -1
+
+
+def draw_contours(
+    image: NDArray,
+    contours: Sequence[NDArray],
+    index=DRAW_ALL_CONTOURS,
+    color=DEFAULT_COLOR,
+    thickness=DEFAULT_THICKNESS,
+    line=DEFAULT_LINE_TYPE,
+    hierarchy: Optional[NDArray] = None,
+    max_level=INT_MAX,
+    offset: Optional[PointI] = None,
+) -> NDArray:
+    _color = normalize_color(color)
+    _line = normalize_line(line)
+    return cv2.drawContours(
+        image,
+        contours,
+        index,
+        _color,
+        thickness,
+        _line,
+        hierarchy,
+        max_level,
+        offset,
+    )
 
 
 def draw_contour(
@@ -21,28 +51,17 @@ def draw_contour(
     contour: NDArray,
     color=DEFAULT_COLOR,
     thickness=DEFAULT_THICKNESS,
-    line_type=DEFAULT_LINE_TYPE,
-) -> None:
-    cv2.drawContours(image, [contour], 0, color, thickness, line_type)
-
-
-def draw_contours(
-    image: NDArray,
-    contours: Sequence[NDArray],
-    contour_index=DRAW_ALL_CONTOURS,
-    color=DEFAULT_COLOR,
-    thickness=DEFAULT_THICKNESS,
-    line_type=DEFAULT_LINE_TYPE,
-    hierarchy: Optional[NDArray] = None,
-) -> None:
-    cv2.drawContours(
+    line=DEFAULT_LINE_TYPE,
+    offset: Optional[PointI] = None,
+) -> NDArray:
+    return draw_contours(
         image,
-        contours,
-        contour_index,
+        [contour],
+        0,
         color,
         thickness,
-        line_type,
-        hierarchy,
+        line,
+        offset=offset,
     )
 
 
@@ -51,30 +70,22 @@ def draw_min_area_rect(
     box: RotatedRect,
     color=DEFAULT_COLOR,
     thickness=DEFAULT_THICKNESS,
-    line_type=DEFAULT_LINE_TYPE,
-) -> None:
+    line=DEFAULT_LINE_TYPE,
+    offset: Optional[PointI] = None,
+) -> NDArray:
     points = box_points(box)
     int64_points = int64(points)
-    draw_contour(
+    return draw_contour(
         image,
         int64_points,  # type: ignore[arg-type]
         color,
         thickness,
-        line_type,
+        line,
+        offset,
     )
 
 
 class CvlDrawableContours:
-    @staticmethod
-    def cvl_draw_contour(
-        image: NDArray,
-        contour: NDArray,
-        color=DEFAULT_COLOR,
-        thickness=DEFAULT_THICKNESS,
-        line_type=DEFAULT_LINE_TYPE,
-    ):
-        draw_contour(image, contour, color, thickness, line_type)
-
     @staticmethod
     def cvl_draw_contours(
         image: NDArray,
@@ -82,18 +93,33 @@ class CvlDrawableContours:
         contour_index=DRAW_ALL_CONTOURS,
         color=DEFAULT_COLOR,
         thickness=DEFAULT_THICKNESS,
-        line_type=DEFAULT_LINE_TYPE,
+        line=DEFAULT_LINE_TYPE,
         hierarchy: Optional[NDArray] = None,
+        max_level=INT_MAX,
+        offset: Optional[PointI] = None,
     ):
-        draw_contours(
+        return draw_contours(
             image,
             contours,
             contour_index,
             color,
             thickness,
-            line_type,
+            line,
             hierarchy,
+            max_level,
+            offset,
         )
+
+    @staticmethod
+    def cvl_draw_contour(
+        image: NDArray,
+        contour: NDArray,
+        color=DEFAULT_COLOR,
+        thickness=DEFAULT_THICKNESS,
+        line=DEFAULT_LINE_TYPE,
+        offset: Optional[PointI] = None,
+    ):
+        return draw_contour(image, contour, color, thickness, line, offset)
 
     @staticmethod
     def cvl_draw_min_box_area(
@@ -101,6 +127,7 @@ class CvlDrawableContours:
         box: RotatedRect,
         color=DEFAULT_COLOR,
         thickness=DEFAULT_THICKNESS,
-        line_type=DEFAULT_LINE_TYPE,
+        line=DEFAULT_LINE_TYPE,
+        offset: Optional[PointI] = None,
     ):
-        draw_min_area_rect(image, box, color, thickness, line_type)
+        return draw_min_area_rect(image, box, color, thickness, line, offset)

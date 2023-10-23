@@ -62,6 +62,7 @@ lbutton
 levelname
 libtiff's
 libv
+llong
 lrgb
 maxs
 maxval
@@ -87,6 +88,8 @@ rbutton
 resunit
 retr
 rggb
+schar
+schar
 setk
 sgilog
 shiftkey
@@ -99,7 +102,10 @@ symm
 tozero
 trackbarname
 tupletype
+ullong
+ulong
 unicap
+ushrt
 uynv
 uyvy
 vassilvitskii
