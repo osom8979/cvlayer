@@ -14,7 +14,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_THICKNESS,
 )
 from cvlayer.cv.types.line_type import normalize_line
-from cvlayer.math.limit import INT_MAX
+from cvlayer.math.climit import INT_MAX
 from cvlayer.typing import PointI
 
 DRAW_ALL_CONTOURS: Final[int] = -1
