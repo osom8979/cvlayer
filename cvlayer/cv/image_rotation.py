@@ -6,7 +6,10 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.types.border import BorderType
-from cvlayer.cv.types.interpolation import Interpolation
+from cvlayer.cv.types.interpolation import (
+    DEFAULT_INTERPOLATION,
+    normalize_interpolation,
+)
 from cvlayer.typing import Number
 
 
@@ -18,7 +21,7 @@ def image_rotation(
     scale=1.0,
     result_width: Optional[Number] = None,
     result_height: Optional[Number] = None,
-    interpolation=Interpolation.INTER_LINEAR,
+    interpolation=DEFAULT_INTERPOLATION,
     border_mode=BorderType.CONSTANT,
     border_value: Optional[Sequence[float]] = None,
 ) -> NDArray:
@@ -29,7 +32,7 @@ def image_rotation(
     width = result_width if result_width else src.shape[1]
     height = result_height if result_height else src.shape[0]
     dsize = int(width), int(height)
-    flags = interpolation.value
+    flags = normalize_interpolation(interpolation)
     mode = border_mode.value
     value = border_value if border_value is not None else list()
     return cv2.warpAffine(
@@ -53,7 +56,7 @@ class CvlImageRotation:
         scale=1.0,
         result_width: Optional[int] = None,
         result_height: Optional[int] = None,
-        interpolation=Interpolation.INTER_LINEAR,
+        interpolation=DEFAULT_INTERPOLATION,
         border_mode=BorderType.CONSTANT,
         border_value: Optional[Sequence[float]] = None,
     ):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Final, Union
+from typing import Dict, Final, Optional, Union
 
 import cv2
 
@@ -17,5 +17,21 @@ class LineType(Enum):
     AA = LINE_AA
 
 
-def normalize_line(line: Union[LineType, int]) -> int:
-    return line.value if isinstance(line, LineType) else line
+LineTypeLike = Union[LineType, str, int]
+
+LINE_TYPE_MAP: Final[Dict[str, LineType]] = {e.name.upper(): e for e in LineType}
+DEFAULT_LINE_TYPE: Final[LineTypeLike] = LineType.B8
+
+
+def normalize_line(line: Optional[LineTypeLike]) -> int:
+    if line is None:
+        return LINE_8
+
+    if isinstance(line, LineType):
+        return line.value
+    elif isinstance(line, str):
+        return LINE_TYPE_MAP[line.upper()].value
+    elif isinstance(line, int):
+        return line
+    else:
+        raise TypeError(f"Unsupported line type: {type(line).__name__}")

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Union
+from typing import Dict, Final, Optional, Union
 
 import cv2
 
@@ -17,5 +17,21 @@ class MarkerType(Enum):
     TRIANGLE_DOWN = cv2.MARKER_TRIANGLE_DOWN
 
 
-def normalize_marker(marker: Union[MarkerType, int]) -> int:
-    return marker.value if isinstance(marker, MarkerType) else marker
+MarkerTypeLike = Union[MarkerType, str, int]
+
+MARKER_TYPE_MAP: Final[Dict[str, MarkerType]] = {e.name.upper(): e for e in MarkerType}
+DEFAULT_MARKER_TYPE: Final[MarkerTypeLike] = MarkerType.CROSS
+
+
+def normalize_marker(marker: Optional[MarkerTypeLike]) -> int:
+    if marker is None:
+        return cv2.MARKER_CROSS
+
+    if isinstance(marker, MarkerType):
+        return marker.value
+    elif isinstance(marker, str):
+        return MARKER_TYPE_MAP[marker.upper()].value
+    elif isinstance(marker, int):
+        return marker
+    else:
+        raise TypeError(f"Unsupported marker type: {type(marker).__name__}")

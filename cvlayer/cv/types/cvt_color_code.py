@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum
-from typing import Union
+from typing import Dict, Final, Union
 
 import cv2
 
@@ -359,9 +359,18 @@ class CvtColorCode(Enum):
     BAYER_GR2RGBA = cv2.COLOR_BAYER_GR2RGBA
 
 
-def normalize_cvt_color_code(code: Union[CvtColorCode, int]) -> int:
+CvtColorCodeLike = Union[CvtColorCode, str, int]
+
+CVT_COLOR_CODE_MAP: Final[Dict[str, CvtColorCode]] = {
+    e.name.upper(): e for e in CvtColorCode
+}
+
+
+def normalize_cvt_color_code(code: CvtColorCodeLike) -> int:
     if isinstance(code, CvtColorCode):
         return code.value
+    elif isinstance(code, str):
+        return CVT_COLOR_CODE_MAP[code.upper()].value
     elif isinstance(code, int):
         return code
     else:

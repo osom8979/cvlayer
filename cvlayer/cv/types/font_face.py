@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Final, Union
+from typing import Dict, Final, Optional, Union
 
 import cv2
 
@@ -29,5 +29,23 @@ class HersheyFont(Enum):
     ITALIC: Final[int] = cv2.FONT_ITALIC
 
 
-def normalize_font_face(font: Union[HersheyFont, int]) -> int:
-    return font.value if isinstance(font, HersheyFont) else font
+HersheyFontLike = Union[HersheyFont, str, int]
+
+HERSHEY_FONT_MAP: Final[Dict[str, HersheyFont]] = {
+    e.name.upper(): e for e in HersheyFont
+}
+DEFAULT_HERSHEY_FONT: Final[HersheyFontLike] = HersheyFont.SIMPLEX
+
+
+def normalize_font_face(font: Optional[HersheyFontLike]) -> int:
+    if font is None:
+        return FONT_HERSHEY_SIMPLEX
+
+    if isinstance(font, HersheyFont):
+        return font.value
+    elif isinstance(font, str):
+        return HERSHEY_FONT_MAP[font.upper()].value
+    elif isinstance(font, int):
+        return font
+    else:
+        raise TypeError(f"Unsupported font type: {type(font).__name__}")

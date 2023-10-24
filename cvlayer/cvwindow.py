@@ -33,7 +33,7 @@ from cvlayer.cv.keymap import (
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.cv.roi import normalize_image_roi
 from cvlayer.cv.types.cvt_color_code import CvtColorCode
-from cvlayer.cv.types.interpolation import Interpolation
+from cvlayer.cv.types.interpolation import DEFAULT_INTERPOLATION
 from cvlayer.cv.video_capture import VideoCapture
 from cvlayer.cv.video_writer import VideoWriter
 from cvlayer.cv.window import WINDOW_NORMAL, Window
@@ -130,7 +130,7 @@ class CvWindow(LayerManagerInterface, Window):
         font=DEFAULT_FONT_FACE,
         font_scale=1.0,
         preview_scale=1.0,
-        preview_scale_method=Interpolation.INTER_AREA,
+        preview_scale_method=DEFAULT_INTERPOLATION,
         start_position=0,
         help_mode=HelpMode.DEBUG,
         play=False,

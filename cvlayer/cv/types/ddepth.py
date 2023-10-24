@@ -29,14 +29,22 @@ class DesiredDepth(Enum):
     FLOAT64 = CV_64F
 
 
-DEFAULT_DESIRED_DEPTH: Final[Union[DesiredDepth, int]] = DesiredDepth.SAME_INPUT
+DesiredDepthLike = Union[DesiredDepth, str, int]
+
+DESIRED_DEPTH_MAP: Final[Dict[str, DesiredDepth]] = {
+    e.name.upper(): e for e in DesiredDepth
+}
+DEFAULT_DESIRED_DEPTH: Final[DesiredDepthLike] = DesiredDepth.SAME_INPUT
 
 
-def normalize_desired_depth(depth: Optional[Union[DesiredDepth, int]] = None) -> int:
+def normalize_desired_depth(depth: Optional[DesiredDepthLike]) -> int:
     if depth is None:
         return SAME_DEPTH_AS_SOURCE
+
     elif isinstance(depth, DesiredDepth):
         return depth.value
+    elif isinstance(depth, str):
+        return DESIRED_DEPTH_MAP[depth.upper()].value
     elif isinstance(depth, int):
         return depth
     else:

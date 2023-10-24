@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum
-from typing import Final, Optional, Union
+from typing import Dict, Final, Optional, Union
 
 import cv2
 
@@ -19,17 +19,23 @@ class BorderType(Enum):
     ISOLATED = cv2.BORDER_ISOLATED
 
 
-DEFAULT_BORDER_TYPE: Final[Union[BorderType, int]] = BorderType.DEFAULT
+BorderTypeLike = Union[BorderType, str, int]
+
+BORDER_TYPE_MAP: Final[Dict[str, BorderType]] = {e.name.upper(): e for e in BorderType}
+DEFAULT_BORDER_TYPE: Final[BorderTypeLike] = BorderType.DEFAULT
 
 assert cv2.BORDER_DEFAULT == cv2.BORDER_REFLECT101
 assert BorderType.DEFAULT.value == BorderType.REFLECT101.value
 
 
-def normalize_border(border: Optional[Union[BorderType, int]] = None) -> int:
+def normalize_border(border: Optional[BorderTypeLike]) -> int:
     if border is None:
         return cv2.BORDER_DEFAULT
-    elif isinstance(border, BorderType):
+
+    if isinstance(border, BorderType):
         return border.value
+    elif isinstance(border, str):
+        return BORDER_TYPE_MAP[border.upper()].value
     elif isinstance(border, int):
         return border
     else:
