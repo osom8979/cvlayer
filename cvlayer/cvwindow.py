@@ -15,7 +15,6 @@ from numpy.typing import NDArray
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
 from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.cv.cvt_color import cvt_color
-from cvlayer.cv.cvt_color_code import CvtColorCode
 from cvlayer.cv.drawable.defaults import DEFAULT_FONT_FACE
 from cvlayer.cv.drawable.rectangle import draw_rectangle
 from cvlayer.cv.drawable.text.multiline.box import draw_multiline_text_box
@@ -24,7 +23,6 @@ from cvlayer.cv.histogram import PADDING as HISTOGRAM_PADDING
 from cvlayer.cv.histogram import draw_histogram_channels_with_decorate
 from cvlayer.cv.image_io import image_write
 from cvlayer.cv.image_resize import resize_ratio
-from cvlayer.cv.interpolation import Interpolation
 from cvlayer.cv.keymap import (
     KEYCODE_NULL,
     KEYCODE_TIMEOUT,
@@ -34,6 +32,8 @@ from cvlayer.cv.keymap import (
 )
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.cv.roi import normalize_image_roi
+from cvlayer.cv.types.cvt_color_code import CvtColorCode
+from cvlayer.cv.types.interpolation import Interpolation
 from cvlayer.cv.video_capture import VideoCapture
 from cvlayer.cv.video_writer import VideoWriter
 from cvlayer.cv.window import WINDOW_NORMAL, Window

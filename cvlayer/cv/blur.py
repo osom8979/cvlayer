@@ -5,7 +5,7 @@ from typing import Final
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import DEFAULT_BORDER_TYPE, normalize_border
+from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border
 from cvlayer.typing import PointI, SizeI
 
 DEFAULT_KSIZE: Final[SizeI] = (3, 3)

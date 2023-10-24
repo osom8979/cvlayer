@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
+from typing import Union
 
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.cvt_color_code import CvtColorCode
+from cvlayer.cv.types.cvt_color_code import CvtColorCode, normalize_cvt_color_code
 
 
-def cvt_color(image: NDArray, code: CvtColorCode) -> NDArray:
-    return cv2.cvtColor(image, code.value)
+def cvt_color(image: NDArray, code: Union[CvtColorCode, int]) -> NDArray:
+    return cv2.cvtColor(image, normalize_cvt_color_code(code))
 
 
 cvt_color_BGR2BGRA = partial(cv2.cvtColor, code=cv2.COLOR_BGR2BGRA)
@@ -361,7 +362,7 @@ cvt_color_BAYER_GR2RGBA = partial(cv2.cvtColor, code=cv2.COLOR_BAYER_GR2RGBA)
 
 class CvlCvtColor:
     @staticmethod
-    def cvl_cvt_color(image: NDArray, code: CvtColorCode):
+    def cvl_cvt_color(image: NDArray, code: Union[CvtColorCode, int]):
         return cvt_color(image, code)
 
     @staticmethod

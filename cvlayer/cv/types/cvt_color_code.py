@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum
+from typing import Union
 
 import cv2
 
@@ -356,3 +357,12 @@ class CvtColorCode(Enum):
     BAYER_RG2RGBA = cv2.COLOR_BAYER_RG2RGBA
     BayerGR2RGBA = cv2.COLOR_BayerGR2RGBA
     BAYER_GR2RGBA = cv2.COLOR_BAYER_GR2RGBA
+
+
+def normalize_cvt_color_code(code: Union[CvtColorCode, int]) -> int:
+    if isinstance(code, CvtColorCode):
+        return code.value
+    elif isinstance(code, int):
+        return code
+    else:
+        raise TypeError(f"Unsupported code type: {type(code).__name__}")

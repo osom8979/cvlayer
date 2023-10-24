@@ -5,8 +5,8 @@ from typing import Optional, Sequence
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import BorderType
-from cvlayer.cv.interpolation import Interpolation
+from cvlayer.cv.types.border import BorderType
+from cvlayer.cv.types.interpolation import Interpolation
 from cvlayer.typing import Number
 
 

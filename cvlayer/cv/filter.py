@@ -5,8 +5,8 @@ from typing import Optional
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import DEFAULT_BORDER_TYPE, normalize_border
-from cvlayer.cv.depth import (
+from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border
+from cvlayer.cv.types.ddepth import (
     DEFAULT_DESIRED_DEPTH,
     normalize_desired_depth,
     validate_depth_combinations,
@@ -26,6 +26,8 @@ def filter_2d(
     validate_depth_combinations(src, _ddepth)
     _anchor = anchor if anchor is not None else (-1, -1)
     _border = normalize_border(border)
+    if _border == cv2.BORDER_WRAP:
+        raise ValueError("BORDER_WRAP is not supported")
     return cv2.filter2D(src, _ddepth, kernel, None, _anchor, delta, _border)
 
 

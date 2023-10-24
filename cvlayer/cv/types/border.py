@@ -7,6 +7,8 @@ import cv2
 
 
 class BorderType(Enum):
+    """Pixel extrapolation method"""
+
     CONSTANT = cv2.BORDER_CONSTANT
     REPLICATE = cv2.BORDER_REPLICATE
     REFLECT = cv2.BORDER_REFLECT
@@ -20,7 +22,7 @@ class BorderType(Enum):
 DEFAULT_BORDER_TYPE: Final[Union[BorderType, int]] = BorderType.DEFAULT
 
 assert cv2.BORDER_DEFAULT == cv2.BORDER_REFLECT101
-assert cv2.BORDER_DEFAULT == BorderType.REFLECT101.value
+assert BorderType.DEFAULT.value == BorderType.REFLECT101.value
 
 
 def normalize_border(border: Optional[Union[BorderType, int]] = None) -> int:

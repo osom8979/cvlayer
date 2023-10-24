@@ -6,7 +6,7 @@ from typing import Final, Optional, Sequence
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import BorderType
+from cvlayer.cv.types.border import BorderType
 from cvlayer.typing import PointI, SizeI
 
 DEFAULT_KSIZE: Final[SizeI] = (3, 3)

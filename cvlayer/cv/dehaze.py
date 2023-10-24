@@ -7,7 +7,7 @@ import cv2
 from numpy import empty, float64, zeros
 from numpy.typing import NDArray
 
-from cvlayer.cv.data_type import CV_64F
+from cvlayer.cv.types.data_type import CV_64F
 
 DEFAULT_DEHAZE_KERNEL_SIZE: Final[Tuple[int, int]] = 15, 15
 

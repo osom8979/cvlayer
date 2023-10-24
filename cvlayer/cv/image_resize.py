@@ -3,7 +3,7 @@
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.interpolation import Interpolation
+from cvlayer.cv.types.interpolation import Interpolation
 
 
 def resize_constant(

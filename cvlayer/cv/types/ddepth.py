@@ -6,7 +6,7 @@ from typing import Dict, Final, Optional, Sequence, Union
 from numpy import float32, float64, int16, ndarray, uint8, uint16
 from numpy.typing import DTypeLike, NDArray
 
-from cvlayer.cv.data_type import CV_16S, CV_32F, CV_64F
+from cvlayer.cv.types.data_type import CV_16S, CV_32F, CV_64F
 
 SAME_DEPTH_AS_SOURCE: Final[int] = -1
 
