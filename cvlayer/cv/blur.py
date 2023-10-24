@@ -5,7 +5,7 @@ from typing import Final
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import DEFAULT_BORDER_TYPE
+from cvlayer.cv.border import DEFAULT_BORDER_TYPE, normalize_border
 from cvlayer.typing import PointI, SizeI
 
 DEFAULT_KSIZE: Final[SizeI] = (3, 3)
@@ -54,9 +54,10 @@ def blur(
     src: NDArray,
     ksize=DEFAULT_KSIZE,
     anchor=DEFAULT_ANCHOR,
-    border_type=DEFAULT_BORDER_TYPE,
+    border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
-    return cv2.blur(src, ksize, anchor=anchor, borderType=border_type.value)
+    _border = normalize_border(border)
+    return cv2.blur(src, ksize, anchor=anchor, borderType=_border)
 
 
 def median_blur(src: NDArray, ksize=DEFAULT_KSIZE) -> NDArray:
@@ -68,15 +69,16 @@ def gaussian_blur(
     ksize=DEFAULT_KSIZE,
     sigma_x=DEFAULT_GAUSSIAN_BLUR_SIGMA_X,
     sigma_y=DEFAULT_GAUSSIAN_BLUR_SIGMA_Y,
-    border_type=DEFAULT_BORDER_TYPE,
+    border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
+    _border = normalize_border(border)
     return cv2.GaussianBlur(
         src,
         ksize,
         sigmaX=sigma_x,
         dst=None,
         sigmaY=sigma_y,
-        borderType=border_type.value,
+        borderType=_border,
     )
 
 
@@ -85,15 +87,16 @@ def bilateral_filter(
     d=DEFAULT_BILATERAL_FILTER_D,
     sigma_color=DEFAULT_BILATERAL_FILTER_SIGMA_COLOR,
     sigma_space=DEFAULT_BILATERAL_FILTER_SIGMA_SPACE,
-    border_type=DEFAULT_BORDER_TYPE,
+    border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
+    _border = normalize_border(border)
     return cv2.bilateralFilter(
         src,
         d,
         sigmaColor=sigma_color,
         sigmaSpace=sigma_space,
         dst=None,
-        borderType=border_type.value,
+        borderType=_border,
     )
 
 
@@ -103,9 +106,9 @@ class CvlBlur:
         src: NDArray,
         ksize=DEFAULT_KSIZE,
         anchor=DEFAULT_ANCHOR,
-        border_type=DEFAULT_BORDER_TYPE,
+        border=DEFAULT_BORDER_TYPE,
     ):
-        return blur(src, ksize, anchor, border_type)
+        return blur(src, ksize, anchor, border)
 
     @staticmethod
     def cvl_median_blur(src: NDArray, ksize=DEFAULT_KSIZE):
@@ -117,9 +120,9 @@ class CvlBlur:
         ksize=DEFAULT_KSIZE,
         sigma_x=DEFAULT_GAUSSIAN_BLUR_SIGMA_X,
         sigma_y=DEFAULT_GAUSSIAN_BLUR_SIGMA_Y,
-        border_type=DEFAULT_BORDER_TYPE,
+        border=DEFAULT_BORDER_TYPE,
     ):
-        return gaussian_blur(src, ksize, sigma_x, sigma_y, border_type)
+        return gaussian_blur(src, ksize, sigma_x, sigma_y, border)
 
     @staticmethod
     def cvl_bilateral_filter(
@@ -127,6 +130,6 @@ class CvlBlur:
         d=DEFAULT_BILATERAL_FILTER_D,
         sigma_color=DEFAULT_BILATERAL_FILTER_SIGMA_COLOR,
         sigma_space=DEFAULT_BILATERAL_FILTER_SIGMA_SPACE,
-        border_type=DEFAULT_BORDER_TYPE,
+        border=DEFAULT_BORDER_TYPE,
     ):
-        return bilateral_filter(src, d, sigma_color, sigma_space, border_type)
+        return bilateral_filter(src, d, sigma_color, sigma_space, border)

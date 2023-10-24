@@ -5,8 +5,12 @@ from typing import Final, Tuple
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import DEFAULT_BORDER_TYPE
-from cvlayer.cv.depth import DEFAULT_OUTPUT_DEPTH, validate_depth_combinations
+from cvlayer.cv.border import DEFAULT_BORDER_TYPE, normalize_border
+from cvlayer.cv.depth import (
+    DEFAULT_DESIRED_DEPTH,
+    normalize_desired_depth,
+    validate_depth_combinations,
+)
 
 DEFAULT_DX: Final[int] = 1
 DEFAULT_DY: Final[int] = 1
@@ -18,34 +22,35 @@ AVAILABLE_KERNEL_SIZE: Tuple[int, int, int, int] = 1, 3, 5, 7
 
 def sobel(
     frame: NDArray,
-    output_depth=DEFAULT_OUTPUT_DEPTH,
+    ddepth=DEFAULT_DESIRED_DEPTH,
     dx=DEFAULT_DX,
     dy=DEFAULT_DY,
     kernel_size=DEFAULT_KERNEL_SIZE,
     scale=DEFAULT_SCALE,
     delta=DEFAULT_DELTA,
-    border_type=DEFAULT_BORDER_TYPE,
+    border=DEFAULT_BORDER_TYPE,
 ):
     assert dx or dy
     assert kernel_size % 2 == 1
     assert kernel_size >= 1
     assert kernel_size in AVAILABLE_KERNEL_SIZE
 
-    validate_depth_combinations(frame.dtype, output_depth.value)
-
-    if border_type.value == cv2.BORDER_WRAP:
+    _ddepth = normalize_desired_depth(ddepth)
+    validate_depth_combinations(frame, _ddepth)
+    _border = normalize_border(border)
+    if _border == cv2.BORDER_WRAP:
         raise ValueError("Unsupported border type: BORDER_WRAP")
 
     return cv2.Sobel(
         frame,
-        output_depth.value,
+        _ddepth,
         dx,
         dy,
         None,
         kernel_size,
         scale,
         delta,
-        border_type.value,
+        _border,
     )
 
 
@@ -53,21 +58,21 @@ class CvlSobel:
     @staticmethod
     def cvl_sobel(
         frame: NDArray,
-        output_depth=DEFAULT_OUTPUT_DEPTH,
+        ddepth=DEFAULT_DESIRED_DEPTH,
         dx=DEFAULT_DX,
         dy=DEFAULT_DY,
         kernel_size=DEFAULT_KERNEL_SIZE,
         scale=DEFAULT_SCALE,
         delta=DEFAULT_DELTA,
-        border_type=DEFAULT_BORDER_TYPE,
+        border=DEFAULT_BORDER_TYPE,
     ):
         return sobel(
             frame,
-            output_depth,
+            ddepth,
             dx,
             dy,
             kernel_size,
             scale,
             delta,
-            border_type,
+            border,
         )

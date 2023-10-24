@@ -18,6 +18,7 @@ from cvlayer.cv.cvt_color import CvlCvtColor
 from cvlayer.cv.cvt_shapely import CvlShapely
 from cvlayer.cv.dehaze import CvlDehaze
 from cvlayer.cv.drawable import CvlDrawable
+from cvlayer.cv.filter import CvlFilter
 from cvlayer.cv.fourcc import CvlFourcc
 from cvlayer.cv.fourier_transform import CvlFourierTransform
 from cvlayer.cv.histogram import CvlHistogram
@@ -74,6 +75,7 @@ class CvLayer(
     CvlCvtColor,
     CvlDehaze,
     CvlDrawable,
+    CvlFilter,
     CvlFourcc,
     CvlFourierTransform,
     CvlHistogram,

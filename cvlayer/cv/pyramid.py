@@ -5,7 +5,7 @@ from typing import Final, Optional
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.border import DEFAULT_BORDER_TYPE
+from cvlayer.cv.border import DEFAULT_BORDER_TYPE, normalize_border
 from cvlayer.cv.term_criteria import TermCriteria, TermCriteriaType
 from cvlayer.typing import SizeI
 
@@ -48,26 +48,22 @@ def pyr_mean_shift_filtering(
 
 def pyr_down(
     src: NDArray,
-    output_size: Optional[SizeI] = None,
-    border_type=DEFAULT_BORDER_TYPE,
+    dsize: Optional[SizeI] = None,
+    border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
-    return cv2.pyrDown(
-        src,
-        dstsize=output_size if output_size is not None else list(),
-        borderType=border_type.value,
-    )
+    _dsize = dsize if dsize is not None else list()
+    _border = normalize_border(border)
+    return cv2.pyrDown(src, dstsize=_dsize, borderType=_border)
 
 
 def pyr_up(
     src: NDArray,
-    output_size: Optional[SizeI] = None,
-    border_type=DEFAULT_BORDER_TYPE,
+    dsize: Optional[SizeI] = None,
+    border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
-    return cv2.pyrUp(
-        src,
-        dstsize=output_size if output_size is not None else list(),
-        borderType=border_type.value,
-    )
+    _dsize = dsize if dsize is not None else list()
+    _border = normalize_border(border)
+    return cv2.pyrUp(src, dstsize=_dsize, borderType=_border)
 
 
 class CvlPyramid:
@@ -85,14 +81,14 @@ class CvlPyramid:
     def cvl_pyr_down(
         src: NDArray,
         output_size: Optional[SizeI] = None,
-        border_type=DEFAULT_BORDER_TYPE,
+        border=DEFAULT_BORDER_TYPE,
     ):
-        return pyr_down(src, output_size, border_type)
+        return pyr_down(src, output_size, border)
 
     @staticmethod
     def cvl_pyr_up(
         src: NDArray,
         output_size: Optional[SizeI] = None,
-        border_type=DEFAULT_BORDER_TYPE,
+        border=DEFAULT_BORDER_TYPE,
     ):
-        return pyr_up(src, output_size, border_type)
+        return pyr_up(src, output_size, border)
