@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from cvlayer.layer.manager.mixins.basic import CvmBasic
+from cvlayer.layer.manager.mixins.bitwise import CvmBitwise
 from cvlayer.layer.manager.mixins.blur import CvmBlur
 from cvlayer.layer.manager.mixins.canny import CvmCanny
 from cvlayer.layer.manager.mixins.contours import CvmContours
@@ -15,6 +16,7 @@ from cvlayer.layer.manager.mixins.utils import CvmUtils
 
 class CvMixin(
     CvmBasic,
+    CvmBitwise,
     CvmBlur,
     CvmCanny,
     CvmContours,
