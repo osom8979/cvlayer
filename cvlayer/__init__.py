@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.cvlayer import CvLayer
+from cvlayer.cv import CvLayer
 from cvlayer.cvmanager import CvManager
-from cvlayer.cvmixin import CvMixin
 from cvlayer.cvwindow import CvWindow
+from cvlayer.layer.manager.mixins import CvMixin
 
 __version__ = "0.15.0"
 __all__ = [
