@@ -68,7 +68,7 @@ class CvmThreshold(LayerManagerMixinBase):
             result = threshold_otsu(layer.prev_frame, mv, m)
             threshold_value = result.computed_threshold_value
             threshold_image = result.threshold_image
-            layer.param("thresh").build_readonly(0).value = threshold_value
+            layer.param("thresh").build_readonly(0.0).value = threshold_value
             layer.frame = threshold_image
         return threshold_image
 

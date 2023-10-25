@@ -44,12 +44,12 @@ class CvmCvtColor(LayerManagerMixinBase):
             layer.frame = lab = cvt_color_BGR2LAB(layer.prev_frame)
         return lab
 
-    def cvm_cvt_color_bgr2hsv_hshift(self, name: str):
+    def cvm_cvt_color_bgr2hsv_hshift(self, name: str, h_shift=0):
         with self.layer(name) as layer:
-            hshift = layer.param("hshift").build_uint(20, 1).value
+            _hs = layer.param("hshift").build_int(h_shift).value
             prev_hsv = cvt_color_BGR2HSV(layer.prev_frame)
             prev_h, s, v = split(prev_hsv)
-            post_h = shift_degree_channel(prev_h, hshift)
+            post_h = shift_degree_channel(prev_h, _hs)
             post_hsv = merge([post_h, s, v])
             layer.frame = post_hsv
-        return post_hsv
+        return post_hsv, post_h, s, v
