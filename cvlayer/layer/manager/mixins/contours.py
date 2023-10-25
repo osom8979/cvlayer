@@ -31,10 +31,12 @@ class CvmContours(LayerManagerMixinBase):
         area_max=500_000.0,
         canvas: Optional[NDArray] = None,
         palette: Optional[Dict[str, Color]] = None,
+        frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
+            src = frame if frame is not None else layer.prev_frame
             if canvas is None:
-                height, width = layer.prev_frame.shape
+                height, width = src.shape
                 canvas = zeros((height, width, 3), dtype=uint8)
             else:
                 assert canvas is not None
@@ -51,7 +53,7 @@ class CvmContours(LayerManagerMixinBase):
             mt = layer.param("method").build_enum(method).value
             amin = layer.param("amin").build_float(area_min, 0.0, step=100.0).value
             amax = layer.param("amax").build_float(area_max, 0.0, step=100.0).value
-            contours = list(find_contours(layer.prev_frame, md, mt)[0])
+            contours = list(find_contours(src, md, mt)[0])
             filtered_contours = list()
             for contour, color in zip(contours, palette.values()):
                 area = contour_area(contour)

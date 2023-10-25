@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from typing import Optional
+
+from numpy.typing import NDArray
+
 from cvlayer.cv.pyramid import (
     DEFAULT_COLOR_WINDOW_RADIUS,
     DEFAULT_MAX_LEVEL,
@@ -23,6 +27,7 @@ class CvmPyramid(LayerManagerMixinBase):
         criteria_type=DEFAULT_TERM_CRITERIA_TYPE,
         max_count=DEFAULT_TERM_CRITERIA_MAX_COUNT,
         epsilon=DEFAULT_TERM_CRITERIA_EPSILON,
+        frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
             spatial = layer.param("sp").build_float(sp, 0.0, 100.0, step=1.0).value
@@ -32,6 +37,7 @@ class CvmPyramid(LayerManagerMixinBase):
             tmc = layer.param("term_max_count").build_uint(max_count, 1).value
             te = layer.param("term_epsilon").build_float(epsilon, 1.0).value
             tc = TermCriteria(tt, tmc, te)
-            result = pyr_mean_shift_filtering(layer.prev_frame, spatial, color, ml, tc)
+            src = frame if frame is not None else layer.prev_frame
+            result = pyr_mean_shift_filtering(src, spatial, color, ml, tc)
             layer.frame = result
         return result

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from typing import Optional
+
+from numpy.typing import NDArray
+
 from cvlayer.cv.kmeans import (
     DEFAULT_ATTEMPTS,
     DEFAULT_TERM_CRITERIA_EPSILON,
@@ -22,6 +26,7 @@ class CvmKmeans(LayerManagerMixinBase):
         epsilon=DEFAULT_TERM_CRITERIA_EPSILON,
         attempts=DEFAULT_ATTEMPTS,
         flags=KmeansFlags.PP_CENTERS,
+        frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
             k = layer.param("k").build_uint(k, 1).value
@@ -31,6 +36,7 @@ class CvmKmeans(LayerManagerMixinBase):
             a = layer.param("attempts").build_uint(attempts, 1).value
             f = layer.param("flags").build_enum(flags).value
             tc = TermCriteria(tt, tmc, te)
-            result = color_quantization(layer.prev_frame, k, None, tc, a, f)
+            src = frame if frame is not None else layer.prev_frame
+            result = color_quantization(src, k, None, tc, a, f)
             layer.frame = result
         return result
