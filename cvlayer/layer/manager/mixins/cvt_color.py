@@ -10,10 +10,10 @@ from cvlayer.cv.cvt_color import (
     cvt_color_BGR2YCR_CB,
     cvt_color_BGR2YUV,
 )
-from cvlayer.layer.manager.mixins._base import _LayerManagerMixinBase
+from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmCvtColor(_LayerManagerMixinBase):
+class CvmCvtColor(LayerManagerMixinBase):
     def cvm_cvt_color_bgr2gray(self, name: str):
         with self.layer(name) as layer:
             layer.frame = gray = cvt_color_BGR2GRAY(layer.prev_frame)
@@ -46,7 +46,7 @@ class CvmCvtColor(_LayerManagerMixinBase):
 
     def cvm_cvt_color_bgr2hsv_hshift(self, name: str):
         with self.layer(name) as layer:
-            hshift = layer.param("hshift").build_unsigned(20, 1).value
+            hshift = layer.param("hshift").build_uint(20, 1).value
             prev_hsv = cvt_color_BGR2HSV(layer.prev_frame)
             prev_h, s, v = split(prev_hsv)
             post_h = shift_degree_channel(prev_h, hshift)

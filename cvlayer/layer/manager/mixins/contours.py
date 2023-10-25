@@ -16,12 +16,12 @@ from cvlayer.cv.cvt_color import cvt_color_GRAY2BGR
 from cvlayer.cv.drawable.contours import draw_contour
 from cvlayer.cv.drawable.point import draw_point
 from cvlayer.cv.drawable.text.outline import draw_outline_text
-from cvlayer.layer.manager.mixins._base import _LayerManagerMixinBase
+from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 from cvlayer.palette import xkcd_palette
 from cvlayer.typing import Color
 
 
-class CvmContours(_LayerManagerMixinBase):
+class CvmContours(LayerManagerMixinBase):
     def cvm_find_contours(
         self,
         name: str,
@@ -47,10 +47,10 @@ class CvmContours(_LayerManagerMixinBase):
             assert isinstance(canvas, ndarray)
             assert isinstance(palette, dict)
 
-            md = layer.param("mode").build_enumeration(mode).value
-            mt = layer.param("method").build_enumeration(method).value
-            amin = layer.param("amin").build_floating(area_min, 0.0, step=100.0).value
-            amax = layer.param("amax").build_floating(area_max, 0.0, step=100.0).value
+            md = layer.param("mode").build_enum(mode).value
+            mt = layer.param("method").build_enum(method).value
+            amin = layer.param("amin").build_float(area_min, 0.0, step=100.0).value
+            amax = layer.param("amax").build_float(area_max, 0.0, step=100.0).value
             contours = list(find_contours(layer.prev_frame, md, mt)[0])
             filtered_contours = list()
             for contour, color in zip(contours, palette.values()):

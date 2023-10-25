@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Final, NamedTuple
+from typing import Final, NamedTuple, Sequence
 
 import cv2
 from numpy.typing import NDArray
@@ -34,6 +34,15 @@ class ThresholdResult(NamedTuple):
     """
 
     threshold_image: NDArray
+
+
+ADAPTIVE_THRESHOLD_METHODS: Final[Sequence[ThresholdMethod]] = (
+    ThresholdMethod.BINARY,
+    ThresholdMethod.BINARY_INV,
+)
+ADAPTIVE_THRESHOLD_METHOD_EXCLUDES: Final[Sequence[ThresholdMethod]] = tuple(
+    filter(lambda e: e not in ADAPTIVE_THRESHOLD_METHODS, ThresholdMethod)
+)
 
 
 def threshold(
@@ -78,6 +87,18 @@ def adaptive_threshold(
     block_size=DEFAULT_BLOCK_SIZE,
     c=DEFAULT_C,
 ) -> NDArray:
+    """
+    Constant subtracted from the mean or weighted mean (see the details below).
+    Normally, it is positive but may be zero or negative as well.
+    """
+
+    assert method in ADAPTIVE_THRESHOLD_METHODS
+    assert block_size >= 3
+    assert block_size >= 3
+    assert block_size % 2 == 1
+    # Size of a pixel neighborhood
+    # that is used to calculate a threshold value for the pixel
+
     return cv2.adaptiveThreshold(
         src, max_value, adaptive_method.value, method.value, block_size, c
     )
@@ -121,3 +142,8 @@ class CvlThreshold:
         return adaptive_threshold(
             src, max_value, adaptive_method, method, block_size, c
         )
+
+
+if __name__ == "__main__":
+    print("adaptive threshold methods: ", ADAPTIVE_THRESHOLD_METHODS)
+    print("adaptive threshold method excludes: ", ADAPTIVE_THRESHOLD_METHOD_EXCLUDES)

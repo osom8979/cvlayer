@@ -141,7 +141,7 @@ class LayerParameter:
         self._validate_initialize()
         self._nullable = callback
 
-    initial = property(None, _set_value)
+    initial_value = property(None, _set_value)
     min = property(None, _set_min)
     max = property(None, _set_max)
     decrease = property(None, _set_decrease)
@@ -284,7 +284,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_boolean(
+    def build_bool(
         self,
         value: bool,
         printable: Optional[PrintableCallable] = None,
@@ -303,7 +303,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_integer(
+    def build_int(
         self,
         value: int,
         min_value: Optional[int] = None,
@@ -327,7 +327,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_unsigned(
+    def build_uint(
         self,
         value: int,
         min_value: Optional[int] = None,
@@ -340,7 +340,7 @@ class LayerParameter:
             return self
         if min_value is not None and min_value < 0:
             raise ValueError("The unsigned type must be 0 or greater")
-        return self.build_integer(
+        return self.build_int(
             value=value,
             min_value=min_value if min_value is not None else 0,
             max_value=max_value,
@@ -349,7 +349,7 @@ class LayerParameter:
             step=step,
         )
 
-    def build_floating(
+    def build_float(
         self,
         value: float,
         min_value: Optional[float] = None,
@@ -373,7 +373,7 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_enumeration(
+    def build_enum(
         self,
         value: Enum,
         excludes: Optional[Union[Enum, Iterable[Enum]]] = None,
@@ -462,6 +462,24 @@ class LayerParameter:
             return False
 
         self._value = value
+        self._keydown = _keydown
+        self._frozen = True
+        return self
+
+    def build_keydown(self, value: int, callback: Callable):
+        if self._frozen:
+            return self
+
+        self._clear_all_properties()
+
+        def _keydown(keycode: int):
+            if keycode == value:
+                try:
+                    callback()
+                except:  # noqa
+                    pass
+            return True
+
         self._keydown = _keydown
         self._frozen = True
         return self

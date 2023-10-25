@@ -4,10 +4,10 @@ from typing import Any, Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.layer.manager.mixins._base import _LayerManagerMixinBase
+from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmUtils(_LayerManagerMixinBase):
+class CvmUtils(LayerManagerMixinBase):
     def cvm_select(self, src: NDArray, data: Optional[Any] = None):
         with self.layer("cvm_select") as layer:
             layer.frame = src

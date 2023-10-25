@@ -9,10 +9,10 @@ from cvlayer.cv.kmeans import (
     color_quantization,
 )
 from cvlayer.cv.term_criteria import TermCriteria
-from cvlayer.layer.manager.mixins._base import _LayerManagerMixinBase
+from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmKmeans(_LayerManagerMixinBase):
+class CvmKmeans(LayerManagerMixinBase):
     def cvm_color_quantization(
         self,
         name: str,
@@ -24,12 +24,12 @@ class CvmKmeans(_LayerManagerMixinBase):
         flags=KmeansFlags.PP_CENTERS,
     ):
         with self.layer(name) as layer:
-            k = layer.param("k").build_unsigned(k, 1).value
-            tt = layer.param("term_type").build_enumeration(criteria_type).value
-            tmc = layer.param("term_max_count").build_unsigned(max_count, 1).value
-            te = layer.param("term_epsilon").build_floating(epsilon, 1.0).value
-            a = layer.param("attempts").build_unsigned(attempts, 1).value
-            f = layer.param("flags").build_enumeration(flags).value
+            k = layer.param("k").build_uint(k, 1).value
+            tt = layer.param("term_type").build_enum(criteria_type).value
+            tmc = layer.param("term_max_count").build_uint(max_count, 1).value
+            te = layer.param("term_epsilon").build_float(epsilon, 1.0).value
+            a = layer.param("attempts").build_uint(attempts, 1).value
+            f = layer.param("flags").build_enum(flags).value
             tc = TermCriteria(tt, tmc, te)
             result = color_quantization(layer.prev_frame, k, None, tc, a, f)
             layer.frame = result

@@ -7,7 +7,7 @@ from cvlayer.layer.manager.interface import LayerManagerInterface
 from cvlayer.typing import override
 
 
-class _LayerManagerMixinBase(LayerManagerInterface):
+class LayerManagerMixinBase(LayerManagerInterface):
     @override
     def layer(self, key: Any) -> LayerBase:
         raise NotImplementedError

@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
+from typing import Final
 
 from cvlayer.cv.morphology import (
     MorphOperator,
     MorphShape,
+    dilate,
+    erode,
     get_structuring_element,
     morphology_ex,
 )
-from cvlayer.layer.manager.mixins._base import _LayerManagerMixinBase
+from cvlayer.layer.base import LayerBase
+from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
+
+_SHAPE_PARAMETER_KEY: Final[str] = "shape"
 
 _RECT = MorphShape.RECT
 _ELLIPSE = MorphShape.ELLIPSE
@@ -24,94 +30,167 @@ _BLACKHAT = MorphOperator.BLACKHAT
 _HITMISS = MorphOperator.HITMISS
 
 
-def _m(shape: MorphShape, _old, _new):
+def _gse(layer: LayerBase, _old, _new):
+    shape_param = layer.param(_SHAPE_PARAMETER_KEY)
+    assert shape_param.initialized
+    shape = shape_param.value
+    assert isinstance(shape, MorphShape)
+    assert isinstance(_new, int)
     return get_structuring_element(shape, (_new, _new))
 
 
-class CvmMorphology(_LayerManagerMixinBase):
-    def _cvm_morphology_ex(
+class CvmMorphologyErode(LayerManagerMixinBase):
+    def _cvm_erode(
         self,
         name: str,
-        shape: MorphShape,
-        op: MorphOperator,
         k: int,
         i: int,
+        shape: MorphShape,
     ):
         with self.layer(name) as layer:
-            m = layer.param("m").build_unsigned(k, 1, cacher=partial(_m, shape)).cache
-            i = layer.param("i").build_unsigned(i, 1).value
-            result = morphology_ex(layer.prev_frame, op, m, iterations=i)
+            layer.param(_SHAPE_PARAMETER_KEY).build_enum(shape)
+            m = layer.param("m").build_uint(k, 1, cacher=partial(_gse, layer)).cache
+            i = layer.param("i").build_uint(i, 1).value
+            ax = layer.param("anchor_x").build_int(-1).value
+            ay = layer.param("anchor_y").build_int(-1).value
+            result = erode(layer.prev_frame, m, (ax, ay), i)
             layer.frame = result
         return result
 
-    def cvm_rect_morphology_ex_erode(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _ERODE, k, i)
+    def cvm_erode_rect(self, name: str, k=3, i=1):
+        return self._cvm_erode(name, k, i, _RECT)
 
-    def cvm_rect_morphology_ex_dilate(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _DILATE, k, i)
+    def cvm_erode_cross(self, name: str, k=3, i=1):
+        return self._cvm_erode(name, k, i, _CROSS)
 
-    def cvm_rect_morphology_ex_open(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _OPEN, k, i)
+    def cvm_erode_ellipse(self, name: str, k=3, i=1):
+        return self._cvm_erode(name, k, i, _ELLIPSE)
 
-    def cvm_rect_morphology_ex_close(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _CLOSE, k, i)
 
-    def cvm_rect_morphology_ex_gradient(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _GRADIENT, k, i)
+class CvmMorphologyDilate(LayerManagerMixinBase):
+    def _cvm_dilate(
+        self,
+        name: str,
+        k: int,
+        i: int,
+        shape: MorphShape,
+    ):
+        with self.layer(name) as layer:
+            layer.param(_SHAPE_PARAMETER_KEY).build_enum(shape)
+            m = layer.param("m").build_uint(k, 1, cacher=partial(_gse, layer)).cache
+            i = layer.param("i").build_uint(i, 1).value
+            ax = layer.param("anchor_x").build_int(-1).value
+            ay = layer.param("anchor_y").build_int(-1).value
+            result = dilate(layer.prev_frame, m, (ax, ay), i)
+            layer.frame = result
+        return result
 
-    def cvm_rect_morphology_ex_tophat(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _TOPHAT, k, i)
+    def cvm_dilate_rect(self, name: str, k=3, i=1):
+        return self._cvm_dilate(name, k, i, _RECT)
 
-    def cvm_rect_morphology_ex_blackhat(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _BLACKHAT, k, i)
+    def cvm_dilate_cross(self, name: str, k=3, i=1):
+        return self._cvm_dilate(name, k, i, _CROSS)
 
-    def cvm_rect_morphology_ex_hitmiss(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _RECT, _HITMISS, k, i)
+    def cvm_dilate_ellipse(self, name: str, k=3, i=1):
+        return self._cvm_dilate(name, k, i, _ELLIPSE)
 
-    def cvm_cross_morphology_ex_erode(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _ERODE, k, i)
 
-    def cvm_cross_morphology_ex_dilate(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _DILATE, k, i)
+class CvmMorphologyEx(LayerManagerMixinBase):
+    def _cvm_morphology_ex(
+        self,
+        name: str,
+        k: int,
+        i: int,
+        shape: MorphShape,
+        op: MorphOperator,
+    ):
+        with self.layer(name) as layer:
+            layer.param(_SHAPE_PARAMETER_KEY).build_enum(shape)
+            m = layer.param("m").build_uint(k, 1, cacher=partial(_gse, layer)).cache
+            i = layer.param("i").build_uint(i, 1).value
+            o = layer.param("op").build_enum(op).value
+            ax = layer.param("anchor_x").build_int(-1).value
+            ay = layer.param("anchor_y").build_int(-1).value
+            result = morphology_ex(layer.prev_frame, o, m, (ax, ay), i)
+            layer.frame = result
+        return result
 
-    def cvm_cross_morphology_ex_open(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _OPEN, k, i)
+    def cvm_morphology_ex_rect_erode(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _ERODE)
 
-    def cvm_cross_morphology_ex_close(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _CLOSE, k, i)
+    def cvm_morphology_ex_rect_dilate(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _DILATE)
 
-    def cvm_cross_morphology_ex_gradient(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _GRADIENT, k, i)
+    def cvm_morphology_ex_rect_open(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _OPEN)
 
-    def cvm_cross_morphology_ex_tophat(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _TOPHAT, k, i)
+    def cvm_morphology_ex_rect_close(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _CLOSE)
 
-    def cvm_cross_morphology_ex_blackhat(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _BLACKHAT, k, i)
+    def cvm_morphology_ex_rect_gradient(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _GRADIENT)
 
-    def cvm_cross_morphology_ex_hitmiss(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _CROSS, _HITMISS, k, i)
+    def cvm_morphology_ex_rect_tophat(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _TOPHAT)
 
-    def cvm_ellipse_morphology_ex_erode(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _ERODE, k, i)
+    def cvm_morphology_ex_rect_blackhat(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _BLACKHAT)
 
-    def cvm_ellipse_morphology_ex_dilate(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _DILATE, k, i)
+    def cvm_morphology_ex_rect_hitmiss(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _RECT, _HITMISS)
 
-    def cvm_ellipse_morphology_ex_open(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _OPEN, k, i)
+    def cvm_morphology_ex_cross_erode(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _ERODE)
 
-    def cvm_ellipse_morphology_ex_close(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _CLOSE, k, i)
+    def cvm_morphology_ex_cross_dilate(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _DILATE)
 
-    def cvm_ellipse_morphology_ex_gradient(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _GRADIENT, k, i)
+    def cvm_morphology_ex_cross_open(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _OPEN)
 
-    def cvm_ellipse_morphology_ex_tophat(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _TOPHAT, k, i)
+    def cvm_morphology_ex_cross_close(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _CLOSE)
 
-    def cvm_ellipse_morphology_ex_blackhat(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _BLACKHAT, k, i)
+    def cvm_morphology_ex_cross_gradient(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _GRADIENT)
 
-    def cvm_ellipse_morphology_ex_hitmiss(self, name: str, k=3, i=1):
-        return self._cvm_morphology_ex(name, _ELLIPSE, _HITMISS, k, i)
+    def cvm_morphology_ex_cross_tophat(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _TOPHAT)
+
+    def cvm_morphology_ex_cross_blackhat(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _BLACKHAT)
+
+    def cvm_morphology_ex_cross_hitmiss(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _CROSS, _HITMISS)
+
+    def cvm_morphology_ex_ellipse_erode(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _ERODE)
+
+    def cvm_morphology_ex_ellipse_dilate(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _DILATE)
+
+    def cvm_morphology_ex_ellipse_open(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _OPEN)
+
+    def cvm_morphology_ex_ellipse_close(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _CLOSE)
+
+    def cvm_morphology_ex_ellipse_gradient(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _GRADIENT)
+
+    def cvm_morphology_ex_ellipse_tophat(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _TOPHAT)
+
+    def cvm_morphology_ex_ellipse_blackhat(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _BLACKHAT)
+
+    def cvm_morphology_ex_ellipse_hitmiss(self, name: str, k=3, i=1):
+        return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _HITMISS)
+
+
+class CvmMorphology(
+    CvmMorphologyErode,
+    CvmMorphologyDilate,
+    CvmMorphologyEx,
+):
+    pass
