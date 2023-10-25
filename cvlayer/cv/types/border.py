@@ -5,23 +5,34 @@ from typing import Dict, Final, Optional, Union
 
 import cv2
 
+from cvlayer.enum.utils import make_name_map
+
+BORDER_CONSTANT: Final[int] = cv2.BORDER_CONSTANT
+BORDER_REPLICATE: Final[int] = cv2.BORDER_REPLICATE
+BORDER_REFLECT: Final[int] = cv2.BORDER_REFLECT
+BORDER_WRAP: Final[int] = cv2.BORDER_WRAP
+BORDER_REFLECT101: Final[int] = cv2.BORDER_REFLECT101
+BORDER_TRANSPARENT: Final[int] = cv2.BORDER_TRANSPARENT
+BORDER_DEFAULT: Final[int] = cv2.BORDER_DEFAULT
+BORDER_ISOLATED: Final[int] = cv2.BORDER_ISOLATED
+
 
 class BorderType(Enum):
     """Pixel extrapolation method"""
 
-    CONSTANT = cv2.BORDER_CONSTANT
-    REPLICATE = cv2.BORDER_REPLICATE
-    REFLECT = cv2.BORDER_REFLECT
-    WRAP = cv2.BORDER_WRAP
-    REFLECT101 = cv2.BORDER_REFLECT101
-    TRANSPARENT = cv2.BORDER_TRANSPARENT
-    DEFAULT = cv2.BORDER_DEFAULT
-    ISOLATED = cv2.BORDER_ISOLATED
+    CONSTANT = BORDER_CONSTANT
+    REPLICATE = BORDER_REPLICATE
+    REFLECT = BORDER_REFLECT
+    WRAP = BORDER_WRAP
+    REFLECT101 = BORDER_REFLECT101
+    TRANSPARENT = BORDER_TRANSPARENT
+    DEFAULT = BORDER_DEFAULT
+    ISOLATED = BORDER_ISOLATED
 
 
 BorderTypeLike = Union[BorderType, str, int]
 
-BORDER_TYPE_MAP: Final[Dict[str, BorderType]] = {e.name.upper(): e for e in BorderType}
+BORDER_TYPE_MAP: Final[Dict[str, BorderType]] = make_name_map(BorderType)
 DEFAULT_BORDER_TYPE: Final[BorderTypeLike] = BorderType.DEFAULT
 
 assert cv2.BORDER_DEFAULT == cv2.BORDER_REFLECT101
