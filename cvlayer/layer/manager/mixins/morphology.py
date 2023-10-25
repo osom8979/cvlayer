@@ -31,9 +31,6 @@ _TOPHAT = MorphOperator.TOPHAT
 _BLACKHAT = MorphOperator.BLACKHAT
 _HITMISS = MorphOperator.HITMISS
 
-_KSIZE: Final[int] = 3
-_ITER: Final[int] = 1
-
 
 def _gse(layer: LayerBase, _old, _new):
     shape_param = layer.param(_SHAPE_PARAMETER_KEY)
@@ -64,19 +61,13 @@ class CvmMorphologyErode(LayerManagerMixinBase):
             layer.frame = result
         return result
 
-    def cvm_erode_rect(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
-    ):
+    def cvm_erode_rect(self, name: str, k=3, i=1, frame: Optional[NDArray] = None):
         return self._cvm_erode(name, k, i, _RECT, frame)
 
-    def cvm_erode_cross(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
-    ):
+    def cvm_erode_cross(self, name: str, k=3, i=1, frame: Optional[NDArray] = None):
         return self._cvm_erode(name, k, i, _CROSS, frame)
 
-    def cvm_erode_ellipse(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
-    ):
+    def cvm_erode_ellipse(self, name: str, k=3, i=1, frame: Optional[NDArray] = None):
         return self._cvm_erode(name, k, i, _ELLIPSE, frame)
 
 
@@ -100,19 +91,13 @@ class CvmMorphologyDilate(LayerManagerMixinBase):
             layer.frame = result
         return result
 
-    def cvm_dilate_rect(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
-    ):
+    def cvm_dilate_rect(self, name: str, k=3, i=1, frame: Optional[NDArray] = None):
         return self._cvm_dilate(name, k, i, _RECT, frame)
 
-    def cvm_dilate_cross(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
-    ):
+    def cvm_dilate_cross(self, name: str, k=3, i=1, frame: Optional[NDArray] = None):
         return self._cvm_dilate(name, k, i, _CROSS, frame)
 
-    def cvm_dilate_ellipse(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
-    ):
+    def cvm_dilate_ellipse(self, name: str, k=3, i=1, frame: Optional[NDArray] = None):
         return self._cvm_dilate(name, k, i, _ELLIPSE, frame)
 
 
@@ -139,122 +124,122 @@ class CvmMorphologyEx(LayerManagerMixinBase):
         return result
 
     def cvm_morphology_ex_rect_erode(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _ERODE, frame)
 
     def cvm_morphology_ex_rect_dilate(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _DILATE, frame)
 
     def cvm_morphology_ex_rect_open(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _OPEN, frame)
 
     def cvm_morphology_ex_rect_close(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _CLOSE, frame)
 
     def cvm_morphology_ex_rect_gradient(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _GRADIENT, frame)
 
     def cvm_morphology_ex_rect_tophat(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _TOPHAT, frame)
 
     def cvm_morphology_ex_rect_blackhat(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _BLACKHAT, frame)
 
     def cvm_morphology_ex_rect_hitmiss(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _RECT, _HITMISS, frame)
 
     def cvm_morphology_ex_cross_erode(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _ERODE, frame)
 
     def cvm_morphology_ex_cross_dilate(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _DILATE, frame)
 
     def cvm_morphology_ex_cross_open(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _OPEN, frame)
 
     def cvm_morphology_ex_cross_close(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _CLOSE, frame)
 
     def cvm_morphology_ex_cross_gradient(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _GRADIENT, frame)
 
     def cvm_morphology_ex_cross_tophat(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _TOPHAT, frame)
 
     def cvm_morphology_ex_cross_blackhat(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _BLACKHAT, frame)
 
     def cvm_morphology_ex_cross_hitmiss(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _CROSS, _HITMISS, frame)
 
     def cvm_morphology_ex_ellipse_erode(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _ERODE, frame)
 
     def cvm_morphology_ex_ellipse_dilate(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _DILATE, frame)
 
     def cvm_morphology_ex_ellipse_open(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _OPEN, frame)
 
     def cvm_morphology_ex_ellipse_close(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _CLOSE, frame)
 
     def cvm_morphology_ex_ellipse_gradient(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _GRADIENT, frame)
 
     def cvm_morphology_ex_ellipse_tophat(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _TOPHAT, frame)
 
     def cvm_morphology_ex_ellipse_blackhat(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _BLACKHAT, frame)
 
     def cvm_morphology_ex_ellipse_hitmiss(
-        self, name: str, k=_KSIZE, i=_ITER, frame: Optional[NDArray] = None
+        self, name: str, k=3, i=1, frame: Optional[NDArray] = None
     ):
         return self._cvm_morphology_ex(name, k, i, _ELLIPSE, _HITMISS, frame)
 

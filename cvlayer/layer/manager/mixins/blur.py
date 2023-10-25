@@ -4,15 +4,7 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.blur import (
-    DEFAULT_BILATERAL_FILTER_SIGMA_COLOR,
-    DEFAULT_BILATERAL_FILTER_SIGMA_SPACE,
-    DEFAULT_GAUSSIAN_BLUR_SIGMA_X,
-    DEFAULT_GAUSSIAN_BLUR_SIGMA_Y,
-    DEFAULT_KSIZE,
-    bilateral_filter,
-    gaussian_blur,
-)
+from cvlayer.cv.blur import bilateral_filter, gaussian_blur
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
@@ -21,8 +13,8 @@ class CvmBlur(LayerManagerMixinBase):
         self,
         name: str,
         d=9,
-        sigma_color=DEFAULT_BILATERAL_FILTER_SIGMA_COLOR,
-        sigma_space=DEFAULT_BILATERAL_FILTER_SIGMA_SPACE,
+        sigma_color=75.0,
+        sigma_space=75.0,
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
@@ -37,9 +29,9 @@ class CvmBlur(LayerManagerMixinBase):
     def cvm_gaussian_blur(
         self,
         name: str,
-        ksize=DEFAULT_KSIZE,
-        sigma_x=DEFAULT_GAUSSIAN_BLUR_SIGMA_X,
-        sigma_y=DEFAULT_GAUSSIAN_BLUR_SIGMA_Y,
+        ksize=(3, 3),
+        sigma_x=0.0,
+        sigma_y=0.0,
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:

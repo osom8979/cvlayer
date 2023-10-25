@@ -40,9 +40,6 @@ ADAPTIVE_THRESHOLD_METHODS: Final[Sequence[ThresholdMethod]] = (
     ThresholdMethod.BINARY,
     ThresholdMethod.BINARY_INV,
 )
-ADAPTIVE_THRESHOLD_METHOD_EXCLUDES: Final[Sequence[ThresholdMethod]] = tuple(
-    filter(lambda e: e not in ADAPTIVE_THRESHOLD_METHODS, ThresholdMethod)
-)
 
 
 def threshold(
@@ -142,8 +139,3 @@ class CvlThreshold:
         return adaptive_threshold(
             src, max_value, adaptive_method, method, block_size, c
         )
-
-
-if __name__ == "__main__":
-    print("adaptive threshold methods: ", ADAPTIVE_THRESHOLD_METHODS)
-    print("adaptive threshold method excludes: ", ADAPTIVE_THRESHOLD_METHOD_EXCLUDES)

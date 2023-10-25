@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional
+from typing import Final, Optional, Sequence
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.threshold import ADAPTIVE_THRESHOLD_METHOD_EXCLUDES as _ATM_EXCLUDES
-from cvlayer.cv.threshold import DEFAULT_BLOCK_SIZE as _BS
-from cvlayer.cv.threshold import DEFAULT_C as _C
-from cvlayer.cv.threshold import PIXEL_8BIT_HALF as _PIX_HALF
-from cvlayer.cv.threshold import PIXEL_8BIT_MAX as _PIX_MAX
 from cvlayer.cv.threshold import (
+    ADAPTIVE_THRESHOLD_METHODS,
     AdaptiveMethod,
     ThresholdMethod,
     adaptive_threshold,
@@ -27,6 +23,10 @@ _BINARY_INV = ThresholdMethod.BINARY_INV
 _TRUNC = ThresholdMethod.TRUNC
 _TOZERO = ThresholdMethod.TOZERO
 _TOZERO_INV = ThresholdMethod.TOZERO_INV
+
+_ATM_EXCLUDES: Final[Sequence[ThresholdMethod]] = tuple(
+    filter(lambda e: e not in ADAPTIVE_THRESHOLD_METHODS, ThresholdMethod)
+)
 
 
 class CvmThreshold(LayerManagerMixinBase):
@@ -48,29 +48,29 @@ class CvmThreshold(LayerManagerMixinBase):
         return result
 
     def cvm_threshold_binary(
-        self, name: str, t=_PIX_HALF, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, t=127, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold(name, t, mv, _BINARY, frame)
+        return self._cvm_threshold(name, t, max_value, _BINARY, frame)
 
     def cvm_threshold_binary_inv(
-        self, name: str, t=_PIX_HALF, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, t=127, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold(name, t, mv, _BINARY_INV, frame)
+        return self._cvm_threshold(name, t, max_value, _BINARY_INV, frame)
 
     def cvm_threshold_trunc(
-        self, name: str, t=_PIX_HALF, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, t=127, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold(name, t, mv, _TRUNC, frame)
+        return self._cvm_threshold(name, t, max_value, _TRUNC, frame)
 
     def cvm_threshold_tozero(
-        self, name: str, t=_PIX_HALF, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, t=127, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold(name, t, mv, _TOZERO, frame)
+        return self._cvm_threshold(name, t, max_value, _TOZERO, frame)
 
     def cvm_threshold_tozero_inv(
-        self, name: str, t=_PIX_HALF, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, t=127, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold(name, t, mv, _TOZERO_INV, frame)
+        return self._cvm_threshold(name, t, max_value, _TOZERO_INV, frame)
 
     def _cvm_threshold_otsu(
         self,
@@ -91,29 +91,29 @@ class CvmThreshold(LayerManagerMixinBase):
         return threshold_image
 
     def cvm_threshold_otsu_binary(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_otsu(name, mv, _BINARY, frame)
+        return self._cvm_threshold_otsu(name, max_value, _BINARY, frame)
 
     def cvm_threshold_otsu_binary_inv(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_otsu(name, mv, _BINARY_INV, frame)
+        return self._cvm_threshold_otsu(name, max_value, _BINARY_INV, frame)
 
     def cvm_threshold_otsu_trunc(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_otsu(name, mv, _TRUNC, frame)
+        return self._cvm_threshold_otsu(name, max_value, _TRUNC, frame)
 
     def cvm_threshold_otsu_tozero(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_otsu(name, mv, _TOZERO, frame)
+        return self._cvm_threshold_otsu(name, max_value, _TOZERO, frame)
 
     def cvm_threshold_otsu_tozero_inv(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_otsu(name, mv, _TOZERO_INV, frame)
+        return self._cvm_threshold_otsu(name, max_value, _TOZERO_INV, frame)
 
     def _cvm_threshold_triangle(
         self,
@@ -123,7 +123,7 @@ class CvmThreshold(LayerManagerMixinBase):
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
-            mv = layer.param("max").build_uint(max_value).value
+            mv = layer.param("max_value").build_uint(max_value).value
             m = layer.param("method").build_enum(method).value
             src = frame if frame is not None else layer.prev_frame
             result = threshold_triangle(src, mv, m)
@@ -134,29 +134,29 @@ class CvmThreshold(LayerManagerMixinBase):
         return threshold_image
 
     def cvm_threshold_triangle_binary(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_triangle(name, mv, _BINARY, frame)
+        return self._cvm_threshold_triangle(name, max_value, _BINARY, frame)
 
     def cvm_threshold_triangle_binary_inv(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_triangle(name, mv, _BINARY_INV, frame)
+        return self._cvm_threshold_triangle(name, max_value, _BINARY_INV, frame)
 
     def cvm_threshold_triangle_trunc(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_triangle(name, mv, _TRUNC, frame)
+        return self._cvm_threshold_triangle(name, max_value, _TRUNC, frame)
 
     def cvm_threshold_triangle_tozero(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_triangle(name, mv, _TOZERO, frame)
+        return self._cvm_threshold_triangle(name, max_value, _TOZERO, frame)
 
     def cvm_threshold_triangle_tozero_inv(
-        self, name: str, mv=_PIX_MAX, frame: Optional[NDArray] = None
+        self, name: str, max_value=255, frame: Optional[NDArray] = None
     ):
-        return self._cvm_threshold_triangle(name, mv, _TOZERO_INV, frame)
+        return self._cvm_threshold_triangle(name, max_value, _TOZERO_INV, frame)
 
     def _cvm_adaptive_threshold(
         self,
@@ -169,10 +169,10 @@ class CvmThreshold(LayerManagerMixinBase):
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
-            mv = layer.param("max").build_uint(max_value).value
-            bs = layer.param("block").build_uint(block_size, min_value=3, step=2).value
+            mv = layer.param("max_value").build_uint(max_value).value
+            bs = layer.param("block_size").build_uint(block_size, 3, step=2).value
             c = layer.param("c").build_int(constant).value
-            a = layer.param("adaptive").build_enum(adaptive_method).value
+            a = layer.param("adaptive_method").build_enum(adaptive_method).value
             m = layer.param("method").build_enum(method, excludes=_ATM_EXCLUDES).value
             src = frame if frame is not None else layer.prev_frame
             result = adaptive_threshold(src, mv, a, m, bs, c)
@@ -180,23 +180,49 @@ class CvmThreshold(LayerManagerMixinBase):
         return result
 
     def cvm_adaptive_threshold_mean_binary(
-        self, name: str, mv=_PIX_MAX, bs=_BS, c=_C, frame: Optional[NDArray] = None
-    ):
-        return self._cvm_adaptive_threshold(name, mv, bs, c, _MEAN, _BINARY, frame)
-
-    def cvm_adaptive_threshold_mean_binary_inv(
-        self, name: str, mv=_PIX_MAX, bs=_BS, c=_C, frame: Optional[NDArray] = None
-    ):
-        return self._cvm_adaptive_threshold(name, mv, bs, c, _MEAN, _BINARY_INV, frame)
-
-    def cvm_adaptive_threshold_gaussian_binary(
-        self, name: str, mv=_PIX_MAX, bs=_BS, c=_C, frame: Optional[NDArray] = None
-    ):
-        return self._cvm_adaptive_threshold(name, mv, bs, c, _GAUSSIAN, _BINARY, frame)
-
-    def cvm_adaptive_threshold_gaussian_binary_inv(
-        self, name: str, mv=_PIX_MAX, bs=_BS, c=_C, frame: Optional[NDArray] = None
+        self,
+        name: str,
+        max_value=255,
+        block_size=15,
+        c=0,
+        frame: Optional[NDArray] = None,
     ):
         return self._cvm_adaptive_threshold(
-            name, mv, bs, c, _GAUSSIAN, _BINARY_INV, frame
+            name, max_value, block_size, c, _MEAN, _BINARY, frame
+        )
+
+    def cvm_adaptive_threshold_mean_binary_inv(
+        self,
+        name: str,
+        max_value=255,
+        block_size=15,
+        c=0,
+        frame: Optional[NDArray] = None,
+    ):
+        return self._cvm_adaptive_threshold(
+            name, max_value, block_size, c, _MEAN, _BINARY_INV, frame
+        )
+
+    def cvm_adaptive_threshold_gaussian_binary(
+        self,
+        name: str,
+        max_value=255,
+        block_size=15,
+        c=0,
+        frame: Optional[NDArray] = None,
+    ):
+        return self._cvm_adaptive_threshold(
+            name, max_value, block_size, c, _GAUSSIAN, _BINARY, frame
+        )
+
+    def cvm_adaptive_threshold_gaussian_binary_inv(
+        self,
+        name: str,
+        max_value=255,
+        block_size=15,
+        c=0,
+        frame: Optional[NDArray] = None,
+    ):
+        return self._cvm_adaptive_threshold(
+            name, max_value, block_size, c, _GAUSSIAN, _BINARY_INV, frame
         )

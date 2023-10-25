@@ -4,7 +4,7 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.canny import CANNY_THRESHOLD_MAX, CANNY_THRESHOLD_MIN, canny
+from cvlayer.cv.canny import canny
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
@@ -12,8 +12,8 @@ class CvmCanny(LayerManagerMixinBase):
     def cvm_canny(
         self,
         name: str,
-        th_min=CANNY_THRESHOLD_MIN,
-        th_max=CANNY_THRESHOLD_MAX,
+        th_min=30,
+        th_max=70,
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:

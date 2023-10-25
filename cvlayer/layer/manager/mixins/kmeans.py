@@ -4,15 +4,8 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.kmeans import (
-    DEFAULT_ATTEMPTS,
-    DEFAULT_TERM_CRITERIA_EPSILON,
-    DEFAULT_TERM_CRITERIA_MAX_COUNT,
-    DEFAULT_TERM_CRITERIA_TYPE,
-    KmeansFlags,
-    color_quantization,
-)
-from cvlayer.cv.term_criteria import TermCriteria
+from cvlayer.cv.kmeans import KmeansFlags, color_quantization
+from cvlayer.cv.term_criteria import TermCriteria, TermCriteriaType
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
@@ -21,10 +14,10 @@ class CvmKmeans(LayerManagerMixinBase):
         self,
         name: str,
         k=3,
-        criteria_type=DEFAULT_TERM_CRITERIA_TYPE,
-        max_count=DEFAULT_TERM_CRITERIA_MAX_COUNT,
-        epsilon=DEFAULT_TERM_CRITERIA_EPSILON,
-        attempts=DEFAULT_ATTEMPTS,
+        criteria_type=TermCriteriaType.COUNT_EPS,
+        max_count=10,
+        epsilon=1.0,
+        attempts=10,
         flags=KmeansFlags.PP_CENTERS,
         frame: Optional[NDArray] = None,
     ):
