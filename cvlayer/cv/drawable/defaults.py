@@ -21,7 +21,7 @@ DEFAULT_FONT_SCALE: Final[float] = 1.0
 DEFAULT_TEXT_ORIGIN: Final[TextOriginLike] = _DEFAULT_TEXT_ORIGIN
 
 DEFAULT_FONT_OUTLINE_COLOR: Final[Union[Color, int, str]] = WHITE
-DEFAULT_FONT_OUTLINE_THICKNESS: Final[int] = 2
+DEFAULT_FONT_OUTLINE_THICKNESS: Final[int] = 4
 
 MULTILINE_COLOR: Final[Union[Color, int, str]] = (220, 220, 220)
 MULTILINE_LINEFEED: Final[str] = "\n"

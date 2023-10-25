@@ -78,7 +78,7 @@ class CvmContours(LayerManagerMixinBase):
                 center = m.center
                 draw_contour(canvas, contour, color)
                 draw_point(canvas, center, color=color)
-                draw_outline_text(canvas, f"{area:.2f}", center, outline_color=color)
+                draw_outline_text(canvas, f"{area:.2f}", center, color=color)
                 filtered_contours.append(contour)
 
             layer.frame = canvas
