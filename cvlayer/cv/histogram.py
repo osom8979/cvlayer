@@ -167,7 +167,7 @@ def draw_histogram_channels(
         channels_color = colors
     else:
         if channels == 1:
-            channels_color = (BLACK,)
+            channels_color = (RED,)
         elif channels == 2:
             channels_color = AQUA, YELLOW
         elif channels == 3:
