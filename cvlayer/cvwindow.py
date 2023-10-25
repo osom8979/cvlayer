@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum, auto, unique
 from io import StringIO
 from logging import Logger, getLogger
@@ -13,7 +13,7 @@ from numpy import float32, float64, full_like, uint8, zeros_like
 from numpy.typing import NDArray
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
-from cvlayer.cv.color import PIXEL_8BIT_MAX
+from cvlayer.cv.color import PIXEL_8BIT_MAX, ColorLike, normalize_color
 from cvlayer.cv.cvt_color import cvt_color
 from cvlayer.cv.drawable.defaults import DEFAULT_FONT_FACE
 from cvlayer.cv.drawable.rectangle import draw_rectangle
@@ -43,7 +43,7 @@ from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layer.base import LayerBase
 from cvlayer.layer.manager.interface import LayerManagerInterface
-from cvlayer.palette.basic import RED
+from cvlayer.palette.basic import RED, WHITE
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointF, PointI, RectI, SizeI, override
 
@@ -54,6 +54,9 @@ DEFAULT_HELP_ANCHOR: Final[PointF] = 0.0, 0.0
 DEFAULT_PLOT_SIZE: Final[SizeI] = 256, 256
 DEFAULT_ROI_COLOR: Final[Color] = RED
 DEFAULT_ROI_THICKNESS: Final[int] = 2
+DEFAULT_TOAST_ANCHOR: Final[PointF] = 1.0, 1.0
+DEFAULT_TOAST_COLOR: Final[Color] = WHITE
+DEFAULT_TOAST_DURATION: Final[float] = 4.0
 
 
 @unique
@@ -136,6 +139,7 @@ class CvWindow(LayerManagerInterface, Window):
         play=False,
         headless=False,
         show_manual=False,
+        show_toast=True,
         verbose=0,
         keymap: Optional[KeyDefine] = None,
         window_title=DEFAULT_WINDOW_EX_TITLE,
@@ -156,6 +160,9 @@ class CvWindow(LayerManagerInterface, Window):
         roi_color=DEFAULT_ROI_COLOR,
         roi_thickness=DEFAULT_ROI_THICKNESS,
         roi_draw=True,
+        toast_anchor: Optional[PointF] = None,
+        toast_color=DEFAULT_TOAST_COLOR,
+        toast_duration=DEFAULT_TOAST_DURATION,
         manager: Optional[CvManager] = None,
         use_deepcopy=False,
     ):
@@ -175,6 +182,7 @@ class CvWindow(LayerManagerInterface, Window):
         self._play = play
         self._headless = headless
         self._show_manual = show_manual
+        self._show_toast = show_toast
         self._verbose = verbose
         self._help_offset = help_offset if help_offset else DEFAULT_HELP_OFFSET
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
@@ -183,6 +191,11 @@ class CvWindow(LayerManagerInterface, Window):
         self._roi_color = roi_color
         self._roi_thickness = roi_thickness
         self._roi_draw = roi_draw
+        self._toast_anchor = toast_anchor if toast_anchor else DEFAULT_TOAST_ANCHOR
+        self._toast_duration = toast_duration
+        self._toast_text = str()
+        self._toast_color = toast_color
+        self._toast_begin = datetime.now()
         self._use_deepcopy = use_deepcopy
 
         if logger is not None:
@@ -227,8 +240,8 @@ class CvWindow(LayerManagerInterface, Window):
             raise EOFError("Failed to read the first frame")
 
         self._empty_frame = zeros_like(frame, dtype=uint8)
-        self._original_frame = frame
-        self._preview_frame = frame
+        self._original_frame = frame.copy()
+        self._preview_frame = frame.copy()
 
         if self._output:
             size = writer_size if writer_size is not None else (width, height)
@@ -525,6 +538,21 @@ class CvWindow(LayerManagerInterface, Window):
         image_write(path.join(prefix, f"preview{ext}"), self._preview_frame)
 
         self.logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
+        self.toast(f"Save snapshots: '{prefix}'")
+
+    def toast(
+        self,
+        text: str,
+        color: Optional[ColorLike] = None,
+        druation: Optional[float] = None,
+    ) -> None:
+        self._toast_text = text
+        if color is not None:
+            self._toast_color = normalize_color(color)
+        self._toast_begin = datetime.now()
+        if druation is not None:
+            diff = druation - self._toast_duration
+            self._toast_begin -= timedelta(seconds=diff)
 
     def do_wait_up(self) -> None:
         self._window_wait += 1
@@ -679,6 +707,15 @@ class CvWindow(LayerManagerInterface, Window):
         )
         return hist_roi
 
+    def _draw_toast(self, frame: NDArray):
+        return draw_multiline_text_box(
+            frame,
+            text=self._toast_text,
+            pos=(0, 0),
+            color=self._toast_color,
+            anchor=self._toast_anchor,
+        )
+
     def _draw_information(self, frame: NDArray, analyze_frame: NDArray) -> NDArray:
         # [IMPORTANT] Do not use `self._use_deepcopy` property.
         canvas = frame.copy()
@@ -703,12 +740,16 @@ class CvWindow(LayerManagerInterface, Window):
             pos=self._help_offset,
             font=self._font,
             scale=self._font_scale,
-            anchor_x=self._help_anchor[0],
-            anchor_y=self._help_anchor[1],
+            anchor=self._help_anchor,
         )
 
         if self._help_mode == HelpMode.DEBUG:
             self._draw_histogram(canvas, help_roi, analyze_frame)
+
+        if self._show_toast:
+            toast_duration = (datetime.now() - self._toast_begin).total_seconds()
+            if toast_duration <= self._toast_duration:
+                self._draw_toast(canvas)
 
         return canvas
 

@@ -13,6 +13,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_THICKNESS,
     MULTILINE_BACKGROUND_ALPHA,
     MULTILINE_BACKGROUND_COLOR,
+    MULTILINE_BOX_ANCHOR,
     MULTILINE_BOX_ANCHOR_X,
     MULTILINE_BOX_ANCHOR_Y,
     MULTILINE_BOX_MARGIN,
@@ -116,8 +117,7 @@ def draw_multiline_text_box(
     background_color=MULTILINE_BACKGROUND_COLOR,
     background_alpha=MULTILINE_BACKGROUND_ALPHA,
     margin=MULTILINE_BOX_MARGIN,
-    anchor_x=MULTILINE_BOX_ANCHOR_X,
-    anchor_y=MULTILINE_BOX_ANCHOR_Y,
+    anchor=MULTILINE_BOX_ANCHOR,
 ) -> Tuple[NDArray, RectI]:
     return draw_multiline_text_box_coord(
         image,
@@ -134,8 +134,8 @@ def draw_multiline_text_box(
         background_color,
         background_alpha,
         margin,
-        anchor_x,
-        anchor_y,
+        anchor[0],
+        anchor[1],
     )
 
 
@@ -193,8 +193,7 @@ class CvlDrawableTextMultilineBox:
         background_color=MULTILINE_BACKGROUND_COLOR,
         background_alpha=MULTILINE_BACKGROUND_ALPHA,
         margin=MULTILINE_BOX_MARGIN,
-        anchor_x=MULTILINE_BOX_ANCHOR_X,
-        anchor_y=MULTILINE_BOX_ANCHOR_Y,
+        anchor=MULTILINE_BOX_ANCHOR,
     ):
         return draw_multiline_text_box(
             image,
@@ -210,6 +209,5 @@ class CvlDrawableTextMultilineBox:
             background_color,
             background_alpha,
             margin,
-            anchor_x,
-            anchor_y,
+            anchor,
         )
