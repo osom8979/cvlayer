@@ -81,6 +81,8 @@ class KeyDefine:
     layer_last: Sequence[str] = field(default_factory=list)
     frame_prev: Sequence[str] = field(default_factory=list)
     frame_next: Sequence[str] = field(default_factory=list)
+    frame_begin: Sequence[str] = field(default_factory=list)
+    frame_end: Sequence[str] = field(default_factory=list)
     param_prev: Sequence[str] = field(default_factory=list)
     param_next: Sequence[str] = field(default_factory=list)
     param_down: Sequence[str] = field(default_factory=list)
@@ -100,8 +102,10 @@ class KeyDefine:
             layer_prev=["{", "["],
             layer_next=["}", "]"],
             layer_last=["\\", "|"],
-            frame_prev=["P", "p", "<", ","],
-            frame_next=["N", "n", ">", "."],
+            frame_prev=["P", "p"],
+            frame_next=["N", "n"],
+            frame_begin=["B", "b"],
+            frame_end=["E", "e"],
             param_prev=["W", "w"],
             param_next=["S", "s"],
             param_down=["A", "a"],
@@ -400,6 +404,14 @@ class CvWindow(LayerManagerInterface, Window):
         assert 0 < keycode
         self.do_frame_next()
 
+    def on_keydown_frame_begin(self, keycode: int) -> None:
+        assert 0 < keycode
+        self.do_frame_begin()
+
+    def on_keydown_frame_end(self, keycode: int) -> None:
+        assert 0 < keycode
+        self.do_frame_end()
+
     def on_keydown_param_prev(self, keycode: int) -> None:
         assert 0 < keycode
         self.do_param_prev()
@@ -479,6 +491,20 @@ class CvWindow(LayerManagerInterface, Window):
 
     def read_prev_frame(self) -> NDArray:
         self._capture.pos -= 2
+        try:
+            return self.read_next_frame()
+        except EOFError:
+            raise EOFError("Failed to read the prev frame")
+
+    def read_first_frame(self) -> NDArray:
+        self._capture.pos = 0
+        try:
+            return self.read_next_frame()
+        except EOFError:
+            raise EOFError("Failed to read the prev frame")
+
+    def read_last_frame(self) -> NDArray:
+        self._capture.pos = self._capture.frames - 1
         try:
             return self.read_next_frame()
         except EOFError:
@@ -584,6 +610,12 @@ class CvWindow(LayerManagerInterface, Window):
 
     def do_frame_next(self) -> None:
         self._original_frame = self.read_next_frame()
+
+    def do_frame_begin(self) -> None:
+        self._original_frame = self.read_first_frame()
+
+    def do_frame_end(self) -> None:
+        self._original_frame = self.read_last_frame()
 
     def do_param_prev(self) -> None:
         if self._manager.is_cursor_at_last:

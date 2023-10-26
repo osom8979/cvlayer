@@ -7,7 +7,7 @@ import cv2
 from numpy import int32, logical_and, uint8, zeros
 from numpy.typing import NDArray
 
-from cvlayer.typing import Image, PointF, SizeF
+from cvlayer.typing import Image, PointF, RectI, SizeF
 
 
 @unique
@@ -85,6 +85,15 @@ def approx_poly_dp(curve: NDArray, epsilon: float, closed=False) -> NDArray:
     return cv2.approxPolyDP(curve, epsilon=epsilon, closed=closed)
 
 
+def bounding_rect(array: NDArray) -> RectI:
+    x, y, w, h = cv2.boundingRect(array)
+    x1 = x
+    y1 = y
+    x2 = x + w
+    y2 = y + h
+    return x1, y1, x2, y2
+
+
 def min_area_rect(points: NDArray) -> RotatedRect:
     center, size, rotation = cv2.minAreaRect(points)
     cx, cy = center
@@ -133,6 +142,10 @@ class CvlContours:
     @staticmethod
     def cvl_approx_poly_dp(curve: NDArray, epsilon: float, closed=False):
         return approx_poly_dp(curve, epsilon, closed)
+
+    @staticmethod
+    def cvl_bounding_rect(array: NDArray):
+        return bounding_rect(array)
 
     @staticmethod
     def cvl_min_area_rect(points: NDArray):

@@ -124,6 +124,8 @@ def normalize_uint8_minmax(
     return normalize(src, 0, 255, NormType.MINMAX, dtype, mask)
 
 
+# def LUT():
+# def Mahalanobis():
 # def abs():
 # def absdiff():
 # def calcCovarMatrix():
@@ -135,13 +137,12 @@ def normalize_uint8_minmax(
 # def countNonZero():
 # def cvarrToMat():
 # def dct():
+# def determinant():
 # def dft():
 # def divide():
-# def determinant():
 # def eigen():
 # def exp():
 # def extractImageCOI():
-# def insertImageCOI():
 # def flip():
 # def gemm():
 # def getConvertElem():
@@ -149,26 +150,30 @@ def normalize_uint8_minmax(
 # def idct():
 # def idft():
 # def inRange():
+# def insertImageCOI():
 # def invert():
 # def log():
-# def LUT():
 # def magnitude():
-# def Mahalanobis():
-# def meanStdDev():
+
+
+def mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
+    return cv2.meanStdDev(src, None, None, mask)
+
+
 # def minMaxIdx():
 # def minMaxLoc():
 # def mixChannels():
 # def mulSpectrums():
-# def multiply():
 # def mulTransposed():
+# def multiply():
 # def norm():
 # def perspectiveTransform():
 # def phase():
 # def polarToCart():
 # def pow():
-# def randu():
-# def randn():
 # def randShuffle():
+# def randn():
+# def randu():
 # def reduce():
 # def repeat():
 # def scaleAdd():
@@ -238,3 +243,7 @@ class CvlBasic:
         mask: Optional[NDArray] = None,
     ):
         return normalize_uint8_minmax(src, dtype, mask)
+
+    @staticmethod
+    def cvl_mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
+        return mean_std_dev(src, mask)
