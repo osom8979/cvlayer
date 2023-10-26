@@ -37,11 +37,11 @@ from cvlayer.cv.types.interpolation import DEFAULT_INTERPOLATION
 from cvlayer.cv.video_capture import VideoCapture
 from cvlayer.cv.video_writer import VideoWriter
 from cvlayer.cv.window import WINDOW_NORMAL, Window
-from cvlayer.cvmanager import CvManager
 from cvlayer.debug.avg_stat import AvgStat
 from cvlayer.inspect.member import get_public_instance_attributes
 from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layer.base import LayerBase
+from cvlayer.layer.manager.cvmanager import CvManager
 from cvlayer.layer.manager.interface import LayerManagerInterface
 from cvlayer.palette.basic import RED, WHITE
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
