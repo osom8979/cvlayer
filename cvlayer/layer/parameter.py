@@ -224,6 +224,18 @@ class LayerParameter:
             return str(self._value)
 
     @property
+    def has_decrease(self) -> bool:
+        return self._decrease is not None
+
+    @property
+    def has_increase(self) -> bool:
+        return self._increase is not None
+
+    @property
+    def is_readonly(self) -> bool:
+        return not self.has_decrease and not self.has_increase
+
+    @property
     def has_keydown(self) -> bool:
         return self._keydown is not None
 
@@ -357,15 +369,18 @@ class LayerParameter:
         printable: Optional[PrintableCallable] = None,
         cacher: Optional[CacherCallable] = None,
         step=0.01,
+        precision=3,
     ):
         if self._frozen:
             return self
+        if precision < 0:
+            raise ValueError("The 'precision' must be 0 or greater")
         self._clear_all_properties()
         self._value = value
         self._min_value = lambda: min_value
         self._max_value = lambda: max_value
-        self._decrease = lambda x: x - step
-        self._increase = lambda x: x + step
+        self._decrease = lambda x: round(x - step, precision)
+        self._increase = lambda x: round(x + step, precision)
         self._printable = printable
         self._cacher = cacher
         if cacher:

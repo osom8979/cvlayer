@@ -201,7 +201,8 @@ class LayerBase:
 
         for key, param in self._params.items():
             prefix = ">" if self.cursor_key == key else " "
-            buffer.write(f"\n{prefix} {key}: {param.as_printable_text()}")
+            readonly = "[RO] " if param.is_readonly else ""
+            buffer.write(f"\n{prefix} {readonly}{key}: {param.as_printable_text()}")
 
         if self._error is not None:
             buffer.write(f"\n{type(self._error).__name__} {self._error}")
