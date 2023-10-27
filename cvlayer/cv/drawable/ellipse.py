@@ -12,7 +12,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_SHIFT,
     DEFAULT_THICKNESS,
 )
-from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.typing import Number, PointN, SizeN
 
 DEFAULT_ELLIPSE_ANGLE_DEGREE: Final[float] = 0.0
@@ -37,7 +37,7 @@ def draw_ellipse_coord(
     center = int(center_x), int(center_y)
     axes = int(axes_x), int(axes_y)
     _color = normalize_color(color)
-    _line = normalize_line(line)
+    _line = normalize_line_type(line)
     return cv2.ellipse(
         image,
         center,

@@ -12,7 +12,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_SHIFT,
     DEFAULT_THICKNESS,
 )
-from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.typing import Number, PointN
 
 DEFAULT_ARROWED_LINE_TIP_LENGTH: Final[float] = 0.1
@@ -33,7 +33,7 @@ def draw_arrowed_coord(
     p1 = int(x1), int(y1)
     p2 = int(x2), int(y2)
     _color = normalize_color(color)
-    _line = normalize_line(line)
+    _line = normalize_line_type(line)
     return cv2.arrowedLine(image, p1, p2, _color, thickness, _line, shift, tip)
 
 

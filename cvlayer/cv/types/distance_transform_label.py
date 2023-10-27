@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Dict, Final, Union
+from typing import Dict, Final, Optional, Union
 
 import cv2
 
-DIST_LABEL_CCOMP = cv2.DIST_LABEL_CCOMP
-DIST_LABEL_PIXEL = cv2.DIST_LABEL_PIXEL
+DIST_LABEL_CCOMP: Final[int] = cv2.DIST_LABEL_CCOMP
+DIST_LABEL_PIXEL: Final[int] = cv2.DIST_LABEL_PIXEL
 
 
 @unique
@@ -25,9 +25,7 @@ class DistanceTransformLabel(Enum):
 
 DistanceTransformLabelLike = Union[DistanceTransformLabel, str, int]
 
-_CCOMP = DistanceTransformLabel.CCOMP
-
-DEFAULT_DISTANCE_TRANSFORM_LABEL: Final[DistanceTransformLabel] = _CCOMP
+DEFAULT_DISTANCE_TRANSFORM_LABEL: Final[DistanceTransformLabelLike] = DIST_LABEL_CCOMP
 DISTANCE_TRANSFORM_LABEL_MAP: Final[Dict[str, int]] = {
     # DistanceType enum names
     "CCOMP": DIST_LABEL_CCOMP,
@@ -41,7 +39,13 @@ DISTANCE_TRANSFORM_LABEL_MAP: Final[Dict[str, int]] = {
 }
 
 
-def normalize_distance_transform_label(label: DistanceTransformLabelLike) -> int:
+def normalize_distance_transform_label(
+    label: Optional[DistanceTransformLabelLike],
+) -> int:
+    if label is None:
+        assert isinstance(DEFAULT_DISTANCE_TRANSFORM_LABEL, int)
+        return DEFAULT_DISTANCE_TRANSFORM_LABEL
+
     if isinstance(label, DistanceTransformLabel):
         return label.value
     elif isinstance(label, str):

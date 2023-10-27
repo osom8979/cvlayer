@@ -31,20 +31,43 @@ class DesiredDepth(Enum):
 
 DesiredDepthLike = Union[DesiredDepth, str, int]
 
-DESIRED_DEPTH_MAP: Final[Dict[str, DesiredDepth]] = {
-    e.name.upper(): e for e in DesiredDepth
+DEFAULT_DESIRED_DEPTH: Final[DesiredDepthLike] = SAME_DEPTH_AS_SOURCE
+DESIRED_DEPTH_MAP: Final[Dict[str, int]] = {
+    # same input
+    "SAME_DEPTH_AS_SOURCE": SAME_DEPTH_AS_SOURCE,
+    "SAME_DEPTH": SAME_DEPTH_AS_SOURCE,
+    "SAME": SAME_DEPTH_AS_SOURCE,
+    "INPUT": SAME_DEPTH_AS_SOURCE,
+    "SOURCE": SAME_DEPTH_AS_SOURCE,
+    # DesiredDepth enum names
+    "SAME_INPUT": SAME_DEPTH_AS_SOURCE,
+    "INT16": CV_16S,
+    "FLOAT32": CV_32F,
+    "FLOAT64": CV_64F,
+    # DataType enum names
+    "S16": CV_16S,
+    "F32": CV_32F,
+    "F64": CV_64F,
+    # cv2 symbol suffix names
+    "16S": CV_16S,
+    "32F": CV_32F,
+    "64F": CV_64F,
+    # cv2 symbol full names
+    "CV_16S": CV_16S,
+    "CV_32F": CV_32F,
+    "CV_64F": CV_64F,
 }
-DEFAULT_DESIRED_DEPTH: Final[DesiredDepthLike] = DesiredDepth.SAME_INPUT
 
 
 def normalize_desired_depth(depth: Optional[DesiredDepthLike]) -> int:
     if depth is None:
-        return SAME_DEPTH_AS_SOURCE
+        assert isinstance(DEFAULT_DESIRED_DEPTH, int)
+        return DEFAULT_DESIRED_DEPTH  # type: ignore[return-value]  # mypy bug ?
 
     elif isinstance(depth, DesiredDepth):
         return depth.value
     elif isinstance(depth, str):
-        return DESIRED_DEPTH_MAP[depth.upper()].value
+        return DESIRED_DEPTH_MAP[depth.upper()]
     elif isinstance(depth, int):
         return depth
     else:

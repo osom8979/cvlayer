@@ -5,7 +5,7 @@ from typing import Final
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border
+from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border_type
 from cvlayer.cv.types.ddepth import (
     DEFAULT_DESIRED_DEPTH,
     normalize_desired_depth,
@@ -44,7 +44,7 @@ def laplacian(
     _ddepth = normalize_desired_depth(ddepth)
     validate_depth_combinations(src, _ddepth)
 
-    _border = normalize_border(border)
+    _border = normalize_border_type(border)
 
     if _border == cv2.BORDER_WRAP:
         raise ValueError("Unsupported border type: BORDER_WRAP")

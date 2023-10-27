@@ -11,7 +11,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_LINE_TYPE,
     DEFAULT_THICKNESS,
 )
-from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.cv.types.marker import MarkerType, normalize_marker
 from cvlayer.typing import Number, PointN
 
@@ -31,7 +31,7 @@ def draw_marker_coord(
 ) -> NDArray:
     position = int(x), int(y)
     _color = normalize_color(color)
-    _line = normalize_line(line)
+    _line = normalize_line_type(line)
     _marker = normalize_marker(marker)
     return cv2.drawMarker(
         image,

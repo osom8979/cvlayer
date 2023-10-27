@@ -6,7 +6,7 @@ import cv2
 from numpy.typing import NDArray
 
 from cvlayer.cv.term_criteria import TermCriteria, TermCriteriaType
-from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border
+from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border_type
 from cvlayer.typing import SizeI
 
 DEFAULT_SPATIAL_WINDOW_RADIUS: Final[float] = 20.0
@@ -52,7 +52,7 @@ def pyr_down(
     border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
     _dsize = dsize if dsize is not None else list()
-    _border = normalize_border(border)
+    _border = normalize_border_type(border)
     return cv2.pyrDown(src, dstsize=_dsize, borderType=_border)
 
 
@@ -62,7 +62,7 @@ def pyr_up(
     border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
     _dsize = dsize if dsize is not None else list()
-    _border = normalize_border(border)
+    _border = normalize_border_type(border)
     return cv2.pyrUp(src, dstsize=_dsize, borderType=_border)
 
 

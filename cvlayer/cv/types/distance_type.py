@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Dict, Final, Union
+from typing import Dict, Final, Optional, Union
 
 import cv2
 
@@ -46,7 +46,7 @@ class DistanceType(Enum):
 
 DistanceTypeLike = Union[DistanceType, str, int]
 
-DEFAULT_DISTANCE_TYPE: Final[DistanceTypeLike] = DistanceType.L2
+DEFAULT_DISTANCE_TYPE: Final[DistanceTypeLike] = DIST_L12
 DISTANCE_TYPE_MAP: Final[Dict[str, int]] = {
     # DistanceType enum names
     "USER": DIST_USER,
@@ -69,7 +69,11 @@ DISTANCE_TYPE_MAP: Final[Dict[str, int]] = {
 }
 
 
-def normalize_distance_type(distance_type: DistanceTypeLike) -> int:
+def normalize_distance_type(distance_type: Optional[DistanceTypeLike]) -> int:
+    if distance_type is None:
+        assert isinstance(DEFAULT_DISTANCE_TYPE, int)
+        return DEFAULT_DISTANCE_TYPE
+
     if isinstance(distance_type, DistanceType):
         return distance_type.value
     elif isinstance(distance_type, str):

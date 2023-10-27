@@ -11,7 +11,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_SHIFT,
     DEFAULT_THICKNESS,
 )
-from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.typing import Number, PointN
 
 
@@ -27,7 +27,7 @@ def draw_circle_coord(
 ) -> NDArray:
     _center = int(x), int(y)
     _color = normalize_color(color)
-    _line = normalize_line(line)
+    _line = normalize_line_type(line)
     return cv2.circle(image, _center, radius, _color, thickness, _line, shift)
 
 

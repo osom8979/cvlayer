@@ -15,7 +15,7 @@ class Connectivity(Enum):
 
 ConnectivityLike = Union[Connectivity, str, int]
 
-DEFAULT_CONNECTIVITY: Final[ConnectivityLike] = Connectivity.C4
+DEFAULT_CONNECTIVITY: Final[ConnectivityLike] = CONNECTIVITY4
 CONNECTIVITY_MAP: Final[Dict[str, int]] = {
     # str to int names
     "4": CONNECTIVITY4,
@@ -31,7 +31,8 @@ CONNECTIVITY_MAP: Final[Dict[str, int]] = {
 
 def normalize_connectivity(connectivity: Optional[ConnectivityLike]) -> int:
     if connectivity is None:
-        return CONNECTIVITY4
+        assert isinstance(DEFAULT_CONNECTIVITY, int)
+        return DEFAULT_CONNECTIVITY  # type: ignore[return-value]  # mypy bug ?
 
     if isinstance(connectivity, Connectivity):
         return connectivity.value

@@ -13,7 +13,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_THICKNESS,
 )
 from cvlayer.cv.types.font_face import normalize_font_face
-from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.cv.types.text_origin import normalize_text_origin
 from cvlayer.typing import Number, PointN
 
@@ -33,7 +33,7 @@ def draw_text_coord(
     org = int(x), int(y)
     _font = normalize_font_face(font)
     _color = normalize_color(color)
-    _line = normalize_line(line)
+    _line = normalize_line_type(line)
     _origin = normalize_text_origin(origin)
     return cv2.putText(
         image, text, org, _font, scale, _color, thickness, _line, _origin

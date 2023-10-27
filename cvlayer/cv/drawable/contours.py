@@ -13,7 +13,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_LINE_TYPE,
     DEFAULT_THICKNESS,
 )
-from cvlayer.cv.types.line_type import normalize_line
+from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.math.climit import INT_MAX
 from cvlayer.typing import PointI
 
@@ -32,7 +32,7 @@ def draw_contours(
     offset: Optional[PointI] = None,
 ) -> NDArray:
     _color = normalize_color(color)
-    _line = normalize_line(line)
+    _line = normalize_line_type(line)
     return cv2.drawContours(
         image,
         contours,
