@@ -3,7 +3,7 @@
 from typing import Final, NamedTuple, Optional, Union
 
 import cv2
-from numpy import int8, ndarray, uint8, zeros
+from numpy import float16, float32, float64, int8, ndarray, uint8, zeros
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import ColorLike, normalize_color
@@ -93,6 +93,15 @@ def flood_fill(
     upper_diff: Optional[ColorLike] = None,
     flags=DEFAULT_FLOOD_FILL_FLAG,
 ) -> FloodFillResult:
+    is_img_1c = len(image.shape) == 2
+    is_img_3c = len(image.shape) == 3 and image.shape[2] == 3
+    if not is_img_1c and not is_img_3c:
+        raise ValueError(f"The image argument must be 1 or 3 channels: {image.shape}")
+    if image.dtype not in (int8, uint8, float16, float32, float64):
+        raise TypeError(
+            f"The image argument must be 8-bit or floating-point: {image.dtype}"
+        )
+
     image_height, image_width = image.shape[0:2]
 
     # If an empty mask is passed it will be created automatically.
@@ -102,9 +111,9 @@ def flood_fill(
     assert isinstance(mask, ndarray)
 
     if len(mask.shape) != 2:
-        raise IndexError(f"The mask arguments must be single-channels: {mask.shape}")
+        raise ValueError(f"The mask argument must be single-channels: {mask.shape}")
     if mask.dtype not in (int8, uint8):
-        raise TypeError(f"The mask arguments must be 8-bits: {mask.dtype}")
+        raise TypeError(f"The mask argument must be 8-bits: {mask.dtype}")
 
     mask_height, mask_width = mask.shape
 
