@@ -52,6 +52,7 @@ from cvlayer.cv.sobel import CvlSobel
 from cvlayer.cv.stack import CvlStack
 from cvlayer.cv.threshold import CvlThreshold
 from cvlayer.cv.tracker import CvlTracker
+from cvlayer.cv.transform import CvlTransform
 from cvlayer.cv.video_capture import CvlVideoCapture
 from cvlayer.cv.video_writer import CvlVideoWriter
 from cvlayer.cv.window import CvlWindow
@@ -108,6 +109,7 @@ class CvLayer(
     CvlShapely,
     CvlSobel,
     CvlStack,
+    CvlTransform,
     CvlThreshold,
     CvlTracker,
     CvlVideoCapture,

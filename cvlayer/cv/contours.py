@@ -98,7 +98,7 @@ def convex_hull(contour: NDArray) -> NDArray:
 
 
 class ConnectedComponentsResult(NamedTuple):
-    total_number_of_labels: int
+    number_of_labels: int
     labels: NDArray
 
 
@@ -152,7 +152,7 @@ class ConnectedComponentStatistics:
 
 
 class ConnectedComponentsWithStatsResult(NamedTuple):
-    total_number_of_labels: int
+    number_of_labels: int
     labels: NDArray
     stats: NDArray
     centroids: NDArray
