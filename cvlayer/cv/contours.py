@@ -15,18 +15,6 @@ from cvlayer.cv.types.data_type import (
     DataTypeLike,
     normalize_data_type,
 )
-from cvlayer.cv.types.distance_transform_label import (
-    DEFAULT_DISTANCE_TRANSFORM_LABEL,
-    normalize_distance_transform_label,
-)
-from cvlayer.cv.types.distance_transform_mask import (
-    DEFAULT_DISTANCE_TRANSFORM_MASK,
-    normalize_distance_transform_mask,
-)
-from cvlayer.cv.types.distance_type import (
-    DEFAULT_DISTANCE_TYPE,
-    normalize_distance_type,
-)
 from cvlayer.typing import Image, PointF, RectI, SizeF
 
 
@@ -112,7 +100,7 @@ def connected_components(
 
     _label_type = normalize_data_type(ltype)
     if _label_type not in (CV_32S, CV_16U):
-        raise ValueError("The ltype argument accepts only the values CV_32S or CV_16U")
+        raise ValueError("The ltype argument accepts only CV_32S or CV_16U values")
 
     retval, labels = cv2.connectedComponents(image, None, connectivity, _label_type)
     return ConnectedComponentsResult(retval, labels)
@@ -184,28 +172,6 @@ def connected_components_with_stats(
 
     retval, labels, stats, centroids = result
     return ConnectedComponentsWithStatsResult(retval, labels, stats, centroids)
-
-
-def distance_transform(
-    src: NDArray,
-    distance_type=DEFAULT_DISTANCE_TYPE,
-    mask_size=DEFAULT_DISTANCE_TRANSFORM_MASK,
-    label_type=DEFAULT_DISTANCE_TRANSFORM_LABEL,
-) -> NDArray:
-    _distance_type = normalize_distance_type(distance_type)
-
-    _mask_size = normalize_distance_transform_mask(mask_size)
-    if _mask_size == cv2.DIST_MASK_PRECISE:
-        raise ValueError("DIST_MASK_PRECISE is not supported by this variant")
-
-    if _distance_type in (cv2.DIST_L1, cv2.DIST_C):
-        # In case of the DIST_L1 or DIST_C distance type,
-        # the parameter is forced to 3 because a 3×3 mask gives the same result as 5×5
-        # or any larger aperture.
-        _distance_type = cv2.DIST_MASK_3
-
-    _label_type = normalize_distance_transform_label(label_type)
-    return cv2.distanceTransform(src, _distance_type, _mask_size, None, _label_type)
 
 
 def arc_length(curve: NDArray, closed=False) -> float:
@@ -281,15 +247,6 @@ class CvlContours:
         ltype: DataTypeLike = DataType.S32,
     ):
         return connected_components_with_stats(image, connectivity, ltype)
-
-    @staticmethod
-    def cvl_distance_transform(
-        src: NDArray,
-        distance_type=DEFAULT_DISTANCE_TYPE,
-        mask_size=DEFAULT_DISTANCE_TRANSFORM_MASK,
-        label_type=DEFAULT_DISTANCE_TRANSFORM_LABEL,
-    ):
-        return distance_transform(src, distance_type, mask_size, label_type)
 
     @staticmethod
     def cvl_arc_length(curve: NDArray, closed=False):
