@@ -10,14 +10,14 @@ from cvlayer.cv.color import ColorLike, normalize_color
 from cvlayer.cv.types.connectivity import DEFAULT_CONNECTIVITY, normalize_connectivity
 from cvlayer.typing import PointI, RectI
 
-FLOODFILL_FIXED_RANGE = cv2.FLOODFILL_FIXED_RANGE
+FLOODFILL_FIXED_RANGE: Final[int] = cv2.FLOODFILL_FIXED_RANGE
 """
 If set, the difference between the current pixel and seed pixel is considered.
 Otherwise, the difference between neighbor pixels is considered
 (that is, the range is floating).
 """
 
-FLOODFILL_MASK_ONLY = cv2.FLOODFILL_MASK_ONLY
+FLOODFILL_MASK_ONLY: Final[int] = cv2.FLOODFILL_MASK_ONLY
 """
 If set, the function does not change the image (newVal is ignored), and
 only fills the mask with the value specified in bits 8-16 of flags as described above.
@@ -98,9 +98,7 @@ def flood_fill(
     if not is_img_1c and not is_img_3c:
         raise ValueError(f"The image argument must be 1 or 3 channels: {image.shape}")
     if image.dtype not in (int8, uint8, float16, float32, float64):
-        raise TypeError(
-            f"The image argument must be 8-bit or floating-point: {image.dtype}"
-        )
+        raise TypeError(f"The image arg must be 8-bit or floating-point: {image.dtype}")
 
     image_height, image_width = image.shape[0:2]
 

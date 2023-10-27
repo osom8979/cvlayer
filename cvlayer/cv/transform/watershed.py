@@ -12,11 +12,9 @@ def watershed(image: NDArray, markers: NDArray) -> NDArray:
         raise TypeError(f"The image argument must be 8-bits: {image.dtype}")
 
     if len(markers.shape) != 2:
-        raise ValueError(
-            f"The markers argument must be single-channels: {markers.shape}"
-        )
+        raise ValueError(f"The markers arg must be single-channels: {markers.shape}")
     if markers.dtype not in (int32, uint32):
-        raise TypeError(f"The markers argument must be 32-bits: {markers.dtype}")
+        raise TypeError(f"The markers arg must be 32-bits: {markers.dtype}")
 
     image_height, image_width = image.shape[0:2]
     markers_height, markers_width = markers.shape
