@@ -7,6 +7,13 @@ import cv2
 from numpy import int32, logical_and, uint8, zeros
 from numpy.typing import NDArray
 
+from cvlayer.cv.types.data_type import (
+    CV_16U,
+    CV_32S,
+    DataType,
+    DataTypeLike,
+    normalize_data_type,
+)
 from cvlayer.typing import Image, PointF, RectI, SizeF
 
 
@@ -77,6 +84,25 @@ def convex_hull(contour: NDArray) -> NDArray:
     return cv2.convexHull(contour)
 
 
+class ConnectedComponentsResult(NamedTuple):
+    total_number_of_labels: int
+    labels: NDArray
+
+
+def connected_components(
+    image: NDArray,
+    connectivity=8,
+    label_type: DataTypeLike = DataType.S32,
+) -> ConnectedComponentsResult:
+    if connectivity in (4, 8):
+        raise ValueError("The 'connectivity' argument accepts only the values 8 or 4")
+    _label_type = normalize_data_type(label_type)
+    if _label_type not in (CV_32S, CV_16U):
+        raise ValueError(f"Unsupported label type: {label_type}")
+    retval, labels = cv2.connectedComponents(image, None, connectivity, _label_type)
+    return ConnectedComponentsResult(retval, labels)
+
+
 def arc_length(curve: NDArray, closed=False) -> float:
     return cv2.arcLength(curve, closed=closed)
 
@@ -134,6 +160,14 @@ class CvlContours:
     @staticmethod
     def cvl_convex_hull(contour: NDArray):
         return convex_hull(contour)
+
+    @staticmethod
+    def cvl_connected_components(
+        image: NDArray,
+        connectivity=8,
+        label_type: DataTypeLike = DataType.S32,
+    ):
+        return connected_components(image, connectivity, label_type)
 
     @staticmethod
     def cvl_arc_length(curve: NDArray, closed=False):
