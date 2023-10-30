@@ -11,8 +11,8 @@ from cvlayer.cv.contours import (
     find_contours,
 )
 from cvlayer.cv.drawable.contours import DRAW_ALL_CONTOURS, draw_contours
-from cvlayer.cv.types.thickness import FILLED
 from cvlayer.cv.types.line_type import LINE_8
+from cvlayer.cv.types.thickness import FILLED
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 

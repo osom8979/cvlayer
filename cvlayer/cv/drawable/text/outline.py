@@ -38,7 +38,7 @@ def draw_outline_text_coord(
         font,
         scale,
         outline_color,
-        outline_thickness,
+        thickness + outline_thickness,
         line,
         origin,
     )
@@ -50,7 +50,7 @@ def draw_outline_text_coord(
         font,
         scale,
         color,
-        thickness + outline_thickness,
+        thickness,
         line,
         origin,
     )
