@@ -8,7 +8,23 @@ OpenCV Layer Helper
 
 ## Overview
 
-## Install
+When performing image-based machine learning/inference, many situations arise that require pre-/post-processing appropriate for the domain environment.
+
+A commonly used library today is [OpenCV](https://opencv.org/).
+
+Image processing with [OpenCV](https://opencv.org/) requires insight into the image and the domain.
+
+However, gaining these insights often requires doing something far from the essence. (Visualization, parameter modification, library conflicts, assertions, etc...)
+
+Here are some problems that occurred to me:
+
+...
+
+## Features
+
+...
+
+## Installation
 
 Install `cvlayer`:
 ```shell
@@ -44,11 +60,25 @@ class YourApp(CvLayer):
 
 Just inherit `cvlayer.CvWindow`.
 
-The following sample is a Perspective Transform example:
+```python
+from cvlayer import CvWindow
+from numpy.typing import NDArray
+
+
+class YourApp(CvWindow):
+    def on_frame(self, image: NDArray) -> NDArray:
+        # TODO: Implement image processing logic ...
+        return image
+
+
+YourApp("/path/to/video/file.mp4").run()
+```
+
+## Example
+
+The following sample is a [Perspective Transform](https://docs.opencv.org/4.x/da/d6e/tutorial_py_geometric_transformations.html) example:
 
 ```python
-# -*- coding: utf-8 -*-
-
 from sys import argv, stderr
 from sys import exit as sys_exit
 from typing import List, Optional
@@ -59,7 +89,7 @@ from cvlayer.palette.basic import RED
 from numpy.typing import NDArray
 
 
-class CvTest(CvWindow, CvMixin, CvLayer):
+class YourApp(CvWindow, CvMixin, CvLayer):
     _points: List[PointI]
 
     def __init__(self, source: str, destination: Optional[str] = None):
@@ -126,7 +156,7 @@ def test_main(*args) -> None:
     destination = args[2] if len(args) >= 3 else None
 
     try:
-        app = CvTest(source, destination)
+        app = YourApp(source, destination)
         app.run()
     except Exception as e:
         print(e, file=stderr)
