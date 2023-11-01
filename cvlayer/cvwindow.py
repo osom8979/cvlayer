@@ -75,6 +75,8 @@ class KeyDefine:
     snapshot: Sequence[str] = field(default_factory=list)
     wait_down: Sequence[str] = field(default_factory=list)
     wait_up: Sequence[str] = field(default_factory=list)
+    font_down: Sequence[str] = field(default_factory=list)
+    font_up: Sequence[str] = field(default_factory=list)
     layer_select: Sequence[str] = field(default_factory=list)
     layer_prev: Sequence[str] = field(default_factory=list)
     layer_next: Sequence[str] = field(default_factory=list)
@@ -96,8 +98,10 @@ class KeyDefine:
             help=["H", "h"],
             manpage=["/", "?"],
             snapshot=["`", "\n"],
-            wait_down=["-", "_"],
-            wait_up=["=", "+"],
+            wait_down=["<", ","],
+            wait_up=[">", "."],
+            font_down=["-", "_"],
+            font_up=["=", "+"],
             layer_select=[str(i) for i in range(10)],
             layer_prev=["{", "["],
             layer_next=["}", "]"],
@@ -179,6 +183,7 @@ class CvWindow(LayerManagerInterface, Window):
         self._output = output
         self._font = font
         self._font_scale = font_scale
+        self._font_scale_step = 0.05
         self._preview_scale = preview_scale
         self._preview_scale_method = preview_scale_method
         self._window_wait = window_wait
@@ -378,6 +383,14 @@ class CvWindow(LayerManagerInterface, Window):
         assert 0 < keycode
         self.do_wait_up()
 
+    def on_keydown_font_down(self, keycode: int) -> None:
+        assert 0 < keycode
+        self.do_font_down()
+
+    def on_keydown_font_up(self, keycode: int) -> None:
+        assert 0 < keycode
+        self.do_font_up()
+
     def on_keydown_layer_select(self, keycode: int) -> None:
         assert 0 < keycode
         index = keycode - ord("0")
@@ -553,12 +566,14 @@ class CvWindow(LayerManagerInterface, Window):
 
         if not path.isdir(prefix):
             mkdir(prefix)
-            self.logger.debug(f"Make directory; '{prefix}'")
+            self.logger.debug(f"Make directory: '{prefix}'")
 
         self.logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
 
         for index, layer in enumerate(self._manager.values()):
-            image_write(path.join(prefix, f"layer{index}-{ext}"), layer.frame)
+            assert isinstance(layer, LayerBase)
+            filename = f"layer{index}-{layer.name}{ext}"
+            image_write(path.join(prefix, filename), layer.frame)
 
         image_write(path.join(prefix, f"original{ext}"), self._original_frame)
         image_write(path.join(prefix, f"preview{ext}"), self._preview_frame)
@@ -588,6 +603,16 @@ class CvWindow(LayerManagerInterface, Window):
         if self._window_wait >= 2:
             self._window_wait -= 1
         self.logger.info(f"Decrease wait milliseconds to {self._window_wait}ms")
+
+    def do_font_up(self) -> None:
+        self._font_scale = round(self._font_scale + self._font_scale_step, 2)
+        self.logger.info(f"Increase font scale: {self._font_scale:.2f}")
+
+    def do_font_down(self) -> None:
+        self._font_scale = round(self._font_scale - self._font_scale_step, 2)
+        if self._font_scale < 0.0:
+            self._font_scale = 0.0
+        self.logger.info(f"Decrease font scale: {self._font_scale:.2f}")
 
     def do_layer_select(self, index: int) -> None:
         self._manager.set_cursor(index)
