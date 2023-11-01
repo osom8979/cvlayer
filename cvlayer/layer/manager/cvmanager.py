@@ -2,7 +2,7 @@
 
 from copy import deepcopy
 from functools import reduce
-from logging import Logger, getLogger
+from logging import Logger, NullHandler, getLogger
 from typing import Any, Dict, Final, List, Optional, Tuple, Union
 from weakref import ref
 
@@ -30,11 +30,19 @@ class CvManager(LayerManagerInterface):
         self._cursor = cursor
         self._layers = list()
         self._name2index = dict()
+
         if logger is not None:
             if isinstance(logger, Logger):
                 self._logger = logger
             elif isinstance(logger, str):
                 self._logger = getLogger(logger)
+            else:
+                raise TypeError(f"Unsupported logger type: {type(logger).__name__}")
+        else:
+            logger = Logger("__null__")
+            logger.addHandler(NullHandler())
+            self._logger = logger
+
         self._pseudo_first = LayerBase("__pseudo_first__", None)
         self._roi = roi
 
@@ -73,7 +81,7 @@ class CvManager(LayerManagerInterface):
         return self._cursor
 
     @property
-    def logger(self):
+    def logger(self) -> Logger:
         return self._logger
 
     @property
@@ -175,23 +183,22 @@ class CvManager(LayerManagerInterface):
         max_index = len(self._layers)
         self._cursor = next_index if next_index < max_index else LAST_LAYER_INDEX
 
-    def logging_current_param(self) -> None:
+    def as_current_param_info_text(self) -> str:
         if self.is_cursor_at_last:
-            self._logger.info("No layer have been selected")
-            return
+            return "No layer have been selected"
 
         current_layer = self.current_layer
         layer_type = type(current_layer).__name__
 
         key = current_layer.cursor_key
         value = current_layer.get(key)
-        self._logger.info(f"[{layer_type}] '{key}' parameter value: {value}")
+        return f"[{layer_type}] '{key}' parameter value: {value}"
 
-    def logging_current_layer(self) -> None:
+    def as_current_layer_info_text(self) -> str:
         index = self._cursor
         max_index = len(self._layers) - 1
         name = type(self._layers[index]).__name__
-        self._logger.info(f"Change layer ({index}/{max_index}) '{name}'")
+        return f"Change layer ({index}/{max_index}) '{name}'"
 
     def update_first_frame_and_data(self, frame: NDArray, data=None) -> None:
         self._pseudo_first.frame = frame

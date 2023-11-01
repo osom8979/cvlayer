@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum, auto, unique
 from io import StringIO
-from logging import Logger, getLogger
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, getLogger
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
 from typing import Any, Final, Optional, Sequence, Union
@@ -43,7 +43,7 @@ from cvlayer.keymap.create import create_callable_keymap
 from cvlayer.layer.base import LayerBase
 from cvlayer.layer.manager.cvmanager import CvManager
 from cvlayer.layer.manager.interface import LayerManagerInterface
-from cvlayer.palette.basic import RED, WHITE
+from cvlayer.palette.basic import GREEN, RED, WHITE, YELLOW
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
 from cvlayer.typing import Color, PointF, PointI, RectI, SizeI, override
 
@@ -56,7 +56,7 @@ DEFAULT_ROI_COLOR: Final[Color] = RED
 DEFAULT_ROI_THICKNESS: Final[int] = 2
 DEFAULT_TOAST_ANCHOR: Final[PointF] = 1.0, 1.0
 DEFAULT_TOAST_COLOR: Final[Color] = WHITE
-DEFAULT_TOAST_DURATION: Final[float] = 4.0
+DEFAULT_TOAST_DURATION: Final[float] = 2.0
 
 
 @unique
@@ -207,13 +207,7 @@ class CvWindow(LayerManagerInterface, Window):
         self._toast_begin = datetime.now()
         self._use_deepcopy = use_deepcopy
 
-        if logger is not None:
-            if isinstance(logger, Logger):
-                self._logger = logger
-            elif isinstance(logger, str):
-                self._logger = getLogger(logger)
-
-        self._manager = manager if manager else CvManager(logger=self._logger)
+        self._manager = manager if manager else CvManager(logger=logger)
         self._manager.set_roi(roi)
 
         if not self._headless and window_size is not None:
@@ -310,7 +304,7 @@ class CvWindow(LayerManagerInterface, Window):
 
     @property
     def logger(self):
-        return self._logger
+        return self._manager.logger
 
     @property
     def roi(self):
@@ -355,6 +349,38 @@ class CvWindow(LayerManagerInterface, Window):
     @property
     def keycode(self):
         return self._keycode
+
+    def toast(
+        self,
+        text: str,
+        color: Optional[ColorLike] = None,
+        duration: Optional[float] = None,
+        level: Optional[int] = None,
+    ) -> None:
+        self._toast_text = text
+        if color is not None:
+            self._toast_color = normalize_color(color)
+        self._toast_begin = datetime.now()
+        if duration is not None:
+            diff = duration - self._toast_duration
+            self._toast_begin -= timedelta(seconds=diff)
+        if level is not None:
+            self._manager.logger.log(level, text)
+
+    def toast_debug(self, text: str, duration: Optional[float] = None) -> None:
+        self.toast(text, color=GREEN, duration=duration, level=DEBUG)
+
+    def toast_info(self, text: str, duration: Optional[float] = None) -> None:
+        self.toast(text, color=WHITE, duration=duration, level=INFO)
+
+    def toast_warning(self, text: str, duration: Optional[float] = None) -> None:
+        self.toast(text, color=YELLOW, duration=duration, level=WARNING)
+
+    def toast_error(self, text: str, duration: Optional[float] = None) -> None:
+        self.toast(text, color=RED, duration=duration, level=ERROR)
+
+    def toast_critical(self, text: str, duration: Optional[float] = None) -> None:
+        self.toast(text, color=RED, duration=duration, level=CRITICAL)
 
     def on_keydown_quit(self, keycode: int) -> None:
         raise KeyboardInterrupt("Quit key detected")
@@ -526,7 +552,7 @@ class CvWindow(LayerManagerInterface, Window):
     def flip_play(self) -> None:
         self._play = not self._play
         state_text = "played" if self._play else "stopped"
-        self.logger.info(f"The video has been {state_text}")
+        self.toast_info(f"The video has been {state_text}")
 
     def flip_help_popup(self) -> None:
         if self._help_mode == HelpMode.HIDE:
@@ -581,98 +607,87 @@ class CvWindow(LayerManagerInterface, Window):
         self.logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
         self.toast(f"Save snapshots: '{prefix}'")
 
-    def toast(
-        self,
-        text: str,
-        color: Optional[ColorLike] = None,
-        druation: Optional[float] = None,
-    ) -> None:
-        self._toast_text = text
-        if color is not None:
-            self._toast_color = normalize_color(color)
-        self._toast_begin = datetime.now()
-        if druation is not None:
-            diff = druation - self._toast_duration
-            self._toast_begin -= timedelta(seconds=diff)
-
     def do_wait_up(self) -> None:
         self._window_wait += 1
-        self.logger.info(f"Increase wait milliseconds to {self._window_wait}ms")
+        self.toast_info(f"Increase wait milliseconds to {self._window_wait}ms")
 
     def do_wait_down(self) -> None:
         if self._window_wait >= 2:
             self._window_wait -= 1
-        self.logger.info(f"Decrease wait milliseconds to {self._window_wait}ms")
+        self.toast_info(f"Decrease wait milliseconds to {self._window_wait}ms")
 
     def do_font_up(self) -> None:
         self._font_scale = round(self._font_scale + self._font_scale_step, 2)
-        self.logger.info(f"Increase font scale: {self._font_scale:.2f}")
+        self.toast_info(f"Increase font scale: {self._font_scale:.2f}")
 
     def do_font_down(self) -> None:
         self._font_scale = round(self._font_scale - self._font_scale_step, 2)
         if self._font_scale < 0.0:
             self._font_scale = 0.0
-        self.logger.info(f"Decrease font scale: {self._font_scale:.2f}")
+        self.toast_info(f"Decrease font scale: {self._font_scale:.2f}")
 
     def do_layer_select(self, index: int) -> None:
         self._manager.set_cursor(index)
-        self._manager.logging_current_layer()
+        self.toast_info(f"Select layer: {index}")
+        self.logger.info(self._manager.as_current_layer_info_text())
 
     def do_layer_prev(self) -> None:
         self._manager.move_prev_layer()
-        self._manager.logging_current_layer()
+        self.toast_info(f"Move previous layer: {self._manager.cursor}")
+        self.logger.info(self._manager.as_current_layer_info_text())
 
     def do_layer_next(self) -> None:
         self._manager.move_next_layer()
-        self._manager.logging_current_layer()
+        self.toast_info(f"Move next layer: {self._manager.cursor}")
+        self.logger.info(self._manager.as_current_layer_info_text())
 
     def do_layer_last(self) -> None:
         self._manager.move_last_layer()
-        self.logger.info("Change last layer")
+        self.toast_info("Change last layer")
 
     def do_frame_prev(self) -> None:
         self._original_frame = self.read_prev_frame()
+        self.toast_info(f"Move previous frame: {self._capture.pos}")
 
     def do_frame_next(self) -> None:
         self._original_frame = self.read_next_frame()
+        self.toast_info(f"Move next frame: {self._capture.pos}")
 
     def do_frame_begin(self) -> None:
         self._original_frame = self.read_first_frame()
+        self.toast_info(f"Jump begin frame: {self._capture.pos}")
 
     def do_frame_end(self) -> None:
         self._original_frame = self.read_last_frame()
+        self.toast_info(f"Jump end frame: {self._capture.pos}")
 
     def do_param_prev(self) -> None:
         if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.prev_cursor()
-        self.logger.info("Change prev param cursor")
-        self._manager.logging_current_param()
+        self.logger.info(self._manager.as_current_param_info_text())
 
     def do_param_next(self) -> None:
         if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.next_cursor()
-        self.logger.info("Change next param cursor")
-        self._manager.logging_current_param()
+        self.logger.info(self._manager.as_current_param_info_text())
 
     def do_param_up(self) -> None:
         if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.increase_at_cursor()
-        self.logger.info("Increase value at param cursor")
-        self._manager.logging_current_param()
+        self.logger.info(self._manager.as_current_param_info_text())
 
     def do_param_down(self) -> None:
         if self._manager.is_cursor_at_last:
             raise IndexError("The current layer is the last layer")
 
         self._manager.current_layer.decrease_at_cursor()
-        self.logger.info("Decrease value at param cursor")
-        self._manager.logging_current_param()
+        self.logger.info(self._manager.as_current_param_info_text())
 
     def do_process(self, frame: NDArray) -> Optional[NDArray]:
         begin = datetime.now()
