@@ -16,7 +16,7 @@ from cvlayer.cv.types.thickness import FILLED
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmPunctures(LayerManagerMixinBase):
+class CvmContoursPunctures(LayerManagerMixinBase):
     def cvm_remove_punctures(
         self,
         name: str,

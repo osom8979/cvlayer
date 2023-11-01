@@ -32,7 +32,7 @@ _TC89_KCOS = FindContoursMethod.TC89_KCOS
 _TC89_L1 = FindContoursMethod.TC89_L1
 
 
-class CvmContours(LayerManagerMixinBase):
+class CvmContoursFind(LayerManagerMixinBase):
     def _cvm_find_contours(
         self,
         name: str,
