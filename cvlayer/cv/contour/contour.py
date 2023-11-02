@@ -17,7 +17,6 @@ class Contour:
         array: NDArray[int32],
         copy=True,
         write=False,
-        *,
         binary_image=False,
     ):
         self._array = array.copy() if copy else array
@@ -35,3 +34,14 @@ class Contour:
             self._m = moments(self._array, self._binary_image)
         assert self._m is not None
         return self._m
+
+
+class CvlContourContour:
+    @staticmethod
+    def cvl_create_contour(
+        array: NDArray[int32],
+        copy=True,
+        write=False,
+        binary_image=False,
+    ):
+        return Contour(array, copy, write, binary_image)

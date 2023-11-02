@@ -7,6 +7,7 @@ from cvlayer.cv.basic import CvlBasic
 from cvlayer.cv.bgsub import CvlBackgroundSubtractor
 from cvlayer.cv.bitwise import CvlBitwise
 from cvlayer.cv.color import CvlColor
+from cvlayer.cv.contour import CvlContour
 from cvlayer.cv.contours import CvlContours
 from cvlayer.cv.contours_edge import CvlContoursEdge
 from cvlayer.cv.contours_intersection import CvlContoursIntersection
@@ -62,6 +63,7 @@ class CvLayer(
     CvlBackgroundSubtractor,
     CvlBitwise,
     CvlColor,
+    CvlContour,
     CvlContours,
     CvlContoursEdge,
     CvlContoursIntersection,
