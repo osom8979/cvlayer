@@ -148,8 +148,6 @@ def find_best_contour_edge_points(
     method: FindContourEdgeMethod,
     contours: List[NDArray],
 ) -> ContourEdgePoints:
-    assert contours
-
     contours_edge_points = [find_edge_points(method, contour) for contour in contours]
 
     scores: List[Tuple[int, int]] = list()  # List[Tuple[index, score]]
@@ -171,7 +169,7 @@ def find_best_contour_edge_points(
     return ContourEdgePoints(score, contour, points)
 
 
-class CvlContoursEdge:
+class CvlContourEdge:
     @staticmethod
     def cvl_find_leftmost_point(contour: NDArray):
         return find_leftmost_point(contour)
