@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum, auto, unique
 from io import StringIO
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, getLogger
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
 from typing import Any, Final, Optional, Sequence, Union
@@ -81,6 +81,7 @@ class KeyDefine:
     layer_prev: Sequence[str] = field(default_factory=list)
     layer_next: Sequence[str] = field(default_factory=list)
     layer_last: Sequence[str] = field(default_factory=list)
+    select_roi: Sequence[str] = field(default_factory=list)
     frame_prev: Sequence[str] = field(default_factory=list)
     frame_next: Sequence[str] = field(default_factory=list)
     frame_begin: Sequence[str] = field(default_factory=list)
@@ -106,6 +107,7 @@ class KeyDefine:
             layer_prev=["{", "["],
             layer_next=["}", "]"],
             layer_last=["\\", "|"],
+            select_roi=["R", "r"],
             frame_prev=["P", "p"],
             frame_next=["N", "n"],
             frame_begin=["B", "b"],
@@ -435,6 +437,10 @@ class CvWindow(LayerManagerInterface, Window):
         assert 0 < keycode
         self.do_layer_last()
 
+    def on_keydown_select_roi(self, keycode: int) -> None:
+        assert 0 < keycode
+        self.do_select_roi()
+
     def on_keydown_frame_prev(self, keycode: int) -> None:
         assert 0 < keycode
         self.do_frame_prev()
@@ -644,6 +650,9 @@ class CvWindow(LayerManagerInterface, Window):
     def do_layer_last(self) -> None:
         self._manager.move_last_layer()
         self.toast_info("Change last layer")
+
+    def do_select_roi(self) -> None:
+        raise NotImplementedError
 
     def do_frame_prev(self) -> None:
         self._original_frame = self.read_prev_frame()
