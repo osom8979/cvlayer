@@ -4,7 +4,9 @@ from typing import Any, Final, List, Optional, Sequence, Tuple, Type, overload
 
 import cv2
 from numpy import abs as np_abs
-from numpy import float32, zeros_like
+from numpy import float32
+from numpy import sqrt as np_sqrt
+from numpy import zeros_like
 from numpy.typing import NDArray
 
 from cvlayer.cv.norm import NormType
@@ -78,6 +80,22 @@ def channel_mean_abs_diff(src: NDArray) -> NDArray[float32]:
     gr = np_abs(g - r)
     rb = np_abs(r - b)
     return (bg + gr + rb) / 3.0
+
+
+def channel_l1_diff(src: NDArray) -> NDArray[float32]:
+    b, g, r = cv2.split(float32(src))
+    bg = np_abs(b - g)
+    gr = np_abs(g - r)
+    rb = np_abs(r - b)
+    return bg + gr + rb
+
+
+def channel_l2_diff(src: NDArray) -> NDArray[float32]:
+    b, g, r = cv2.split(float32(src))
+    bg = (b - g) ** 2
+    gr = (g - r) ** 2
+    rb = (r - b) ** 2
+    return np_sqrt(bg + gr + rb)
 
 
 def split(m: NDArray) -> Sequence[NDArray]:
