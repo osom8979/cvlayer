@@ -202,7 +202,17 @@ def mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
 # def sort():
 # def sortIdx():
 # def sqrt():
-# def subtract():
+
+
+def subtract(
+    src1: NDArray,
+    src2: NDArray,
+    mask: Optional[NDArray] = None,
+    dtype=SAME_DTYPE_AS_SRC,
+) -> NDArray:
+    return cv2.subtract(src1, src2, None, mask, dtype)
+
+
 # def sum():
 # def theRNG():
 # def trace():
@@ -265,3 +275,12 @@ class CvlBasic:
     @staticmethod
     def cvl_mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
         return mean_std_dev(src, mask)
+
+    @staticmethod
+    def cvl_subtract(
+        src1: NDArray,
+        src2: NDArray,
+        mask: Optional[NDArray] = None,
+        dtype=SAME_DTYPE_AS_SRC,
+    ):
+        return subtract(src1, src2, mask, dtype)

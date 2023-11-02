@@ -784,6 +784,8 @@ class CvWindow(LayerManagerInterface, Window):
             frame,
             text=self._toast_text,
             pos=(0, 0),
+            font=self._font,
+            scale=self._font_scale,
             color=self._toast_color,
             anchor=self._toast_anchor,
         )
