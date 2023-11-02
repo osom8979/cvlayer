@@ -6,8 +6,6 @@ from cvlayer.cv.backend import CvlBackend
 from cvlayer.cv.basic import CvlBasic
 from cvlayer.cv.bgsub import CvlBackgroundSubtractor
 from cvlayer.cv.bitwise import CvlBitwise
-from cvlayer.cv.blur import CvlBlur
-from cvlayer.cv.canny import CvlCanny
 from cvlayer.cv.color import CvlColor
 from cvlayer.cv.contours import CvlContours
 from cvlayer.cv.contours_edge import CvlContoursEdge
@@ -37,7 +35,6 @@ from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
 from cvlayer.cv.iou import CvlIou
 from cvlayer.cv.keymap import CvlKeymap
 from cvlayer.cv.kmeans import CvlKmeans
-from cvlayer.cv.laplacian import CvlLaplacian
 from cvlayer.cv.match_template import CvlMatchTemplate
 from cvlayer.cv.matcher import CvlMatcher
 from cvlayer.cv.morphology import CvlMorphology
@@ -48,7 +45,6 @@ from cvlayer.cv.perspective import CvlPerspective
 from cvlayer.cv.pyramid import CvlPyramid
 from cvlayer.cv.roi import CvlRoi
 from cvlayer.cv.rotate_tracer import CvlRotateTracer
-from cvlayer.cv.sobel import CvlSobel
 from cvlayer.cv.stack import CvlStack
 from cvlayer.cv.threshold import CvlThreshold
 from cvlayer.cv.tracker import CvlTracker
@@ -65,8 +61,6 @@ class CvLayer(
     CvlBasic,
     CvlBackgroundSubtractor,
     CvlBitwise,
-    CvlBlur,
-    CvlCanny,
     CvlColor,
     CvlContours,
     CvlContoursEdge,
@@ -95,7 +89,6 @@ class CvLayer(
     CvlIou,
     CvlKeymap,
     CvlKmeans,
-    CvlLaplacian,
     CvlMatchTemplate,
     CvlMatcher,
     CvlMorphology,
@@ -107,7 +100,6 @@ class CvLayer(
     CvlRoi,
     CvlRotateTracer,
     CvlShapely,
-    CvlSobel,
     CvlStack,
     CvlTransform,
     CvlThreshold,

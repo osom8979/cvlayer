@@ -31,7 +31,7 @@ def filter_2d(
     return cv2.filter2D(src, _ddepth, kernel, None, _anchor, delta, _border)
 
 
-class CvlFilter:
+class CvlFilterD2:
     @staticmethod
     def cvl_filter_2d(
         src: NDArray,

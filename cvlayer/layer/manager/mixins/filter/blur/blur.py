@@ -4,11 +4,11 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.blur import bilateral_filter, gaussian_blur
+from cvlayer.cv.filter.blur.blur import bilateral_filter, gaussian_blur
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmBlur(LayerManagerMixinBase):
+class CvmFilterBlurBlur(LayerManagerMixinBase):
     def cvm_bilateral_filter(
         self,
         name: str,

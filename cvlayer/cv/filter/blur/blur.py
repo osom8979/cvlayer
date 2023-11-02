@@ -100,7 +100,7 @@ def bilateral_filter(
     )
 
 
-class CvlBlur:
+class CvlFilterBlurBlur:
     @staticmethod
     def cvl_blur(
         src: NDArray,

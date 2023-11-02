@@ -17,7 +17,7 @@ def canny(
     return cv2.Canny(src, threshold_min, threshold_max)
 
 
-class CvlCanny:
+class CvlFilterEdgeCanny:
     @staticmethod
     def cvl_canny(
         src: NDArray,

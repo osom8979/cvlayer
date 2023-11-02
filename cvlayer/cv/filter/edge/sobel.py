@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Final
+from typing import Final, Tuple
 
 import cv2
 from numpy.typing import NDArray
@@ -12,54 +12,67 @@ from cvlayer.cv.types.ddepth import (
     validate_depth_combinations,
 )
 
-DEFAULT_KERNEL_SIZE: Final[int] = 1
-"""
-Aperture size used to compute the second-derivative filters.
-See getDerivKernels for details.
-The size must be positive and odd.
-"""
-
+DEFAULT_DX: Final[int] = 1
+DEFAULT_DY: Final[int] = 1
+DEFAULT_KERNEL_SIZE: Final[int] = 3
 DEFAULT_SCALE: Final[float] = 1.0
-"""
-scale factor for the computed Laplacian values.
-By default, no scaling is applied.
-See getDerivKernels for details.
-"""
-
 DEFAULT_DELTA: Final[float] = 0.0
-"""delta value that is added to the results prior to storing them in dst."""
+AVAILABLE_KERNEL_SIZE: Tuple[int, int, int, int] = 1, 3, 5, 7
 
 
-def laplacian(
-    src: NDArray,
+def sobel(
+    frame: NDArray,
     ddepth=DEFAULT_DESIRED_DEPTH,
+    dx=DEFAULT_DX,
+    dy=DEFAULT_DY,
     kernel_size=DEFAULT_KERNEL_SIZE,
     scale=DEFAULT_SCALE,
     delta=DEFAULT_DELTA,
     border=DEFAULT_BORDER_TYPE,
-) -> NDArray:
+):
+    assert dx or dy
     assert kernel_size % 2 == 1
     assert kernel_size >= 1
+    assert kernel_size in AVAILABLE_KERNEL_SIZE
 
     _ddepth = normalize_desired_depth(ddepth)
-    validate_depth_combinations(src, _ddepth)
-
+    validate_depth_combinations(frame, _ddepth)
     _border = normalize_border_type(border)
-
     if _border == cv2.BORDER_WRAP:
         raise ValueError("Unsupported border type: BORDER_WRAP")
 
-    return cv2.Laplacian(src, _ddepth, None, kernel_size, scale, delta, _border)
+    return cv2.Sobel(
+        frame,
+        _ddepth,
+        dx,
+        dy,
+        None,
+        kernel_size,
+        scale,
+        delta,
+        _border,
+    )
 
 
-class CvlLaplacian:
+class CvlFilterEdgeSobel:
     @staticmethod
-    def cvl_laplacian(
-        src: NDArray,
+    def cvl_sobel(
+        frame: NDArray,
         ddepth=DEFAULT_DESIRED_DEPTH,
+        dx=DEFAULT_DX,
+        dy=DEFAULT_DY,
         kernel_size=DEFAULT_KERNEL_SIZE,
         scale=DEFAULT_SCALE,
         delta=DEFAULT_DELTA,
         border=DEFAULT_BORDER_TYPE,
     ):
-        return laplacian(src, ddepth, kernel_size, scale, delta, border)
+        return sobel(
+            frame,
+            ddepth,
+            dx,
+            dy,
+            kernel_size,
+            scale,
+            delta,
+            border,
+        )

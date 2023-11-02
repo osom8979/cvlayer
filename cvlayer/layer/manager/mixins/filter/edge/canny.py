@@ -4,11 +4,11 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.canny import canny
+from cvlayer.cv.filter.edge.canny import canny
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmCanny(LayerManagerMixinBase):
+class CvmFilterEdgeCanny(LayerManagerMixinBase):
     def cvm_canny(
         self,
         name: str,
