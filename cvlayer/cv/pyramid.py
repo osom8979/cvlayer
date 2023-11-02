@@ -51,9 +51,8 @@ def pyr_down(
     dsize: Optional[SizeI] = None,
     border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
-    _dsize = dsize if dsize is not None else list()
     _border = normalize_border_type(border)
-    return cv2.pyrDown(src, dstsize=_dsize, borderType=_border)
+    return cv2.pyrDown(src, None, dsize, _border)
 
 
 def pyr_up(
@@ -61,9 +60,8 @@ def pyr_up(
     dsize: Optional[SizeI] = None,
     border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
-    _dsize = dsize if dsize is not None else list()
     _border = normalize_border_type(border)
-    return cv2.pyrUp(src, dstsize=_dsize, borderType=_border)
+    return cv2.pyrUp(src, None, dsize, _border)
 
 
 class CvlPyramid:
