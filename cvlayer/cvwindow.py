@@ -558,7 +558,7 @@ class CvWindow(LayerManagerInterface, Window):
     def flip_play(self) -> None:
         self._play = not self._play
         state_text = "played" if self._play else "stopped"
-        self.toast_info(f"The video has been {state_text}")
+        self.logger.info(f"The video has been {state_text}")
 
     def flip_help_popup(self) -> None:
         if self._help_mode == HelpMode.HIDE:
@@ -610,8 +610,7 @@ class CvWindow(LayerManagerInterface, Window):
         image_write(path.join(prefix, f"original{ext}"), self._original_frame)
         image_write(path.join(prefix, f"preview{ext}"), self._preview_frame)
 
-        self.logger.info(f"Snapshot was successfully saved to directory '{prefix}'")
-        self.toast(f"Save snapshots: '{prefix}'")
+        self.toast_info(f"Write snapshots: '{prefix}'")
 
     def do_wait_up(self) -> None:
         self._window_wait += 1
@@ -634,41 +633,33 @@ class CvWindow(LayerManagerInterface, Window):
 
     def do_layer_select(self, index: int) -> None:
         self._manager.set_cursor(index)
-        self.toast_info(f"Select layer: {index}")
         self.logger.info(self._manager.as_current_layer_info_text())
 
     def do_layer_prev(self) -> None:
         self._manager.move_prev_layer()
-        self.toast_info(f"Move previous layer: {self._manager.cursor}")
         self.logger.info(self._manager.as_current_layer_info_text())
 
     def do_layer_next(self) -> None:
         self._manager.move_next_layer()
-        self.toast_info(f"Move next layer: {self._manager.cursor}")
         self.logger.info(self._manager.as_current_layer_info_text())
 
     def do_layer_last(self) -> None:
         self._manager.move_last_layer()
-        self.toast_info("Change last layer")
 
     def do_select_roi(self) -> None:
         raise NotImplementedError
 
     def do_frame_prev(self) -> None:
         self._original_frame = self.read_prev_frame()
-        self.toast_info(f"Move previous frame: {self._capture.pos}")
 
     def do_frame_next(self) -> None:
         self._original_frame = self.read_next_frame()
-        self.toast_info(f"Move next frame: {self._capture.pos}")
 
     def do_frame_begin(self) -> None:
         self._original_frame = self.read_first_frame()
-        self.toast_info(f"Jump begin frame: {self._capture.pos}")
 
     def do_frame_end(self) -> None:
         self._original_frame = self.read_last_frame()
-        self.toast_info(f"Jump end frame: {self._capture.pos}")
 
     def do_param_prev(self) -> None:
         if self._manager.is_cursor_at_last:
