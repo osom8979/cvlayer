@@ -23,13 +23,15 @@ class CvmContoursPunctures(LayerManagerMixinBase):
         area_min=0.0,
         mask_val=0,
         frame: Optional[NDArray] = None,
+        *,
+        step=100.0,
     ):
         with self.layer(name) as layer:
             src = frame if frame is not None else layer.prev_frame
             assert len(src.shape) == 2
             assert src.shape[0] >= 1 and src.shape[1] >= 1
 
-            amin = layer.param("amin").build_float(area_min, 0.0, step=100.0).value
+            amin = layer.param("amin").build_float(area_min, 0.0, step=step).value
             md = layer.param("mode").build_enum(FindContoursMode.EXTERNAL).value
             mt = layer.param("method").build_enum(FindContoursMethod.SIMPLE).value
 
