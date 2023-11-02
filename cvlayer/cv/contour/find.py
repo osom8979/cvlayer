@@ -202,7 +202,7 @@ def box_points(box: RotatedRect) -> NDArray:
     return cv2.boxPoints(box)
 
 
-class CvlContours:
+class CvlContourFind:
     @staticmethod
     def cvl_find_contours(
         image: Image,

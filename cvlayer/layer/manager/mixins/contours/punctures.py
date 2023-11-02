@@ -4,7 +4,7 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.contours import (
+from cvlayer.cv.contour.find import (
     FindContoursMethod,
     FindContoursMode,
     contour_area,

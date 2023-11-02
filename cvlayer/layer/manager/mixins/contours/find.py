@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from numpy import ndarray, uint8, zeros
 from numpy.typing import NDArray
 
-from cvlayer.cv.contours import (
+from cvlayer.cv.contour.find import (
     FindContoursMethod,
     FindContoursMode,
     contour_area,

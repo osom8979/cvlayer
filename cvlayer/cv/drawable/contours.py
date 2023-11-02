@@ -7,7 +7,7 @@ from numpy import int64
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import normalize_color
-from cvlayer.cv.contours import RotatedRect, box_points
+from cvlayer.cv.contour.find import RotatedRect, box_points
 from cvlayer.cv.drawable.defaults import (
     DEFAULT_COLOR,
     DEFAULT_LINE_TYPE,
