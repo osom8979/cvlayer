@@ -11,7 +11,7 @@ from cvlayer.cv.contour.find import (
     contour_area,
     find_contours,
 )
-from cvlayer.cv.contours_moments import moments
+from cvlayer.cv.contour.moments import moments
 from cvlayer.cv.cvt_color import cvt_color_GRAY2BGR
 from cvlayer.cv.drawable.contours import draw_contour
 from cvlayer.cv.drawable.point import draw_point

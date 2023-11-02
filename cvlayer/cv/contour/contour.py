@@ -5,7 +5,7 @@ from typing import Optional
 from numpy import int32
 from numpy.typing import NDArray
 
-from cvlayer.cv.contours_moments import Moments, moments
+from cvlayer.cv.contour.moments import Moments, moments
 
 
 class Contour:

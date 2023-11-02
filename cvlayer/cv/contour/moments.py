@@ -88,7 +88,7 @@ def moments(contour: NDArray, binary_image=False) -> Moments:
     )
 
 
-class CvlContoursMoments:
+class CvlContourMoments:
     @staticmethod
     def cvl_moments(contour: NDArray, binary_image=False):
         return moments(contour, binary_image)
