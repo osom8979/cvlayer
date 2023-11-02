@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from shapely.geometry import Polygon
 
-from cvlayer.cv.contours_intersection import intersection_polygon_and_polygon
+from cvlayer.cv.contour.intersection import intersection_polygon_and_polygon
 
 
 class ContoursIntersectionTestCase(TestCase):

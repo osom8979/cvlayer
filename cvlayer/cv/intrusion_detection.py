@@ -7,7 +7,7 @@ from numpy import ndarray
 from numpy.typing import NDArray
 from shapely.geometry import Polygon
 
-from cvlayer.cv.contours_intersection import intersection_polygon_and_polygon
+from cvlayer.cv.contour.intersection import intersection_polygon_and_polygon
 from cvlayer.cv.cvt_shapely import (
     AreaType,
     cvt_area2polygon,

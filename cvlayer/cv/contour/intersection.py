@@ -78,7 +78,7 @@ def intersection_minmax(
     return left_or_top, right_or_bottom
 
 
-class CvlContoursIntersection:
+class CvlContourIntersection:
     @staticmethod
     def cvl_intersection_polygon_and_polygon(polygon1: Polygon, polygon2: Polygon):
         return intersection_polygon_and_polygon(polygon1, polygon2)
