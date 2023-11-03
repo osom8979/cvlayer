@@ -37,7 +37,7 @@ class MaskStatResult(NamedTuple):
 
 def _stat(values: List[float]) -> str:
     if len(values) == 0:
-        return "[]/sum=0"
+        return "[]"
 
     buffer = StringIO()
     buffer.write(f"[{floor(values[0])}")
