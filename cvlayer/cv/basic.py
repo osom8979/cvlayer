@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from typing import Any, Final, List, Optional, Sequence, Tuple, Type, overload
+from typing import (
+    Any,
+    Final,
+    List,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    overload,
+)
 
 import cv2
 from numpy import abs as np_abs
@@ -10,6 +20,7 @@ from numpy import zeros_like
 from numpy.typing import NDArray
 
 from cvlayer.cv.norm import NormType
+from cvlayer.cv.types.angle import DEFAULT_ANGLE_TYPE, normalize_angle_type
 from cvlayer.typing import NumberT
 
 SAME_DTYPE_AS_SRC: Final[int] = -1
@@ -171,11 +182,23 @@ def normalize_uint8_minmax(
 # def insertImageCOI():
 # def invert():
 # def log():
-# def magnitude():
 
 
-def mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
-    return cv2.meanStdDev(src, None, None, mask)
+def magnitude(x: NDArray, y: NDArray) -> NDArray:
+    return cv2.magnitude(x, y, None)
+
+
+class MeanStdDev(NamedTuple):
+    mean: NDArray
+    """Calculated mean value"""
+
+    stddev: NDArray
+    """Calculated standard deviation"""
+
+
+def mean_std_dev(src: NDArray, mask: Optional[NDArray] = None) -> MeanStdDev:
+    mean_values, std_dev = cv2.meanStdDev(src, None, None, mask)
+    return MeanStdDev(mean_values, std_dev)
 
 
 # def minMaxIdx():
@@ -186,7 +209,13 @@ def mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
 # def multiply():
 # def norm():
 # def perspectiveTransform():
-# def phase():
+
+
+def phase(x: NDArray, y: NDArray, angle_in_degrees=DEFAULT_ANGLE_TYPE) -> NDArray:
+    _angle_in_degrees = normalize_angle_type(angle_in_degrees)
+    return cv2.phase(x, y, None, _angle_in_degrees)
+
+
 # def polarToCart():
 # def pow():
 # def randShuffle():
@@ -273,8 +302,16 @@ class CvlBasic:
         return normalize_uint8_minmax(src, dtype, mask)
 
     @staticmethod
+    def cvl_magnitude(x: NDArray, y: NDArray):
+        return magnitude(x, y)
+
+    @staticmethod
     def cvl_mean_std_dev(src: NDArray, mask: Optional[NDArray] = None):
         return mean_std_dev(src, mask)
+
+    @staticmethod
+    def cvl_phase(x: NDArray, y: NDArray, angle_in_degrees=DEFAULT_ANGLE_TYPE):
+        return phase(x, y, angle_in_degrees)
 
     @staticmethod
     def cvl_subtract(
