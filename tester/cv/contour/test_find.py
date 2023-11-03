@@ -4,12 +4,14 @@ from unittest import TestCase, main
 
 from numpy import int32, ndarray
 
-from cvlayer.cv.contour.find import FindContoursMethod, FindContoursMode, find_contours
+from cvlayer.cv.contour.find import find_contours
 from cvlayer.cv.cvt_color import cvt_color_BGR2GRAY, cvt_color_GRAY2BGR
 from cvlayer.cv.drawable.contours import draw_contours
 from cvlayer.cv.drawable.rectangle import draw_rectangle
 from cvlayer.cv.image_io import image_write
 from cvlayer.cv.image_make import make_image_empty
+from cvlayer.cv.types.chain_approx import ChainApproximation
+from cvlayer.cv.types.retrieval import Retrieval
 from cvlayer.cv.types.thickness import FILLED
 from cvlayer.palette.basic import BLACK, RED, WHITE
 
@@ -24,8 +26,8 @@ class FindTestCase(TestCase):
         self.write_file = False
 
     def test_find_contours_tree_simple(self):
-        mode = FindContoursMode.TREE
-        method = FindContoursMethod.SIMPLE
+        mode = Retrieval.TREE
+        method = ChainApproximation.SIMPLE
         result = find_contours(self.image, mode, method)
         contours = result.contours
         hierarchy = result.hierarchy

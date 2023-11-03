@@ -1,43 +1,70 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict, Optional
+from enum import Enum, auto, unique
+from typing import Dict, NamedTuple, Optional
 
 from numpy import ndarray, uint8, zeros
 from numpy.typing import NDArray
 
-from cvlayer.cv.contour.find import (
-    FindContoursMethod,
-    FindContoursMode,
-    contour_area,
-    find_contours,
-)
+from cvlayer.cv.contour.find import contour_area, find_contours
 from cvlayer.cv.contour.moments import moments
 from cvlayer.cv.cvt_color import cvt_color_GRAY2BGR
 from cvlayer.cv.drawable.contours import draw_contour
 from cvlayer.cv.drawable.point import draw_point
 from cvlayer.cv.drawable.text.outline import draw_outline_text
+from cvlayer.cv.types.chain_approx import ChainApproximation
+from cvlayer.cv.types.retrieval import Retrieval
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 from cvlayer.palette import xkcd_palette
 from cvlayer.typing import Color
 
-_CCOMP = FindContoursMode.CCOMP
-_EXTERNAL = FindContoursMode.EXTERNAL
-_LIST = FindContoursMode.LIST
-_TREE = FindContoursMode.TREE
-_FLOODFILL = FindContoursMode.FLOODFILL
+_CCOMP = Retrieval.CCOMP
+_EXTERNAL = Retrieval.EXTERNAL
+_LIST = Retrieval.LIST
+_TREE = Retrieval.TREE
+_FLOODFILL = Retrieval.FLOODFILL
 
-_NONE = FindContoursMethod.NONE
-_SIMPLE = FindContoursMethod.SIMPLE
-_TC89_KCOS = FindContoursMethod.TC89_KCOS
-_TC89_L1 = FindContoursMethod.TC89_L1
+_NONE = ChainApproximation.NONE
+_SIMPLE = ChainApproximation.SIMPLE
+_TC89_KCOS = ChainApproximation.TC89_KCOS
+_TC89_L1 = ChainApproximation.TC89_L1
+
+
+@unique
+class ContourSelectMode(Enum):
+    ALL = auto()
+    INDEX = auto()
+    LARGEST = auto()
+    SMALLEST = auto()
+    LEFT_MOST = auto()
+    RIGHT_MOST = auto()
+    TOP_MOST = auto()
+    BOTTOM_MOST = auto()
+
+
+class _ContourArea(NamedTuple):
+    contour: NDArray
+    area: float
+
+
+def _make_contour_area(contour: NDArray, oriented=False) -> _ContourArea:
+    return _ContourArea(contour, contour_area(contour, oriented=oriented))
+
+
+def _area_filter(contour: _ContourArea, amin: float, amax: float) -> bool:
+    if amin != 0.0 and contour.area < amin:
+        return False
+    if amax != 0.0 and amax < contour.area:
+        return False
+    return True
 
 
 class CvmContoursFind(LayerManagerMixinBase):
     def _cvm_find_contours(
         self,
         name: str,
-        mode: FindContoursMode,
-        method: FindContoursMethod,
+        mode: Retrieval,
+        method: ChainApproximation,
         area_min: float,
         area_max: float,
         canvas: Optional[NDArray] = None,

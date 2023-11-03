@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-from enum import Enum, unique
 from typing import Iterable, List, NamedTuple, Sequence
 
 import cv2
 from numpy import int32, logical_and, uint8, zeros
 from numpy.typing import NDArray
 
+from cvlayer.cv.types.chain_approx import DEFAULT_CHAIN_APPROX, normalize_chain_approx
 from cvlayer.cv.types.data_type import (
     CV_16U,
     CV_32S,
@@ -15,30 +15,12 @@ from cvlayer.cv.types.data_type import (
     DataTypeLike,
     normalize_data_type,
 )
+from cvlayer.cv.types.retrieval import (
+    DEFAULT_RETRIEVAL,
+    RETR_FLOODFILL,
+    normalize_retrieval,
+)
 from cvlayer.typing import Image, PointF, RectI, SizeF
-
-
-@unique
-class FindContoursMode(Enum):
-    CCOMP = cv2.RETR_CCOMP
-    EXTERNAL = cv2.RETR_EXTERNAL
-    LIST = cv2.RETR_LIST
-    TREE = cv2.RETR_TREE
-    FLOODFILL = cv2.RETR_FLOODFILL
-
-
-@unique
-class FindContoursMethod(Enum):
-    NONE = cv2.CHAIN_APPROX_NONE
-    SIMPLE = cv2.CHAIN_APPROX_SIMPLE
-    TC89_KCOS = cv2.CHAIN_APPROX_TC89_KCOS
-    TC89_L1 = cv2.CHAIN_APPROX_TC89_L1
-
-
-class RotatedRect(NamedTuple):
-    center: PointF
-    size: SizeF
-    rotation: float
 
 
 class FindContoursResult(NamedTuple):
@@ -48,15 +30,19 @@ class FindContoursResult(NamedTuple):
 
 def find_contours(
     image: Image,
-    mode=FindContoursMode.TREE,
-    method=FindContoursMethod.SIMPLE,
+    mode=DEFAULT_RETRIEVAL,
+    method=DEFAULT_CHAIN_APPROX,
 ) -> FindContoursResult:
-    if mode != FindContoursMode.FLOODFILL:
+    _mode = normalize_retrieval(mode)
+    _method = normalize_chain_approx(method)
+
+    if _mode != RETR_FLOODFILL:
         if image.dtype != uint8:
             raise ValueError("Only uint8 is supported as image.dtype")
         if len(image.shape) != 2:
             raise ValueError("Only single-channel is supported")
-    contours, hierarchy = cv2.findContours(image, mode.value, method.value)
+
+    contours, hierarchy = cv2.findContours(image, _mode, _method)
     return FindContoursResult(contours, hierarchy)
 
 
@@ -191,6 +177,12 @@ def bounding_rect(array: NDArray) -> RectI:
     return x1, y1, x2, y2
 
 
+class RotatedRect(NamedTuple):
+    center: PointF
+    size: SizeF
+    rotation: float
+
+
 def min_area_rect(points: NDArray) -> RotatedRect:
     center, size, rotation = cv2.minAreaRect(points)
     cx, cy = center
@@ -206,8 +198,8 @@ class CvlContourFind:
     @staticmethod
     def cvl_find_contours(
         image: Image,
-        mode=FindContoursMode.TREE,
-        method=FindContoursMethod.SIMPLE,
+        mode=DEFAULT_RETRIEVAL,
+        method=DEFAULT_CHAIN_APPROX,
     ):
         return find_contours(image, mode, method)
 
