@@ -13,8 +13,8 @@ from cvlayer.cv.types.thickness import FILLED
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class CvmContoursPunctures(LayerManagerMixinBase):
-    def cvm_remove_punctures(
+class CvmContoursHole(LayerManagerMixinBase):
+    def cvm_remove_hole(
         self,
         name: str,
         area_min=0.0,
