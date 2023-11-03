@@ -137,9 +137,9 @@ class LayerParameter:
         self._validate_initialize()
         self._printable = callback
 
-    def _set_nullable(self, callback: PrintableCallable):
+    def _set_nullable(self, value: bool):
         self._validate_initialize()
-        self._nullable = callback
+        self._nullable = value
 
     initial_value = property(None, _set_value)
     min = property(None, _set_min)
@@ -287,12 +287,18 @@ class LayerParameter:
         self._frozen = True
         return self
 
-    def build_readonly(self, value: Any, printable: Optional[PrintableCallable] = None):
+    def build_readonly(
+        self,
+        value: Any,
+        printable: Optional[PrintableCallable] = None,
+        cacher: Optional[CacherCallable] = None,
+    ):
         if self._frozen:
             return self
         self._clear_all_properties()
         self._value = value
         self._printable = printable
+        self._cacher = cacher
         self._frozen = True
         return self
 

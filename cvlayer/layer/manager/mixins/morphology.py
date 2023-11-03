@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functools import partial
-from typing import Final, Optional
+from typing import Optional
 
 from numpy.typing import NDArray
 
@@ -13,10 +12,7 @@ from cvlayer.cv.morphology import (
     get_structuring_element,
     morphology_ex,
 )
-from cvlayer.layer.base import LayerBase
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
-
-_SHAPE_PARAMETER_KEY: Final[str] = "shape"
 
 _RECT = MorphShape.RECT
 _ELLIPSE = MorphShape.ELLIPSE
@@ -32,13 +28,10 @@ _BLACKHAT = MorphOperator.BLACKHAT
 _HITMISS = MorphOperator.HITMISS
 
 
-def _gse(layer: LayerBase, _old, _new):
-    shape_param = layer.param(_SHAPE_PARAMETER_KEY)
-    assert shape_param.initialized
-    shape = shape_param.value
-    assert isinstance(shape, MorphShape)
-    assert isinstance(_new, int)
-    return get_structuring_element(shape, (_new, _new))
+def _kernel_cacher(_old, _new):
+    assert isinstance(_new, tuple)
+    shape, kx, ky = _new
+    return get_structuring_element(shape, (kx, ky))
 
 
 class CvmMorphologyErode(LayerManagerMixinBase):
@@ -51,11 +44,16 @@ class CvmMorphologyErode(LayerManagerMixinBase):
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
-            layer.param(_SHAPE_PARAMETER_KEY).build_enum(shape)
-            m = layer.param("m").build_uint(k, 1, cacher=partial(_gse, layer)).cache
+            s = layer.param("shape").build_enum(shape).value
+            kx = layer.param("kx").build_uint(k, 1).value
+            ky = layer.param("ky").build_uint(k, 1).value
             i = layer.param("i").build_uint(i, 1).value
             ax = layer.param("anchor_x").build_int(-1).value
             ay = layer.param("anchor_y").build_int(-1).value
+            m_param = layer.param("m").build_readonly(tuple(), cacher=_kernel_cacher)
+            if m_param.value != (s, kx, ky):
+                m_param.value = (s, kx, ky)
+            m = m_param.cache
             src = frame if frame is not None else layer.prev_frame
             result = erode(src, m, (ax, ay), i)
             layer.frame = result
@@ -81,11 +79,16 @@ class CvmMorphologyDilate(LayerManagerMixinBase):
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
-            layer.param(_SHAPE_PARAMETER_KEY).build_enum(shape)
-            m = layer.param("m").build_uint(k, 1, cacher=partial(_gse, layer)).cache
+            s = layer.param("shape").build_enum(shape).value
+            kx = layer.param("kx").build_uint(k, 1).value
+            ky = layer.param("ky").build_uint(k, 1).value
             i = layer.param("i").build_uint(i, 1).value
             ax = layer.param("anchor_x").build_int(-1).value
             ay = layer.param("anchor_y").build_int(-1).value
+            m_param = layer.param("m").build_readonly(tuple(), cacher=_kernel_cacher)
+            if m_param.value != (s, kx, ky):
+                m_param.value = (s, kx, ky)
+            m = m_param.cache
             src = frame if frame is not None else layer.prev_frame
             result = dilate(src, m, (ax, ay), i)
             layer.frame = result
@@ -112,12 +115,17 @@ class CvmMorphologyEx(LayerManagerMixinBase):
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
-            layer.param(_SHAPE_PARAMETER_KEY).build_enum(shape)
-            m = layer.param("m").build_uint(k, 1, cacher=partial(_gse, layer)).cache
+            s = layer.param("shape").build_enum(shape).value
+            kx = layer.param("kx").build_uint(k, 1).value
+            ky = layer.param("ky").build_uint(k, 1).value
             i = layer.param("i").build_uint(i, 1).value
             o = layer.param("op").build_enum(op).value
             ax = layer.param("anchor_x").build_int(-1).value
             ay = layer.param("anchor_y").build_int(-1).value
+            m_param = layer.param("m").build_readonly(tuple(), cacher=_kernel_cacher)
+            if m_param.value != (s, kx, ky):
+                m_param.value = (s, kx, ky)
+            m = m_param.cache
             src = frame if frame is not None else layer.prev_frame
             result = morphology_ex(src, o, m, (ax, ay), i)
             layer.frame = result
