@@ -54,6 +54,21 @@ def sobel(
     )
 
 
+def sobel_magnitude(
+    frame: NDArray,
+    ddepth=DEFAULT_DESIRED_DEPTH,
+    dx=DEFAULT_DX,
+    dy=DEFAULT_DY,
+    kernel_size=DEFAULT_KERNEL_SIZE,
+    scale=DEFAULT_SCALE,
+    delta=DEFAULT_DELTA,
+    border=DEFAULT_BORDER_TYPE,
+) -> NDArray:
+    x = sobel(frame, ddepth, dx, 0, kernel_size, scale, delta, border)
+    y = sobel(frame, ddepth, 0, dy, kernel_size, scale, delta, border)
+    return cv2.magnitude(x, y)
+
+
 class CvlFilterEdgeSobel:
     @staticmethod
     def cvl_sobel(
@@ -67,6 +82,28 @@ class CvlFilterEdgeSobel:
         border=DEFAULT_BORDER_TYPE,
     ):
         return sobel(
+            frame,
+            ddepth,
+            dx,
+            dy,
+            kernel_size,
+            scale,
+            delta,
+            border,
+        )
+
+    @staticmethod
+    def cvl_sobel_magnitude(
+        frame: NDArray,
+        ddepth=DEFAULT_DESIRED_DEPTH,
+        dx=DEFAULT_DX,
+        dy=DEFAULT_DY,
+        kernel_size=DEFAULT_KERNEL_SIZE,
+        scale=DEFAULT_SCALE,
+        delta=DEFAULT_DELTA,
+        border=DEFAULT_BORDER_TYPE,
+    ):
+        return sobel_magnitude(
             frame,
             ddepth,
             dx,
