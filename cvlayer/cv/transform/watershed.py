@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from typing import Final
+
 import cv2
 from numpy import int8, int32, uint8, uint32
 from numpy.typing import NDArray
+
+from cvlayer.typing import ColorLike
+
+WATERSHED_MARKER_BORDER: Final[int] = -1
 
 
 def watershed(image: NDArray, markers: NDArray) -> NDArray:
@@ -25,7 +31,24 @@ def watershed(image: NDArray, markers: NDArray) -> NDArray:
     return cv2.watershed(image, markers)
 
 
+def fill_watershed_border(
+    image: NDArray,
+    markers: NDArray,
+    color: ColorLike,
+) -> NDArray:
+    image[markers == WATERSHED_MARKER_BORDER] = color
+    return image
+
+
 class CvlTransformWatershed:
     @staticmethod
     def cvl_watershed(image: NDArray, markers: NDArray):
         return watershed(image, markers)
+
+    @staticmethod
+    def cvl_fill_watershed_border(
+        image: NDArray,
+        markers: NDArray,
+        color: ColorLike,
+    ):
+        return fill_watershed_border(image, markers, color)
