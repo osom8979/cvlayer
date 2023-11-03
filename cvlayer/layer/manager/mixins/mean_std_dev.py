@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from io import StringIO
+from math import floor
 from typing import List, NamedTuple, Optional
 
 from numpy import uint8, zeros
 from numpy.typing import NDArray
 
 from cvlayer.cv.basic import mean_std_dev
-from cvlayer.cv.bitwise import bitwise_not
+from cvlayer.cv.bitwise import bitwise_and, bitwise_not
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
@@ -17,24 +18,41 @@ class MaskStatResult(NamedTuple):
     dark_mean: List[float]
     dark_stddev: List[float]
 
+    @property
+    def avg_light_mean(self) -> float:
+        return sum(self.light_mean) / len(self.light_mean)
+
+    @property
+    def avg_light_stddev(self) -> float:
+        return sum(self.light_stddev) / len(self.light_stddev)
+
+    @property
+    def avg_dark_mean(self) -> float:
+        return sum(self.dark_mean) / len(self.dark_mean)
+
+    @property
+    def avg_dark_stddev(self) -> float:
+        return sum(self.dark_stddev) / len(self.dark_stddev)
+
 
 def _stat(values: List[float]) -> str:
     if len(values) == 0:
         return "[]/sum=0"
 
     buffer = StringIO()
-    buffer.write(f"[{values[0]:.2f}")
+    buffer.write(f"[{floor(values[0])}")
     for val in values[1:]:
-        buffer.write(f",{val:.2f}")
-    buffer.write(f"]/sum={sum(values):.2f}")
+        buffer.write(f",{floor(val)}")
+    buffer.write("]")
     return buffer.getvalue()
 
 
-class CvmMaskStat(LayerManagerMixinBase):
-    def cvm_mask_stat(
+class CvmMeanStdDev(LayerManagerMixinBase):
+    def cvm_mean_std_dev(
         self,
         name: str,
         mask: Optional[NDArray] = None,
+        draw_light=True,
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
@@ -50,13 +68,14 @@ class CvmMaskStat(LayerManagerMixinBase):
             dark_mean = dark_stat.mean.flatten().tolist()
             dark_stddev = dark_stat.stddev.flatten().tolist()
 
+            dl = layer.param("draw-light").build_bool(draw_light).value
             layer.param("light-mean").build_readonly([], _stat).value = light_mean
             layer.param("light-stddev").build_readonly([], _stat).value = light_stddev
             layer.param("dark-mean").build_readonly([], _stat).value = dark_mean
             layer.param("dark-stddev").build_readonly([], _stat).value = dark_stddev
 
             result = MaskStatResult(light_mean, light_stddev, dark_mean, dark_stddev)
-            layer.frame = src
+            layer.frame = bitwise_and(src, src, light if dl else dark)
             layer.data = result
 
         return src, result
