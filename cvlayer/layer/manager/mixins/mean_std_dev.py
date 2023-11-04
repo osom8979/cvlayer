@@ -12,9 +12,10 @@ from cvlayer.cv.bitwise import bitwise_and, bitwise_not
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
-class MaskStatResult(NamedTuple):
+class MeanStdDevResult(NamedTuple):
     light_mean: List[float]
     light_stddev: List[float]
+
     dark_mean: List[float]
     dark_stddev: List[float]
 
@@ -74,7 +75,8 @@ class CvmMeanStdDev(LayerManagerMixinBase):
             layer.param("dark-mean").build_readonly([], _stat).value = dark_mean
             layer.param("dark-stddev").build_readonly([], _stat).value = dark_stddev
 
-            result = MaskStatResult(light_mean, light_stddev, dark_mean, dark_stddev)
+            result = MeanStdDevResult(light_mean, light_stddev, dark_mean, dark_stddev)
+
             layer.frame = bitwise_and(src, src, light if dl else dark)
             layer.data = result
 
