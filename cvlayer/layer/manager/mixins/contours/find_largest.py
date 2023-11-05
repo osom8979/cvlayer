@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional
+from typing import Final, Optional
 
 from numpy.typing import NDArray
 
@@ -16,6 +16,9 @@ from cvlayer.cv.types.chain_approx import (
 )
 from cvlayer.cv.types.retrieval import DEFAULT_RETRIEVAL, Retrieval, normalize_retrieval
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
+
+_ALOW: Final[float] = DISABLE_AREA_FILTER
+assert _ALOW == -1
 
 
 class CvmContoursFindLargest(LayerManagerMixinBase):
@@ -37,8 +40,8 @@ class CvmContoursFindLargest(LayerManagerMixinBase):
             init_mode = Retrieval(normalize_retrieval(mode))
             init_method = ChainApproximation(normalize_chain_approx(method))
 
-            amin = layer.param("area_min").build_float(area_min, -1.0, step=step).value
-            amax = layer.param("area_max").build_float(area_max, -1.0, step=step).value
+            amin = layer.param("area_min").build_float(area_min, _ALOW, step=step).value
+            amax = layer.param("area_max").build_float(area_max, _ALOW, step=step).value
             retr = layer.param("mode").build_enum(init_mode).value
             approx = layer.param("method").build_enum(init_method).value
             o = layer.param("oriented").build_bool(oriented).value
