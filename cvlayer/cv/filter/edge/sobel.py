@@ -5,6 +5,7 @@ from typing import Final, Tuple
 import cv2
 from numpy.typing import NDArray
 
+from cvlayer.cv.types.angle import DEFAULT_ANGLE_TYPE, normalize_angle_type
 from cvlayer.cv.types.border import DEFAULT_BORDER_TYPE, normalize_border_type
 from cvlayer.cv.types.ddepth import (
     DEFAULT_DESIRED_DEPTH,
@@ -54,7 +55,7 @@ def sobel(
     )
 
 
-def sobel_magnitude(
+def sobel_cart_to_polar(
     frame: NDArray,
     ddepth=DEFAULT_DESIRED_DEPTH,
     dx=DEFAULT_DX,
@@ -63,10 +64,12 @@ def sobel_magnitude(
     scale=DEFAULT_SCALE,
     delta=DEFAULT_DELTA,
     border=DEFAULT_BORDER_TYPE,
-) -> NDArray:
+    angle_in_degrees=DEFAULT_ANGLE_TYPE,
+) -> Tuple[NDArray, NDArray]:
     x = sobel(frame, ddepth, dx, 0, kernel_size, scale, delta, border)
     y = sobel(frame, ddepth, 0, dy, kernel_size, scale, delta, border)
-    return cv2.magnitude(x, y)
+    _angle_in_degrees = normalize_angle_type(angle_in_degrees)
+    return cv2.cartToPolar(x, y, None, None, _angle_in_degrees)
 
 
 class CvlFilterEdgeSobel:
@@ -93,7 +96,7 @@ class CvlFilterEdgeSobel:
         )
 
     @staticmethod
-    def cvl_sobel_magnitude(
+    def cvl_sobel_cart_to_polar(
         frame: NDArray,
         ddepth=DEFAULT_DESIRED_DEPTH,
         dx=DEFAULT_DX,
@@ -102,8 +105,9 @@ class CvlFilterEdgeSobel:
         scale=DEFAULT_SCALE,
         delta=DEFAULT_DELTA,
         border=DEFAULT_BORDER_TYPE,
+        angle_in_degrees=DEFAULT_ANGLE_TYPE,
     ):
-        return sobel_magnitude(
+        return sobel_cart_to_polar(
             frame,
             ddepth,
             dx,
@@ -112,4 +116,5 @@ class CvlFilterEdgeSobel:
             scale,
             delta,
             border,
+            angle_in_degrees,
         )
