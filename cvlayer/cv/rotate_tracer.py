@@ -119,7 +119,11 @@ class RotateTracer:
         self._missing_count += 1
 
     def do_missing(self) -> None:
+        if not self.has_first_polygon:
+            return
+
         self.increase_missing_count()
+
         if self.overflow_missing_count:
             self.clear()
 

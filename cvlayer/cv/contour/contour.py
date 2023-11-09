@@ -13,7 +13,7 @@ from cvlayer.cv.contour.edge import (
 )
 from cvlayer.cv.contour.find import contour_area
 from cvlayer.cv.contour.moments import Moments, moments
-from cvlayer.typing import PointI
+from cvlayer.typing import PointI, PolygonI
 
 
 class Contour:
@@ -26,6 +26,8 @@ class Contour:
     _rightmost_point: Optional[PointI]
     _topmost_point: Optional[PointI]
     _bottommost_point: Optional[PointI]
+
+    _polygon0: Optional[PolygonI]
 
     def __init__(
         self,
@@ -49,6 +51,8 @@ class Contour:
         self._topmost_point = None
         self._bottommost_point = None
 
+        self._polygon0 = None
+
     @property
     def array(self) -> NDArray[int32]:
         return self._array
@@ -66,6 +70,10 @@ class Contour:
             self._area = contour_area(self._array, self._oriented)
         assert self._area is not None
         return self._area
+
+    @area.setter
+    def area(self, value: Optional[float]) -> None:
+        self._area = value
 
     @property
     def leftmost_point(self) -> PointI:
@@ -94,6 +102,26 @@ class Contour:
             self._bottommost_point = find_bottommost_point(self._array)
         assert self._bottommost_point is not None
         return self._bottommost_point
+
+    @property
+    def width(self):
+        return self.rightmost_point[0] - self.leftmost_point[0]
+
+    @property
+    def height(self):
+        return self.bottommost_point[1] - self.topmost_point[1]
+
+    @property
+    def polygon0(self) -> PolygonI:
+        if self._polygon0 is None:
+            assert len(self._array.shape) == 3
+            assert self._array.shape[0] >= 4  # points
+            assert self._array.shape[1] >= 1  # -
+            assert self._array.shape[2] == 2  # x, y
+            points = self._array[:, 0, :].tolist()
+            self._polygon0 = list(map(lambda x: (x[0], x[1]), points))
+        assert self._polygon0 is not None
+        return self._polygon0
 
 
 class CvlContourContour:

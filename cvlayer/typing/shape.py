@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Tuple, TypeVar, Union
+from typing import Sequence, Tuple, TypeVar, Union
 
 Number = Union[int, float]
 NumberT = TypeVar("NumberT", int, float)
@@ -25,10 +25,10 @@ RectN = Tuple[Number, Number, Number, Number]
 RectI = Tuple[int, int, int, int]
 RectF = Tuple[float, float, float, float]
 
-PolygonT = List[PointT]
-PolygonN = List[PointN]
-PolygonI = List[PointI]
-PolygonF = List[PointF]
+PolygonT = Sequence[PointT]
+PolygonN = Sequence[PointN]
+PolygonI = Sequence[PointI]
+PolygonF = Sequence[PointF]
 
 PerspectivePointsT = Tuple[PointT, PointT, PointT, PointT]
 PerspectivePointsN = Tuple[PointN, PointN, PointN, PointN]
