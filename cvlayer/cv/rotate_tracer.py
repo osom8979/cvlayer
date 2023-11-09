@@ -118,10 +118,17 @@ class RotateTracer:
     def increase_missing_count(self) -> None:
         self._missing_count += 1
 
-    def on_missing(self) -> None:
+    def do_missing(self) -> None:
         self.increase_missing_count()
         if self.overflow_missing_count:
             self.clear()
+
+    def do_trace(self, polygon: PolygonT, center: PointT) -> None:
+        self.reset_missing_count()
+        if self.has_first_polygon:
+            self.on_trace_next_angle(polygon, center)
+        else:
+            self.on_trace_first_angle(polygon, center)
 
     def on_trace_first_angle(self, polygon: PolygonT, center: PointT) -> None:
         assert polygon
@@ -166,13 +173,6 @@ class RotateTracer:
         self._current_point0 = next_point0
         self._current_rotate = next_degrees
 
-    def on_detected(self, polygon: PolygonT, center: PointT) -> None:
-        self.reset_missing_count()
-        if self.has_first_polygon:
-            self.on_trace_next_angle(polygon, center)
-        else:
-            self.on_trace_first_angle(polygon, center)
-
     def run(
         self,
         detect: bool,
@@ -184,9 +184,9 @@ class RotateTracer:
             assert center
             assert isinstance(polygon, list)
             assert isinstance(center, tuple)
-            self.on_detected(polygon, center)
+            self.do_trace(polygon, center)
         else:
-            self.on_missing()
+            self.do_missing()
 
 
 class CvlRotateTracer:
