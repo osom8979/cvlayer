@@ -28,6 +28,11 @@ def calculate_line_with_point_and_angle(
     return (x1, y1), (x2, y2)
 
 
+def find_x3_given_line_through_points(x1, y1, x2, y2, y3):
+    slope = (y2 - y1) / (x2 - x1)
+    return x1 + (y3 - y1) / slope
+
+
 class GeneralForm:
     """
     Ax + By + C = 0

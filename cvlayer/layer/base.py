@@ -7,7 +7,6 @@ from types import TracebackType
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type
 from weakref import ref
 
-from numpy import zeros
 from numpy.typing import NDArray
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
@@ -15,14 +14,23 @@ from cvlayer.layer.parameter import LayerParameter
 
 
 class SkipError(ValueError):
-    def __int__(self):
-        msg = "An error occurred in the previous layer, so it cannot be executed"
-        super().__init__(msg)
+    _default_msg = "An error occurred in the previous layer, so it cannot be executed"
+
+    def __int__(self, *args):
+        super().__init__(*args if args else self._default_msg)
+
+
+class InvalidFrameError(ValueError):
+    _default_msg = "The 'frame' property must be assigned"
+
+    def __int__(self, *args):
+        super().__init__(*args if args else self._default_msg)
 
 
 class LayerBase:
     _params: Dict[str, LayerParameter]
     _error: Optional[BaseException]
+    _frame: Optional[NDArray]
 
     def __init__(
         self,
@@ -31,7 +39,7 @@ class LayerBase:
         **params: LayerParameter,
     ):
         self._name = name if name else str()
-        self._frame = zeros([])
+        self._frame = None
         self._data = None
         self._params = params
         self._cursor = 0
@@ -119,6 +127,8 @@ class LayerBase:
     def __enter__(self):
         self._begin = datetime.now()
         self._error = None
+        self._frame = None
+        self._data = None
         return self
 
     def __exit__(
@@ -131,6 +141,8 @@ class LayerBase:
         self._end = datetime.now()
         # If an exception is supplied, and the method wishes to suppress the exception
         # (i.e., prevent it from being propagated), it should return a true value
+        if self._frame is None:
+            raise InvalidFrameError from self._error
         return None
 
     @property
