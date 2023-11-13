@@ -1,9 +1,50 @@
 # -*- coding: utf-8 -*-
 
 from math import atan2, degrees
+from typing import overload
 
 from cvlayer.math.constant import DOUBLE_PI
 from cvlayer.typing import PointT
+
+
+def get_sign_value(value) -> int:
+    return 1 if value >= 0 else -1
+
+
+# fmt: off
+@overload
+def normalize_degrees_360(angle: int) -> int: ...
+@overload
+def normalize_degrees_360(angle: float) -> float: ...
+# fmt: on
+
+
+def normalize_degrees_360(angle):
+    result = angle % 360
+    assert 0 <= result < 360
+    return result
+
+
+# fmt: off
+@overload
+def normalize_signed_degrees_360(angle: int) -> int: ...
+@overload
+def normalize_signed_degrees_360(angle: float) -> float: ...
+# fmt: on
+
+
+def normalize_signed_degrees_360(angle):
+    """
+    Used when sign information must be maintained.
+    """
+
+    # [WARNING] Reasons for recalculating with get_sign_value:
+    # `-180 // 360 = -1`
+    # `-180 % 360 = 180`
+    _sign = get_sign_value(angle)
+    result = angle - (abs(angle) // 360 * 360 * _sign)
+    assert -360 < result < 360
+    return result
 
 
 def radians_angle(x: float, y: float) -> float:

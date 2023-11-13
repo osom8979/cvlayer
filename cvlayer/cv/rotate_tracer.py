@@ -6,7 +6,7 @@ from typing import Final, Optional, Tuple
 import cv2
 
 from cvlayer.geometry.find_nearset_point import find_nearest_point
-from cvlayer.math.angle import degrees_point3
+from cvlayer.math.angle import degrees_point3, normalize_degrees_360
 from cvlayer.math.norm import l2_norm
 from cvlayer.typing import PointT, PolygonT
 
@@ -37,6 +37,14 @@ def measure_center_point(contour) -> PointT:
     cx = m["m10"] / m["m00"]
     cy = m["m01"] / m["m00"]
     return cx, cy
+
+
+def normalize_degrees_180(angle: float) -> float:
+    normalize_360 = normalize_degrees_360(angle)
+    assert 0 <= normalize_360 < 360
+    result = normalize_360 if normalize_360 <= 180 else normalize_360 - 360
+    assert -180 < result <= 180
+    return result
 
 
 class RotateTracer:
@@ -116,22 +124,7 @@ class RotateTracer:
 
     @property
     def current_rotate_delta(self) -> float:
-        if self._current_rotate <= -360 or 360 <= self._current_rotate:
-            delta = self._current_rotate - (self._current_rotate // 360 * 360.0)
-        else:
-            delta = self._current_rotate
-
-        assert -360.0 < delta < 360.0
-
-        if 180.0 < delta:
-            result = delta - 360.0
-        elif delta < -180.0:
-            result = delta + 360.0
-        else:
-            result = delta
-
-        assert -180.0 <= result <= 180.0
-        return result
+        return normalize_degrees_180(self._current_rotate)
 
     @property
     def rotate_degrees(self) -> float:
