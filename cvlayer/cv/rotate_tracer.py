@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 
+from copy import deepcopy
 from typing import Final, Optional, Tuple
 
 import cv2
 
 from cvlayer.geometry.find_nearset_point import find_nearest_point
 from cvlayer.math.angle import degrees_point3
+from cvlayer.math.norm import l2_norm
 from cvlayer.typing import PointT, PolygonT
 
 DEFAULT_MAX_MISSING_COUNT: Final[int] = 10
+DEFAULT_MAX_STABLE_COUNT: Final[int] = 10
+DEFAULT_STABLE_POINT_DELTA: Final[float] = 10.0
 
 
 def normalize_point(pivot: PointT, center: PointT) -> PointT:
@@ -44,12 +48,18 @@ class RotateTracer:
     _current_center: Optional[PointT]
     _current_point0: Optional[PointT]
 
-    def __init__(self, max_missing_count=DEFAULT_MAX_MISSING_COUNT):
+    def __init__(
+        self,
+        max_missing_count=DEFAULT_MAX_MISSING_COUNT,
+        max_stable_count=DEFAULT_MAX_STABLE_COUNT,
+        stable_point_delta=DEFAULT_STABLE_POINT_DELTA,
+    ):
         self._max_missing_count = max_missing_count
-
         self._missing_count = 0
-        self._weighted_rotate = 0.0
-        self._current_rotate = 0.0
+
+        self._max_stable_count = max_stable_count
+        self._stable_point_delta = stable_point_delta
+        self._stable_count = 0
 
         self._first_polygon = None
         self._first_center = None
@@ -58,10 +68,15 @@ class RotateTracer:
         self._current_polygon = None
         self._current_center = None
         self._current_point0 = None
+        self._current_rotate = 0.0
 
     @property
     def has_first_polygon(self) -> bool:
         return self._first_polygon is not None
+
+    @property
+    def is_stable_first(self) -> bool:
+        return self._max_stable_count <= self._stable_count
 
     @property
     def overflow_missing_count(self) -> bool:
@@ -80,6 +95,18 @@ class RotateTracer:
         return self._missing_count
 
     @property
+    def max_stable_count(self) -> int:
+        return self._max_stable_count
+
+    @max_stable_count.setter
+    def max_stable_count(self, value: int) -> None:
+        self._max_stable_count = value
+
+    @property
+    def stable_count(self) -> int:
+        return self._stable_count
+
+    @property
     def current_center(self) -> Optional[Tuple[float, float]]:
         return self._current_center
 
@@ -89,20 +116,29 @@ class RotateTracer:
 
     @property
     def current_rotate_delta(self) -> float:
-        current_rotate = self._current_rotate
-        if current_rotate > 180:
-            return current_rotate - 360
+        if self._current_rotate <= -360 or 360 <= self._current_rotate:
+            delta = self._current_rotate - (self._current_rotate // 360 * 360.0)
         else:
-            return current_rotate
+            delta = self._current_rotate
+
+        assert -360.0 < delta < 360.0
+
+        if 180.0 < delta:
+            result = delta - 360.0
+        elif delta < -180.0:
+            result = delta + 360.0
+        else:
+            result = delta
+
+        assert -180.0 <= result <= 180.0
+        return result
 
     @property
     def rotate_degrees(self) -> float:
-        return self.current_rotate_delta + self._weighted_rotate
+        return self.current_rotate_delta
 
     def clear(self) -> None:
         self._missing_count = 0
-        self._weighted_rotate = 0.0
-        self._current_rotate = 0.0
 
         self._first_polygon = None
         self._first_center = None
@@ -111,6 +147,7 @@ class RotateTracer:
         self._current_polygon = None
         self._current_center = None
         self._current_point0 = None
+        self._current_rotate = 0.0
 
     def reset_missing_count(self) -> None:
         self._missing_count = 0
@@ -140,16 +177,16 @@ class RotateTracer:
         assert isinstance(polygon, list)
         assert isinstance(center, tuple)
 
-        self._weighted_rotate = 0.0
-        self._current_rotate = 0.0
+        self._stable_count = 0
 
-        self._first_polygon = polygon
-        self._first_center = center
+        self._first_polygon = deepcopy(polygon)
+        self._first_center = deepcopy(center)
         self._first_point0 = (polygon[0][0], polygon[0][1])
 
         self._current_polygon = self._first_polygon
         self._current_center = self._first_center
         self._current_point0 = self._first_point0
+        self._current_rotate = 0.0
 
     def on_trace_next_angle(self, polygon: PolygonT, center: PointT) -> None:
         assert polygon
@@ -157,25 +194,47 @@ class RotateTracer:
         assert isinstance(polygon, list)
         assert isinstance(center, tuple)
 
-        first_point0 = self._first_point0
-        first_center = self._first_center
-        current_point0 = self._current_point0
-        assert first_point0 is not None
-        assert first_center is not None
-        assert current_point0 is not None
+        assert self._first_point0 is not None
+        assert self._first_center is not None
+        assert self._current_point0 is not None
 
-        next_point0 = find_nearest_point(current_point0, *polygon)
-        next_center = center
+        next_point0 = find_nearest_point(self._current_point0, *polygon)
+        next_center = deepcopy(center)
         next_degrees = calc_degrees(
-            first_point0,
-            first_center,
+            self._first_point0,
+            self._first_center,
             next_point0,
             next_center,
         )
+
         self._current_polygon = polygon
         self._current_center = next_center
         self._current_point0 = next_point0
         self._current_rotate = next_degrees
+
+        if self.is_stable_first:
+            return
+
+        p0w = l2_norm(
+            x1=self._first_point0[0],
+            y1=self._first_point0[1],
+            x2=next_point0[0],
+            y2=next_point0[1],
+        )
+        cw = l2_norm(
+            x1=self._first_center[0],
+            y1=self._first_center[1],
+            x2=next_center[0],
+            y2=next_center[1],
+        )
+
+        if self._stable_point_delta <= p0w or self._stable_point_delta <= cw:
+            self._stable_count = 0
+            self._first_polygon = deepcopy(polygon)
+            self._first_center = next_center
+            self._first_point0 = next_point0
+        else:
+            self._stable_count += 1
 
     def run(
         self,
