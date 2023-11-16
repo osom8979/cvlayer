@@ -142,7 +142,10 @@ class LayerBase:
         # If an exception is supplied, and the method wishes to suppress the exception
         # (i.e., prevent it from being propagated), it should return a true value
         if self._frame is None:
-            raise InvalidFrameError from self._error
+            if self._error is not None:
+                raise self._error
+            else:
+                raise InvalidFrameError
         return None
 
     @property

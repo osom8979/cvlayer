@@ -32,6 +32,7 @@ class CvmContoursFindLargest(LayerManagerMixinBase):
         mode=DEFAULT_RETRIEVAL,
         method=DEFAULT_CHAIN_APPROX,
         mask_value=PIXEL_8BIT_MAX,
+        draw_mask=True,
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
@@ -46,6 +47,7 @@ class CvmContoursFindLargest(LayerManagerMixinBase):
             approx = layer.param("method").build_enum(init_method).value
             o = layer.param("oriented").build_bool(oriented).value
             mval = layer.param("mask_value").build_uint(mask_value).value
+            dm = layer.param("draw_mask").build_bool(draw_mask).value
 
             result = find_contours_filter_area_largest(
                 image=src,
@@ -56,9 +58,8 @@ class CvmContoursFindLargest(LayerManagerMixinBase):
                 area_max=amax,
                 mask_value=mval,
             )
-            mask, contour, area = result
 
-            layer.frame = mask
-            layer.data = contour
+            layer.frame = result.mask if dm else src
+            layer.data = result.contour
 
         return result

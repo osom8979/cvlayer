@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Final, NamedTuple, Optional
+from typing import Final, Optional
 
 from numpy import int32, ndarray, uint8, zeros
 from numpy.typing import NDArray
@@ -12,14 +12,73 @@ from cvlayer.cv.types.chain_approx import DEFAULT_CHAIN_APPROX
 from cvlayer.cv.types.line_type import LINE_8
 from cvlayer.cv.types.retrieval import DEFAULT_RETRIEVAL
 from cvlayer.cv.types.thickness import FILLED
+from cvlayer.typing import SizeI
 
 DISABLE_AREA_FILTER: Final[float] = -1.0
 
 
-class LargestContourResult(NamedTuple):
-    mask: NDArray[uint8]
-    contour: Optional[NDArray[int32]]
-    area: float
+class LargestContourResult:
+    def __init__(
+        self,
+        size: SizeI,
+        contour: Optional[NDArray[int32]] = None,
+        mask: Optional[NDArray[uint8]] = None,
+        area: Optional[float] = None,
+        mask_value=PIXEL_8BIT_MAX,
+        area_oriented=False,
+    ):
+        self._size = size
+        self._contour = contour
+        self._mask = mask
+        self._area = area
+        self._mask_value = mask_value
+        self._area_oriented = area_oriented
+
+    @property
+    def size(self) -> SizeI:
+        return self._size
+
+    @property
+    def mask_value(self) -> int:
+        return self._mask_value
+
+    @property
+    def area_oriented(self) -> bool:
+        return self._area_oriented
+
+    @property
+    def has_contour(self) -> bool:
+        return self._contour is not None
+
+    @property
+    def contour(self):
+        return self._contour
+
+    @property
+    def mask(self) -> NDArray[uint8]:
+        if self._mask is None:
+            if self._contour is None:
+                raise ValueError("Not exists contour")
+            w, h = self._size
+            mask = zeros((h, w), dtype=uint8)
+            self._mask = draw_contour(
+                image=mask,
+                contour=self._contour,
+                color=self._mask_value,
+                thickness=FILLED,
+                line=LINE_8,
+            )
+        assert self._mask is not None
+        return self._mask
+
+    @property
+    def area(self) -> float:
+        if self._area is None:
+            if self._contour is None:
+                raise ValueError("Not exists contour")
+            self._area = contour_area(self._contour, self._area_oriented)
+        assert self._area is not None
+        return self._area
 
 
 def find_contours_filter_area_largest(
@@ -32,14 +91,21 @@ def find_contours_filter_area_largest(
     mask_value=PIXEL_8BIT_MAX,
 ) -> LargestContourResult:
     contours = find_contours(image, mode, method).contours
-
-    largest_mask = zeros(image.shape[0:2], dtype=uint8)
-    largest_contour: Optional[NDArray[int32]] = None
-    largest_area = 0.0
+    h, w = image.shape[0:2]
+    image_size = w, h
 
     if len(contours) == 0:
-        return LargestContourResult(largest_mask, largest_contour, largest_area)
+        return LargestContourResult(
+            size=image_size,
+            contour=None,
+            mask=None,
+            area=None,
+            mask_value=mask_value,
+            area_oriented=area_oriented,
+        )
 
+    largest_contour: Optional[NDArray[int32]] = None
+    largest_area = 0.0
     areas = map(lambda c: contour_area(c, area_oriented), contours)
 
     for contour, area in zip(contours, areas):
@@ -55,13 +121,11 @@ def find_contours_filter_area_largest(
             largest_contour = contour
             largest_area = area
 
-    if largest_contour is not None:
-        draw_contour(
-            image=largest_mask,
-            contour=largest_contour,
-            color=mask_value,
-            thickness=FILLED,
-            line=LINE_8,
-        )
-
-    return LargestContourResult(largest_mask, largest_contour, largest_area)
+    return LargestContourResult(
+        size=image_size,
+        contour=largest_contour,
+        mask=None,
+        area=largest_area,
+        mask_value=mask_value,
+        area_oriented=area_oriented,
+    )
