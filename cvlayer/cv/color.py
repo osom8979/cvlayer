@@ -20,7 +20,7 @@ def normalize_color(color: ColorLike) -> Color:
     elif isinstance(color, str):
         return css4_palette()[color.upper()]
     elif isinstance(color, (tuple, list)):
-        return tuple(c for c in color)
+        return color  # tuple(c for c in color)
     else:
         raise TypeError(f"Unsupported color type: {type(color).__name__}")
 
