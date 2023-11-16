@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from math import degrees
 from unittest import TestCase, main
 
 from cvlayer.math.angle import degrees_point3
+from cvlayer.math.constant import DOUBLE_PI, PI
 
 
 class DegreesPoint3TestCase(TestCase):
@@ -12,6 +14,11 @@ class DegreesPoint3TestCase(TestCase):
         self.top = (0, 1)
         self.right = (1, 0)
         self.left = (-1, 0)
+
+    def test_degrees(self):
+        self.assertEqual(0, degrees(0))
+        self.assertEqual(180, degrees(PI))
+        self.assertEqual(360, degrees(DOUBLE_PI))
 
     def test_degrees_point3_pivot_right(self):
         #################
