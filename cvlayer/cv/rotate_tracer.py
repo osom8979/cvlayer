@@ -80,11 +80,11 @@ class RotateTracer:
         max_abnormal_count=DEFAULT_MAX_ABNORMAL_COUNT,
         abnormal_degrees_delta=DEFAULT_ABNORMAL_DEGREES_DELTA,
     ):
-        self._max_missing_count = max_missing_count
-        self._max_stable_count = max_stable_count
-        self._stable_degrees_delta = stable_degrees_delta
-        self._max_abnormal_count = max_abnormal_count
-        self._abnormal_degrees_delta = abnormal_degrees_delta
+        self.max_missing_count = max_missing_count
+        self.max_stable_count = max_stable_count
+        self.stable_degrees_delta = stable_degrees_delta
+        self.max_abnormal_count = max_abnormal_count
+        self.abnormal_degrees_delta = abnormal_degrees_delta
 
         self._missing_count = 0
         self._current_rotate = 0.0
@@ -109,15 +109,7 @@ class RotateTracer:
 
     @property
     def overflow_missing_count(self) -> bool:
-        return self._missing_count >= self._max_missing_count
-
-    @property
-    def max_missing_count(self) -> int:
-        return self._max_missing_count
-
-    @max_missing_count.setter
-    def max_missing_count(self, value: int) -> None:
-        self._max_missing_count = value
+        return self._missing_count >= self.max_missing_count
 
     @property
     def missing_count(self) -> int:
@@ -128,28 +120,12 @@ class RotateTracer:
         return self._current_rotate
 
     @property
-    def max_stable_count(self) -> int:
-        return self._max_stable_count
-
-    @max_stable_count.setter
-    def max_stable_count(self, value: int) -> None:
-        self._max_stable_count = value
-
-    @property
     def stable_count(self) -> int:
         return self._stable_count
 
     @property
     def stable_rotate(self) -> float:
         return self._stable_rotate
-
-    @property
-    def max_abnormal_count(self) -> int:
-        return self._max_abnormal_count
-
-    @max_abnormal_count.setter
-    def max_abnormal_count(self, value: int) -> None:
-        self._max_abnormal_count = value
 
     @property
     def abnormal_count(self) -> int:
@@ -239,14 +215,14 @@ class RotateTracer:
 
         assert 0 <= next_degrees < 360
         assert 0 <= self._current_rotate < 360
-        assert 0 <= self._abnormal_degrees_delta
+        assert 0 <= self.abnormal_degrees_delta
         if not in_degrees(
             angle=next_degrees,
             pivot=self._current_rotate,
-            delta=self._abnormal_degrees_delta,
+            delta=self.abnormal_degrees_delta,
         ):
             self._abnormal_count += 1
-            if self._abnormal_count < self._max_abnormal_count:
+            if self._abnormal_count < self.max_abnormal_count:
                 return
 
         self._abnormal_count = 0
@@ -258,21 +234,21 @@ class RotateTracer:
         self._trace_stable_degrees(next_degrees)
 
     def _trace_stable_degrees(self, next_degrees: float) -> None:
-        if self._max_stable_count <= self._stable_count:
+        if self.max_stable_count <= self._stable_count:
             return
 
         assert 0 <= next_degrees < 360
         assert 0 <= self._stable_current_degrees < 360
-        assert 0 <= self._stable_degrees_delta
+        assert 0 <= self.stable_degrees_delta
         if in_degrees(
             angle=next_degrees,
             pivot=self._stable_current_degrees,
-            delta=self._stable_degrees_delta,
+            delta=self.stable_degrees_delta,
         ):
             self._stable_count += 1
             next_stable_degrees = (self._stable_current_degrees + next_degrees) / 2.0
             self._stable_current_degrees = next_stable_degrees
-            if self._max_stable_count <= self._stable_count:
+            if self.max_stable_count <= self._stable_count:
                 self._stable_rotate = self._stable_current_degrees
         else:
             self._stable_count = 0
@@ -304,5 +280,17 @@ class RotateTracer:
 
 class CvlRotateTracer:
     @staticmethod
-    def cvl_create_rotate_tracer(max_missing_count=DEFAULT_MAX_MISSING_COUNT):
-        return RotateTracer(max_missing_count)
+    def cvl_create_rotate_tracer(
+        max_missing_count=DEFAULT_MAX_MISSING_COUNT,
+        max_stable_count=DEFAULT_MAX_STABLE_COUNT,
+        stable_degrees_delta=DEFAULT_STABLE_DEGREES_DELTA,
+        max_abnormal_count=DEFAULT_MAX_ABNORMAL_COUNT,
+        abnormal_degrees_delta=DEFAULT_ABNORMAL_DEGREES_DELTA,
+    ):
+        return RotateTracer(
+            max_missing_count=max_missing_count,
+            max_stable_count=max_stable_count,
+            stable_degrees_delta=stable_degrees_delta,
+            max_abnormal_count=max_abnormal_count,
+            abnormal_degrees_delta=abnormal_degrees_delta,
+        )
