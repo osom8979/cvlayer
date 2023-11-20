@@ -12,7 +12,6 @@ from cvlayer.cv.colormap import CvlColormap
 from cvlayer.cv.contour import CvlContour
 from cvlayer.cv.convert_scale_abs import CvlConvertScaleAbs
 from cvlayer.cv.cvt_color import CvlCvtColor
-from cvlayer.cv.cvt_shapely import CvlShapely
 from cvlayer.cv.dehaze import CvlDehaze
 from cvlayer.cv.drawable import CvlDrawable
 from cvlayer.cv.filter import CvlFilter
@@ -95,7 +94,6 @@ class CvLayer(
     CvlPyramid,
     CvlRoi,
     CvlRotateTracer,
-    CvlShapely,
     CvlStack,
     CvlTransform,
     CvlThreshold,
