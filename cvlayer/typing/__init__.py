@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from cvlayer.cv.types.color import Color, ColorLike
-from cvlayer.typing.overrides import override
-from cvlayer.typing.shape import (
+from cvlayer.cv.types.shape import (
     LineF,
     LineI,
     LineN,
@@ -34,13 +33,13 @@ from cvlayer.typing.shape import (
     SizeN,
     SizeT,
 )
+from cvlayer.typing.overrides import override
 
 __all__ = [
+    # cvlayer.cv.types.color
     "Color",
     "ColorLike",
-    # cvlayer.typing.overrides
-    "override",
-    # cvlayer.typing.shape
+    # cvlayer.cv.types.shape
     "LineF",
     "LineI",
     "LineN",
@@ -71,4 +70,6 @@ __all__ = [
     "SizeI",
     "SizeN",
     "SizeT",
+    # cvlayer.typing.overrides
+    "override",
 ]
