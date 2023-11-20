@@ -5,7 +5,7 @@ from typing import Optional
 from numpy import int32
 from numpy.typing import NDArray
 
-from cvlayer.cv.contour.find import contour_area
+from cvlayer.cv.contour.analysis import contour_area
 from cvlayer.cv.contour.moments import Moments, moments
 from cvlayer.cv.contour.most_point import (
     find_bottommost_point,

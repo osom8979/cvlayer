@@ -4,7 +4,8 @@ from typing import Optional
 
 from numpy.typing import NDArray
 
-from cvlayer.cv.contour.find import contour_area, find_contours
+from cvlayer.cv.contour.analysis import contour_area
+from cvlayer.cv.contour.find import find_contours
 from cvlayer.cv.drawable.contours import DRAW_ALL_CONTOURS, draw_contours
 from cvlayer.cv.types.chain_approx import CHAIN_APPROX_SIMPLE
 from cvlayer.cv.types.line_type import LINE_8

@@ -6,7 +6,8 @@ from numpy import int32, ndarray, uint8, zeros
 from numpy.typing import NDArray
 
 from cvlayer.cv.color import PIXEL_8BIT_MAX
-from cvlayer.cv.contour.find import contour_area, find_contours
+from cvlayer.cv.contour.analysis import contour_area
+from cvlayer.cv.contour.find import find_contours
 from cvlayer.cv.drawable.contours import draw_contour
 from cvlayer.cv.types.chain_approx import DEFAULT_CHAIN_APPROX
 from cvlayer.cv.types.line_type import LINE_8

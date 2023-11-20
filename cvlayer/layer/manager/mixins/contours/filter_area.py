@@ -6,7 +6,7 @@ from typing import NamedTuple, Optional, Sequence
 from numpy import int32
 from numpy.typing import NDArray
 
-from cvlayer.cv.contour.find import contour_area
+from cvlayer.cv.contour.analysis import contour_area
 from cvlayer.cv.drawable.contours import DRAW_ALL_CONTOURS, draw_contours
 from cvlayer.cv.drawable.defaults import (
     DEFAULT_COLOR,
