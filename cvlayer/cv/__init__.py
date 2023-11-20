@@ -30,7 +30,6 @@ from cvlayer.cv.image_normalize import CvlImageNormalize
 from cvlayer.cv.image_resize import CvlImageResize
 from cvlayer.cv.image_rotation import CvlImageRotation
 from cvlayer.cv.in_range import CvlInRange
-from cvlayer.cv.intrusion_detection import CvlIntrusionDetection
 from cvlayer.cv.iou import CvlIou
 from cvlayer.cv.keymap import CvlKeymap
 from cvlayer.cv.kmeans import CvlKmeans
@@ -83,7 +82,6 @@ class CvLayer(
     CvlImageResize,
     CvlImageRotation,
     CvlInRange,
-    CvlIntrusionDetection,
     CvlIou,
     CvlKeymap,
     CvlKmeans,
