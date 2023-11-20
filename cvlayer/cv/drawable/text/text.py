@@ -3,7 +3,6 @@
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.color import normalize_color
 from cvlayer.cv.drawable.defaults import (
     DEFAULT_FONT_COLOR,
     DEFAULT_FONT_FACE,
@@ -12,6 +11,7 @@ from cvlayer.cv.drawable.defaults import (
     DEFAULT_TEXT_ORIGIN,
     DEFAULT_THICKNESS,
 )
+from cvlayer.cv.types.color import normalize_color
 from cvlayer.cv.types.font_face import normalize_font_face
 from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.cv.types.text_origin import normalize_text_origin

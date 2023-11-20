@@ -6,7 +6,7 @@ import cv2
 from numpy import int8, int32, uint8, uint32
 from numpy.typing import NDArray
 
-from cvlayer.typing import ColorLike
+from cvlayer.cv.types.color import ColorLike
 
 WATERSHED_MARKER_BORDER: Final[int] = -1
 

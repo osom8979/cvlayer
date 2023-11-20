@@ -2,12 +2,12 @@
 
 from typing import Final, Tuple, Union
 
+from cvlayer.cv.types.color import ColorLike
 from cvlayer.cv.types.font_face import HersheyFont
 from cvlayer.cv.types.line_type import LineType, LineTypeLike
 from cvlayer.cv.types.text_origin import DEFAULT_TEXT_ORIGIN as _DEFAULT_TEXT_ORIGIN
 from cvlayer.cv.types.text_origin import TextOriginLike
 from cvlayer.palette.basic import BLACK, WHITE
-from cvlayer.typing import ColorLike
 
 DEFAULT_RADIUS: Final[int] = 4
 DEFAULT_THICKNESS: Final[int] = 2

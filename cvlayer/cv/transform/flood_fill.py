@@ -6,7 +6,7 @@ import cv2
 from numpy import float16, float32, float64, int8, ndarray, uint8, zeros
 from numpy.typing import NDArray
 
-from cvlayer.cv.color import ColorLike, normalize_color
+from cvlayer.cv.types.color import ColorLike, normalize_color
 from cvlayer.cv.types.connectivity import DEFAULT_CONNECTIVITY, normalize_connectivity
 from cvlayer.typing import PointI, RectI
 

@@ -13,6 +13,7 @@ from cvlayer.cv.drawable.line import draw_line
 from cvlayer.cv.drawable.plot import PlotMode, draw_plot_2d
 from cvlayer.cv.drawable.rectangle import draw_rectangle
 from cvlayer.cv.roi import normalize_image_roi
+from cvlayer.cv.types.color import Color
 from cvlayer.cv.types.thickness import FILLED
 from cvlayer.palette.basic import (
     AQUA,
@@ -25,7 +26,7 @@ from cvlayer.palette.basic import (
     WHITE,
     YELLOW,
 )
-from cvlayer.typing import Color, PointF, RectI
+from cvlayer.typing import PointF, RectI
 
 RANGE_MAX: Final[int] = PIXEL_8BIT_MAX + 1
 DEFAULT_HIST_SIZE: Final[Sequence[int]] = (RANGE_MAX,)

@@ -5,13 +5,12 @@ from typing import Optional, Sequence
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.color import normalize_color
 from cvlayer.cv.types.border import (
     DEFAULT_BORDER_TYPE,
     BorderType,
     normalize_border_type,
 )
-from cvlayer.typing import ColorLike
+from cvlayer.cv.types.color import ColorLike, normalize_color
 
 
 def copy_make_border(

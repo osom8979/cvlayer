@@ -6,13 +6,13 @@ import cv2
 from numpy import int64
 from numpy.typing import NDArray
 
-from cvlayer.cv.color import normalize_color
 from cvlayer.cv.contour.analysis import RotatedRect, box_points
 from cvlayer.cv.drawable.defaults import (
     DEFAULT_COLOR,
     DEFAULT_LINE_TYPE,
     DEFAULT_THICKNESS,
 )
+from cvlayer.cv.types.color import normalize_color
 from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.math.climit import INT_MAX
 from cvlayer.typing import PointI

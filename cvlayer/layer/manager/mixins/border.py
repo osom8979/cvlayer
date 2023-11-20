@@ -5,14 +5,13 @@ from typing import Optional, Sequence
 from numpy.typing import NDArray
 
 from cvlayer.cv.border import copy_make_border
-from cvlayer.cv.color import normalize_color
 from cvlayer.cv.types.border import (
     DEFAULT_BORDER_TYPE,
     BorderType,
     normalize_border_type,
 )
+from cvlayer.cv.types.color import ColorLike, normalize_color
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
-from cvlayer.typing import ColorLike
 
 
 class CvmBorder(LayerManagerMixinBase):

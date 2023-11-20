@@ -5,12 +5,12 @@ from typing import Final, Union
 import cv2
 from numpy.typing import NDArray
 
-from cvlayer.cv.color import normalize_color
 from cvlayer.cv.drawable.defaults import (
     DEFAULT_COLOR,
     DEFAULT_LINE_TYPE,
     DEFAULT_THICKNESS,
 )
+from cvlayer.cv.types.color import normalize_color
 from cvlayer.cv.types.line_type import normalize_line_type
 from cvlayer.cv.types.marker import MarkerType, normalize_marker
 from cvlayer.typing import Number, PointN

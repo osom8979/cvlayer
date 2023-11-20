@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from cvlayer.typing.color import BGR, RGB, Color, ColorLike
-from cvlayer.typing.np import Image, ImageShape
+from cvlayer.cv.types.color import Color, ColorLike
 from cvlayer.typing.overrides import override
 from cvlayer.typing.shape import (
     LineF,
@@ -37,14 +36,8 @@ from cvlayer.typing.shape import (
 )
 
 __all__ = [
-    # cvlayer.typing.color
-    "BGR",
-    "RGB",
     "Color",
     "ColorLike",
-    # cvlayer.typing.np
-    "Image",
-    "ImageShape",
     # cvlayer.typing.overrides
     "override",
     # cvlayer.typing.shape

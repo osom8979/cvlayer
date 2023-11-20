@@ -6,9 +6,10 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.drawable.circle import draw_circle_coord
 from cvlayer.cv.drawable.line import draw_line
+from cvlayer.cv.types.color import Color
 from cvlayer.cv.types.line_type import LineType, LineTypeLike
 from cvlayer.palette.basic import RED
-from cvlayer.typing import Color, Number, PointN
+from cvlayer.typing import Number, PointN
 
 CROSSHAIR_POINT_RADIUS: Final[int] = 6
 CROSSHAIR_POINT_THICKNESS: Final[int] = 1

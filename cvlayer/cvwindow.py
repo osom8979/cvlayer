@@ -13,7 +13,7 @@ from numpy import float32, float64, full_like, uint8, zeros_like
 from numpy.typing import NDArray
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
-from cvlayer.cv.color import PIXEL_8BIT_MAX, ColorLike, normalize_color
+from cvlayer.cv.color import PIXEL_8BIT_MAX
 from cvlayer.cv.cvt_color import cvt_color
 from cvlayer.cv.drawable.defaults import DEFAULT_FONT_FACE
 from cvlayer.cv.drawable.rectangle import draw_rectangle
@@ -32,6 +32,7 @@ from cvlayer.cv.keymap import (
 )
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.cv.roi import normalize_image_roi
+from cvlayer.cv.types.color import Color, ColorLike, normalize_color
 from cvlayer.cv.types.cvt_color_code import CvtColorCode
 from cvlayer.cv.types.interpolation import DEFAULT_INTERPOLATION
 from cvlayer.cv.video_capture import VideoCapture
@@ -45,7 +46,7 @@ from cvlayer.layer.manager.cvmanager import CvManager
 from cvlayer.layer.manager.interface import LayerManagerInterface
 from cvlayer.palette.basic import GREEN, RED, WHITE, YELLOW
 from cvlayer.palette.flat import CLOUDS_50, MIDNIGHT_BLUE_900
-from cvlayer.typing import Color, PointF, PointI, RectI, SizeI, override
+from cvlayer.typing import PointF, PointI, RectI, SizeI, override
 
 DEFAULT_WINDOW_EX_TITLE: Final[str] = "CvWindow"
 DEFAULT_LOGGER_NAME: Final[str] = "cvlayer.cvwindow"
