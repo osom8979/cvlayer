@@ -21,14 +21,14 @@ DISABLE_AREA_FILTER: Final[float] = -1.0
 class LargestContourResult:
     def __init__(
         self,
-        size: SizeI,
+        frame_size: SizeI,
         contour: Optional[NDArray[int32]] = None,
         mask: Optional[NDArray[uint8]] = None,
         area: Optional[float] = None,
         mask_value=PIXEL_8BIT_MAX,
         area_oriented=False,
     ):
-        self._size = size
+        self._frame_size = frame_size
         self._contour = contour
         self._mask = mask
         self._area = area
@@ -36,8 +36,8 @@ class LargestContourResult:
         self._area_oriented = area_oriented
 
     @property
-    def size(self) -> SizeI:
-        return self._size
+    def frame_size(self) -> SizeI:
+        return self._frame_size
 
     @property
     def mask_value(self) -> int:
@@ -60,7 +60,7 @@ class LargestContourResult:
         if self._mask is None:
             if self._contour is None:
                 raise ValueError("Not exists contour")
-            w, h = self._size
+            w, h = self._frame_size
             mask = zeros((h, w), dtype=uint8)
             self._mask = draw_contour(
                 image=mask,
@@ -97,7 +97,7 @@ def find_contours_filter_area_largest(
 
     if len(contours) == 0:
         return LargestContourResult(
-            size=image_size,
+            frame_size=image_size,
             contour=None,
             mask=None,
             area=None,
@@ -123,7 +123,7 @@ def find_contours_filter_area_largest(
             largest_area = area
 
     return LargestContourResult(
-        size=image_size,
+        frame_size=image_size,
         contour=largest_contour,
         mask=None,
         area=largest_area,
