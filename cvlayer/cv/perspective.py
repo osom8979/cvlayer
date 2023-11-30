@@ -7,7 +7,7 @@ import cv2
 from numpy import array, float32
 from numpy.typing import NDArray
 
-from cvlayer.typing import PerspectivePointsI, PointF, RectF, ScalarF, SizeI
+from cvlayer.typing import PerspectivePointsI, PointF, RectF, ScalarF, SizeN
 
 
 @unique
@@ -126,7 +126,7 @@ class WarpPerspectiveBorderMode(Enum):
 def warp_perspective(
     image: NDArray,
     matrix: NDArray,
-    dsize: SizeI,
+    dsize: SizeN,
     flags=WarpPerspectiveFlags.LINEAR,
     border_mode=WarpPerspectiveBorderMode.CONSTANT,
     border_value: Optional[ScalarF] = None,
@@ -134,7 +134,7 @@ def warp_perspective(
     return cv2.warpPerspective(
         image,
         matrix,
-        dsize,
+        dsize=(int(dsize[0]), int(dsize[1])),
         flags=flags.value,
         borderMode=border_mode.value,
         borderValue=border_value,
@@ -176,7 +176,7 @@ class CvlPerspective:
     def cvl_warp_perspective(
         image: NDArray,
         matrix: NDArray,
-        dsize: SizeI,
+        dsize: SizeN,
         flags=WarpPerspectiveFlags.LINEAR,
         border_mode=WarpPerspectiveBorderMode.CONSTANT,
         border_value: Optional[ScalarF] = None,

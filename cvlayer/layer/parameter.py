@@ -3,7 +3,7 @@
 from copy import deepcopy
 from enum import Enum
 from math import ceil, floor
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, Union
 
 from cvlayer.cv.mouse import EventFlags, MouseEvent
 from cvlayer.typing import PointI, RectI
@@ -28,7 +28,11 @@ class NotReadyFrozenError(BaseException):
         super().__init__(*args)
 
 
-class LayerParameter:
+_ParameterValueType = TypeVar("_ParameterValueType")
+_NoneType = type(None)
+
+
+class LayerParameter(Generic[_ParameterValueType]):
     def __init__(
         self,
         value=None,
@@ -44,6 +48,7 @@ class LayerParameter:
         mouse: Optional[OnMouseCallable] = None,
         nullable=True,
         frozen=False,
+        hidden=False,
         **kwargs,
     ):
         self._value = value
@@ -62,16 +67,6 @@ class LayerParameter:
         self.kwargs = kwargs
         self.cache = None
 
-    def freeze(self) -> None:
-        self._frozen = True
-
-    def melt(self) -> None:
-        self._frozen = False
-
-    @property
-    def initialized(self) -> bool:
-        return self._frozen
-
     def _clear_all_properties(self) -> None:
         self._value = None
         self._min_value = None
@@ -89,56 +84,56 @@ class LayerParameter:
         self.kwargs = dict()
         self.cache = None
 
-    def _validate_initialize(self) -> None:
+    def _validate_initialized(self) -> None:
         if self._frozen:
             raise AlreadyFrozenError("Already frozen state")
 
-    def _set_value(self, value: Any):
-        self._validate_initialize()
+    def _set_value(self, value: Any) -> None:
+        self._validate_initialized()
         self._value = value
 
-    def _set_min(self, callback: LimitedCallable):
-        self._validate_initialize()
+    def _set_min(self, callback: LimitedCallable) -> None:
+        self._validate_initialized()
         self._min_value = callback
 
-    def _set_max(self, callback: LimitedCallable):
-        self._validate_initialize()
+    def _set_max(self, callback: LimitedCallable) -> None:
+        self._validate_initialized()
         self._max_value = callback
 
-    def _set_decrease(self, callback: ModifyCallable):
-        self._validate_initialize()
+    def _set_decrease(self, callback: ModifyCallable) -> None:
+        self._validate_initialized()
         self._decrease = callback
 
-    def _set_increase(self, callback: ModifyCallable):
-        self._validate_initialize()
+    def _set_increase(self, callback: ModifyCallable) -> None:
+        self._validate_initialized()
         self._increase = callback
 
-    def _set_getter(self, callback: GetterCallable):
-        self._validate_initialize()
+    def _set_getter(self, callback: GetterCallable) -> None:
+        self._validate_initialized()
         self._getter = callback
 
-    def _set_setter(self, callback: SetterCallable):
-        self._validate_initialize()
+    def _set_setter(self, callback: SetterCallable) -> None:
+        self._validate_initialized()
         self._setter = callback
 
-    def _set_cacher(self, callback: CacherCallable):
-        self._validate_initialize()
+    def _set_cacher(self, callback: CacherCallable) -> None:
+        self._validate_initialized()
         self._cacher = callback
 
-    def _set_keydown(self, callback: OnKeydownCallable):
-        self._validate_initialize()
+    def _set_keydown(self, callback: OnKeydownCallable) -> None:
+        self._validate_initialized()
         self._keydown = callback
 
-    def _set_mouse(self, callback: OnMouseCallable):
-        self._validate_initialize()
+    def _set_mouse(self, callback: OnMouseCallable) -> None:
+        self._validate_initialized()
         self._mouse = callback
 
-    def _set_printable(self, callback: PrintableCallable):
-        self._validate_initialize()
+    def _set_printable(self, callback: PrintableCallable) -> None:
+        self._validate_initialized()
         self._printable = callback
 
-    def _set_nullable(self, value: bool):
-        self._validate_initialize()
+    def _set_nullable(self, value: bool) -> None:
+        self._validate_initialized()
         self._nullable = value
 
     initial_value = property(None, _set_value)
@@ -153,6 +148,16 @@ class LayerParameter:
     mouse = property(None, _set_mouse)
     printable = property(None, _set_printable)
     nullable = property(None, _set_nullable)
+
+    def freeze(self) -> None:
+        self._frozen = True
+
+    def melt(self) -> None:
+        self._frozen = False
+
+    @property
+    def initialized(self) -> bool:
+        return self._frozen
 
     def normalize_by_candidate_value(self, value: Any) -> Any:
         if value is None:
@@ -175,21 +180,23 @@ class LayerParameter:
         else:
             return value
 
-    def validate(self) -> None:
+    def validate_initialized(self) -> None:
         if not self._frozen:
             raise NotReadyFrozenError("Not ready frozen state")
 
     @property
-    def value(self) -> Any:
-        self.validate()
+    def value(self) -> _ParameterValueType:
+        self.validate_initialized()
+
         if self._getter:
             return self._getter(self._value)
         else:
             return self._value
 
     @value.setter
-    def value(self, val: Any) -> None:
-        self.validate()
+    def value(self, val: _ParameterValueType) -> None:
+        self.validate_initialized()
+
         normalized = self.normalize_by_candidate_value(val)
         next_value = self._setter(normalized) if self._setter else normalized
         if self._cacher and self._value != next_value:
@@ -197,7 +204,8 @@ class LayerParameter:
         self._value = next_value
 
     def do_decrease(self) -> None:
-        self.validate()
+        self.validate_initialized()
+
         if not self._decrease:
             return
         candidate = self._decrease(self._value)
@@ -207,7 +215,8 @@ class LayerParameter:
         self._value = normalized
 
     def do_increase(self) -> None:
-        self.validate()
+        self.validate_initialized()
+
         if not self._increase:
             return
         candidate = self._increase(self._value)
@@ -217,7 +226,8 @@ class LayerParameter:
         self._value = normalized
 
     def as_printable_text(self) -> str:
-        self.validate()
+        self.validate_initialized()
+
         if self._printable:
             return self._printable(self._value)
         else:
@@ -279,7 +289,10 @@ class LayerParameter:
     def __repr__(self):
         return self.as_printable_text()
 
-    def build_printonly(self, printable: Callable[[], str]):
+    def build_printonly(
+        self,
+        printable: Callable[[], str],
+    ):
         if self._frozen:
             return self
         self._clear_all_properties()
