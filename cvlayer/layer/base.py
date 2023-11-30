@@ -164,6 +164,11 @@ class LayerBase:
     def has_error(self) -> bool:
         return self._error is not None
 
+    @property
+    def error(self) -> BaseException:
+        assert self._error is not None
+        return self._error
+
     def clear_error(self) -> None:
         self._error = None
 

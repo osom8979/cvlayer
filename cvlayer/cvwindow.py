@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from argparse import Namespace
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum, auto, unique
@@ -7,7 +8,7 @@ from io import StringIO
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
-from typing import Any, Final, Optional, Sequence, Union
+from typing import Any, Dict, Final, Optional, Sequence, Union
 
 from numpy import float32, float64, full_like, uint8, zeros_like
 from numpy.typing import NDArray
@@ -296,6 +297,14 @@ class CvWindow(LayerManagerInterface, Window):
         self._stat = AvgStat("Iter", self._manager.logger, logging_step, verbose, 1)
         self._process_duration = 0.0
         self._shutdown = False
+
+    @staticmethod
+    def namespace_to_dict(ns: Namespace) -> Dict[str, Any]:
+        return {k: v for k, v in get_public_instance_attributes(ns)}
+
+    @classmethod
+    def from_namespace(cls, ns: Namespace):
+        return cls(**cls.namespace_to_dict(ns))
 
     @override
     def layer(self, key: Any) -> LayerBase:
@@ -728,16 +737,26 @@ class CvWindow(LayerManagerInterface, Window):
     def _select_preview_source(self, result_frame: Optional[NDArray]) -> NDArray:
         if self._show_manual:
             return self._manpage
-        elif self._manager.is_cursor_at_last:
+
+        if self._manager.is_cursor_at_last:
             if result_frame is not None:
                 return result_frame
-            else:
-                return self._empty_frame
-        else:
-            try:
-                return self._manager.current_layer.frame
-            except:  # noqa
-                return self._empty_frame
+
+            if self._verbose >= 1:
+                self.logger.warning("The result frame does not exist")
+            return self._empty_frame
+
+        current_layer = self._manager.current_layer
+        if current_layer.frame is not None:
+            return current_layer.frame
+
+        if self._verbose >= 1:
+            layer_name = current_layer.name
+            self.logger.warning(f"The frame of the '{layer_name}' layer does not exist")
+            if self._verbose >= 2 and current_layer.has_error:
+                self.logger.exception(current_layer.error)
+
+        return self._empty_frame
 
     def _coloring(self, frame: NDArray) -> NDArray:
         if frame.dtype in (float32, float64):
