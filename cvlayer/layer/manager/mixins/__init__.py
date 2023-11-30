@@ -10,6 +10,7 @@ from cvlayer.layer.manager.mixins.histogram import CvmHistogram
 from cvlayer.layer.manager.mixins.kmeans import CvmKmeans
 from cvlayer.layer.manager.mixins.mean_std_dev import CvmMeanStdDev
 from cvlayer.layer.manager.mixins.morphology import CvmMorphology
+from cvlayer.layer.manager.mixins.perspective import CvmPerspective
 from cvlayer.layer.manager.mixins.pyramid import CvmPyramid
 from cvlayer.layer.manager.mixins.threshold import CvmThreshold
 from cvlayer.layer.manager.mixins.transform import CvmTransform
@@ -27,6 +28,7 @@ class CvMixin(
     CvmKmeans,
     CvmMeanStdDev,
     CvmMorphology,
+    CvmPerspective,
     CvmPyramid,
     CvmThreshold,
     CvmTransform,
