@@ -59,6 +59,9 @@ class CvmContoursFindLargest(LayerManagerMixinBase):
                 mask_value=mval,
             )
 
+            if not result.has_contour:
+                raise ValueError("Contour does not exist")
+
             layer.frame = result.mask if dm else src
             layer.data = result.contour
 

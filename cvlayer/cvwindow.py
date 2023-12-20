@@ -235,8 +235,13 @@ class CvWindow(LayerManagerInterface, Window):
             raise RuntimeError("Invalid input video's height")
         if self._capture.fps < 1:
             raise RuntimeError("Invalid input video's FPS")
-        if self._capture.frames < 1:
-            raise RuntimeError("Invalid input video's frame count")
+
+        # ------------------------------------------------------------------------------
+        # Don't check the number of frames.
+        # In some cases, the number of frames is unknown. (e.g. network stream)
+        # if self._capture.frames < 1:
+        #     raise RuntimeError("Invalid input video's frame count")
+        # ------------------------------------------------------------------------------
 
         width = self._capture.width
         height = self._capture.height

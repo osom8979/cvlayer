@@ -59,7 +59,7 @@ class LargestContourResult:
     def mask(self) -> NDArray[uint8]:
         if self._mask is None:
             if self._contour is None:
-                raise ValueError("Not exists contour")
+                raise ValueError("Contour does not exist")
             w, h = self._frame_size
             mask = zeros((h, w), dtype=uint8)
             self._mask = draw_contour(
@@ -76,7 +76,7 @@ class LargestContourResult:
     def area(self) -> float:
         if self._area is None:
             if self._contour is None:
-                raise ValueError("Not exists contour")
+                raise ValueError("Contour does not exist")
             self._area = contour_area(self._contour, self._area_oriented)
         assert self._area is not None
         return self._area
