@@ -255,6 +255,9 @@ class CvWindow(LayerManagerInterface, Window):
         self._original_frame = frame.copy()
         self._preview_frame = frame.copy()
 
+        self._select_roi_mode = False
+        self._select_roi_button_down = False
+
         if self._output:
             size = writer_size if writer_size is not None else (width, height)
             fps = writer_fps if writer_fps is not None else self._capture.fps
@@ -518,6 +521,23 @@ class CvWindow(LayerManagerInterface, Window):
         self._mouse_y = y
         self._mouse_flags = flags
 
+        # Intercept mouse events for select ROI mode.
+        if self._select_roi_mode:
+            if event == MouseEvent.LBUTTON_DOWN:
+                self.roi = x, y, x, y
+                self._select_roi_button_down = True
+            if self._select_roi_button_down:
+                if event == MouseEvent.MOUSE_MOVE:
+                    self.roi = self.roi[0], self.roi[1], x, y
+                elif event == MouseEvent.LBUTTON_UP:
+                    if self.roi[0] == x and self.roi[1] == y:
+                        self.set_roi(None)
+                    else:
+                        self.roi = self.roi[0], self.roi[1], x, y
+                    self._select_roi_mode = False
+                    self._select_roi_button_down = False
+            return
+
         # Process user events with priority.
         # And if it consumed the event with a return value of `True`,
         # It doesn't handle default events.
@@ -651,7 +671,13 @@ class CvWindow(LayerManagerInterface, Window):
         self._manager.move_last_layer()
 
     def do_select_roi(self) -> None:
-        raise NotImplementedError
+        if self._select_roi_mode:
+            self._select_roi_mode = False
+            self.set_roi(None)
+            self.toast_info("Clear ROI")
+        else:
+            self._select_roi_mode = True
+            self.toast_info("Select ROI ...")
 
     def do_frame_prev(self) -> None:
         self._original_frame = self.read_prev_frame()
@@ -826,12 +852,6 @@ class CvWindow(LayerManagerInterface, Window):
         # [IMPORTANT] Do not use `self._use_deepcopy` property.
         canvas = frame.copy()
 
-        if self._show_manual:
-            return canvas
-
-        if self._help_mode == HelpMode.HIDE:
-            return canvas
-
         if self._roi_draw and self.roi is not None:
             draw_rectangle(canvas, self.roi, self._roi_color, self._roi_thickness)
 
@@ -859,6 +879,15 @@ class CvWindow(LayerManagerInterface, Window):
 
         return canvas
 
+    def _previewing(self, frame: NDArray, analyze_frame: NDArray) -> NDArray:
+        if self._show_manual:
+            return frame.copy()
+
+        if self._help_mode == HelpMode.HIDE:
+            return frame.copy()
+
+        return self._draw_information(frame, analyze_frame)
+
     def _iter(self) -> None:
         if not self._capture.opened:
             raise EOFError("Input video is not opened")
@@ -870,7 +899,7 @@ class CvWindow(LayerManagerInterface, Window):
         select_frame = self._select_preview_source(result_frame)
         colored_frame = self._coloring(select_frame)
         resized_frame = self._resizing(colored_frame)
-        self._preview_frame = self._draw_information(resized_frame, select_frame)
+        self._preview_frame = self._previewing(resized_frame, select_frame)
 
         if self._writer is not None:
             assert self._writer.opened
