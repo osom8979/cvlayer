@@ -10,7 +10,7 @@ from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
 from typing import Any, Dict, Final, Optional, Sequence, Union
 
-from numpy import float32, float64, full_like, uint8, zeros_like
+from numpy import float32, float64, full, uint8, zeros_like
 from numpy.typing import NDArray
 
 from cvlayer.cv.basic import channels_max, channels_mean, channels_min
@@ -276,19 +276,8 @@ class CvWindow(LayerManagerInterface, Window):
             shortcut[name] = [ord(k) for k in keys]
             buffer.write(f" {name}: {keys}\n")
 
+        self._keymap_manual_text = buffer.getvalue()
         self._keymap = create_callable_keymap(self, shortcut)
-        self._manpage = full_like(frame, fill_value=MIDNIGHT_BLUE_900, dtype=uint8)
-        assert len(self._manpage.shape) == 3
-        assert self._manpage.shape[2] == 3
-        draw_multiline_text_box(
-            self._manpage,
-            buffer.getvalue(),
-            pos=(0, 0),
-            font=font,
-            scale=font_scale,
-            color=CLOUDS_50,
-            background_alpha=0,
-        )
 
         self._highgui_keys = highgui_keys()
         self._has_arrow_keys = has_highgui_arrow_keys(self._highgui_keys)
@@ -739,9 +728,27 @@ class CvWindow(LayerManagerInterface, Window):
 
         return buffer.getvalue()
 
+    def create_manpage(self, size: SizeI) -> NDArray:
+        manpage_shape = size[1], size[0], 3
+        manpage_frame = full(manpage_shape, fill_value=MIDNIGHT_BLUE_900, dtype=uint8)
+        assert len(manpage_frame.shape) == 3
+        assert manpage_frame.shape[2] == 3
+        draw_multiline_text_box(
+            manpage_frame,
+            self._keymap_manual_text,
+            pos=(0, 0),
+            font=self._font,
+            scale=self._font_scale,
+            color=CLOUDS_50,
+            background_alpha=0,
+        )
+        return manpage_frame
+
     def _select_preview_source(self, result_frame: Optional[NDArray]) -> NDArray:
         if self._show_manual:
-            return self._manpage
+            ref_frame = result_frame if result_frame is not None else self._empty_frame
+            manpage_size = ref_frame.shape[0], ref_frame.shape[1]
+            return self.create_manpage(manpage_size)
 
         if self._manager.is_cursor_at_last:
             if result_frame is not None:
