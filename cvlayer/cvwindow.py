@@ -55,7 +55,7 @@ DEFAULT_HELP_OFFSET: Final[PointI] = 0, 0
 DEFAULT_HELP_ANCHOR: Final[PointF] = 0.0, 0.0
 DEFAULT_PLOT_SIZE: Final[SizeI] = 256, 256
 DEFAULT_ROI_COLOR: Final[Color] = RED
-DEFAULT_ROI_THICKNESS: Final[int] = 2
+DEFAULT_ROI_THICKNESS: Final[int] = 1
 DEFAULT_TOAST_ANCHOR: Final[PointF] = 1.0, 1.0
 DEFAULT_TOAST_COLOR: Final[Color] = WHITE
 DEFAULT_TOAST_DURATION: Final[float] = 2.0
@@ -359,6 +359,9 @@ class CvWindow(LayerManagerInterface, Window):
     def keycode(self):
         return self._keycode
 
+    def clear_toast(self) -> None:
+        self._toast_text = str()
+
     def toast(
         self,
         text: str,
@@ -536,6 +539,7 @@ class CvWindow(LayerManagerInterface, Window):
                         self.roi = self.roi[0], self.roi[1], x, y
                     self._select_roi_mode = False
                     self._select_roi_button_down = False
+                    self.clear_toast()
             return
 
         # Process user events with priority.
@@ -872,7 +876,7 @@ class CvWindow(LayerManagerInterface, Window):
         if self._help_mode == HelpMode.DEBUG:
             self._draw_histogram(canvas, help_roi, analyze_frame)
 
-        if self._show_toast:
+        if self._show_toast and self._toast_text:
             toast_duration = (datetime.now() - self._toast_begin).total_seconds()
             if toast_duration <= self._toast_duration:
                 self._draw_toast(canvas)

@@ -6,6 +6,7 @@ import cv2
 from numpy import clip, int32, uint8
 from numpy.typing import NDArray
 
+from cvlayer.cv.types.color import Color, ColorLike, normalize_color
 from cvlayer.typing import Number
 
 PIXEL_8BIT_MIN: Final[int] = 0
@@ -50,6 +51,13 @@ def shift_degree_channel(
         return uint8((int32(src) + shift) % maxval)  # type: ignore[return-value]
 
 
+def invert_color(color: ColorLike) -> Color:
+    """
+    Complementary Colors for BGR
+    """
+    return tuple(255 - c for c in normalize_color(color))
+
+
 class CvlColor:
     @staticmethod
     def cvl_saturate(
@@ -75,3 +83,7 @@ class CvlColor:
         maxval=180,
     ):
         return shift_degree_channel(src, shift, maxval)
+
+    @staticmethod
+    def cvl_invert_color(color: ColorLike):
+        return invert_color(color)
