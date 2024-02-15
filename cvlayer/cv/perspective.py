@@ -137,7 +137,7 @@ def warp_perspective(
         dsize=(int(dsize[0]), int(dsize[1])),
         flags=flags.value,
         borderMode=border_mode.value,
-        borderValue=border_value,
+        borderValue=border_value if border_value else tuple(),
     )
 
 

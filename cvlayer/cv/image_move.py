@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import cv2
-from numpy import float32
+from numpy import float32, ndarray
 from numpy.typing import NDArray
 
 
@@ -12,6 +12,8 @@ def move(src: NDArray, x: int, y: int) -> NDArray:
     # fmt: on
 
     fm = float32(m)  # type: ignore[arg-type]
+    assert isinstance(fm, ndarray)
+    assert fm.dtype.name == "float32"
     height = src.shape[0]
     width = src.shape[1]
     size = width, height

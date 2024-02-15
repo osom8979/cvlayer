@@ -13,7 +13,7 @@ def in_range(
     lower_bound: Union[NDArray, Sequence[NumberT]],
     upper_bound: Union[NDArray, Sequence[NumberT]],
 ) -> NDArray:
-    return cv2.inRange(src, lower_bound, upper_bound)
+    return cv2.inRange(src, lower_bound, upper_bound)  # type: ignore[arg-type]
 
 
 def in_range2(
@@ -23,8 +23,8 @@ def in_range2(
     lower_bound2: Union[NDArray, Sequence[NumberT]],
     upper_bound2: Union[NDArray, Sequence[NumberT]],
 ) -> NDArray:
-    mask1 = cv2.inRange(src, lower_bound1, upper_bound1)
-    mask2 = cv2.inRange(src, lower_bound2, upper_bound2)
+    mask1 = in_range(src, lower_bound1, upper_bound1)
+    mask2 = in_range(src, lower_bound2, upper_bound2)
     return cv2.bitwise_or(mask1, mask2)
 
 
