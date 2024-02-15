@@ -64,6 +64,7 @@ class LayerParameter(Generic[_ParameterValueType]):
         self._mouse = mouse
         self._nullable = nullable
         self._frozen = frozen
+        self._hidden = hidden
         self.kwargs = kwargs
         self.cache = None
 
@@ -92,61 +93,84 @@ class LayerParameter(Generic[_ParameterValueType]):
         self._validate_initialized()
         self._value = value
 
+    # noinspection PyTypeChecker
+    initial_value = property(None, _set_value)
+
     def _set_min(self, callback: LimitedCallable) -> None:
         self._validate_initialized()
         self._min_value = callback
+
+    # noinspection PyTypeChecker
+    min = property(None, _set_min)
 
     def _set_max(self, callback: LimitedCallable) -> None:
         self._validate_initialized()
         self._max_value = callback
 
+    # noinspection PyTypeChecker
+    max = property(None, _set_max)
+
     def _set_decrease(self, callback: ModifyCallable) -> None:
         self._validate_initialized()
         self._decrease = callback
+
+    # noinspection PyTypeChecker
+    decrease = property(None, _set_decrease)
 
     def _set_increase(self, callback: ModifyCallable) -> None:
         self._validate_initialized()
         self._increase = callback
 
+    # noinspection PyTypeChecker
+    increase = property(None, _set_increase)
+
     def _set_getter(self, callback: GetterCallable) -> None:
         self._validate_initialized()
         self._getter = callback
+
+    # noinspection PyTypeChecker
+    getter = property(None, _set_getter)
 
     def _set_setter(self, callback: SetterCallable) -> None:
         self._validate_initialized()
         self._setter = callback
 
+    # noinspection PyTypeChecker
+    setter = property(None, _set_setter)
+
     def _set_cacher(self, callback: CacherCallable) -> None:
         self._validate_initialized()
         self._cacher = callback
+
+    # noinspection PyTypeChecker
+    cacher = property(None, _set_cacher)
 
     def _set_keydown(self, callback: OnKeydownCallable) -> None:
         self._validate_initialized()
         self._keydown = callback
 
+    # noinspection PyTypeChecker
+    keydown = property(None, _set_keydown)
+
     def _set_mouse(self, callback: OnMouseCallable) -> None:
         self._validate_initialized()
         self._mouse = callback
+
+    # noinspection PyTypeChecker
+    mouse = property(None, _set_mouse)
 
     def _set_printable(self, callback: PrintableCallable) -> None:
         self._validate_initialized()
         self._printable = callback
 
+    # noinspection PyTypeChecker
+    printable = property(None, _set_printable)
+
     def _set_nullable(self, value: bool) -> None:
         self._validate_initialized()
         self._nullable = value
 
-    initial_value = property(None, _set_value)
-    min = property(None, _set_min)
-    max = property(None, _set_max)
-    decrease = property(None, _set_decrease)
-    increase = property(None, _set_increase)
-    getter = property(None, _set_getter)
-    setter = property(None, _set_setter)
-    cacher = property(None, _set_cacher)
-    keydown = property(None, _set_keydown)
-    mouse = property(None, _set_mouse)
-    printable = property(None, _set_printable)
+    # noinspection PyTypeChecker
     nullable = property(None, _set_nullable)
 
     def freeze(self) -> None:
@@ -500,7 +524,7 @@ class LayerParameter(Generic[_ParameterValueType]):
         self._frozen = True
         return self
 
-    def build_keydown(self, value: int, callback: Callable):
+    def build_keydown(self, value: int, callback: Callable[[], bool]):
         if self._frozen:
             return self
 
@@ -509,10 +533,10 @@ class LayerParameter(Generic[_ParameterValueType]):
         def _keydown(keycode: int):
             if keycode == value:
                 try:
-                    callback()
+                    return callback()
                 except:  # noqa
                     pass
-            return True
+            return False
 
         self._keydown = _keydown
         self._frozen = True
