@@ -162,7 +162,7 @@ def grab_cut(
     result = cv2.grabCut(
         img=image,
         mask=mask,
-        rect=rect if rect else tuple(),
+        rect=rect,  # type: ignore[arg-type]
         bgdModel=background_model,
         fgdModel=foreground_model,
         iterCount=iterations,

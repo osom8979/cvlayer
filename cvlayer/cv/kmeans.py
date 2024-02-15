@@ -4,7 +4,7 @@ from enum import Enum, unique
 from typing import Final, NamedTuple, Optional
 
 import cv2
-from numpy import float32, int32, ndarray, uint8, zeros
+from numpy import float32, ndarray, uint8
 from numpy.typing import NDArray
 
 from cvlayer.cv.term_criteria import TermCriteria, TermCriteriaType
@@ -64,7 +64,7 @@ def kmeans(
     retval, labels, centers = cv2.kmeans(
         data=data,
         K=k,
-        bestLabels=best_labels if best_labels else zeros([], dtype=int32),
+        bestLabels=best_labels,  # type: ignore[arg-type]
         criteria=criteria,
         attempts=attempts,
         flags=flags.value,
