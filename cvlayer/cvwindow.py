@@ -312,6 +312,14 @@ class CvWindow(LayerManagerInterface, Window):
         self._manager.set_roi(roi)
 
     @property
+    def frames(self) -> int:
+        return self._capture.frames
+
+    @property
+    def pos(self) -> int:
+        return self._capture.pos
+
+    @property
     def logger(self):
         return self._manager.logger
 
