@@ -121,6 +121,21 @@ class KeyDefine:
         )
 
 
+@dataclass
+class FrameEventCallable:
+    handler: Callable[[], None]
+    counter: int
+
+    def __call__(self) -> None:
+        if self.counter >= 1:
+            self.counter -= 1
+            self.handler()
+        elif self.counter <= -1:
+            self.handler()
+        else:
+            assert self.counter == 0
+
+
 def analyze_frame_as_text(frame: NDArray, roi: Optional[RectI] = None) -> str:
     if roi is not None:
         x1, y1, x2, y2 = normalize_image_roi(frame, roi)
@@ -137,7 +152,7 @@ def analyze_frame_as_text(frame: NDArray, roi: Optional[RectI] = None) -> str:
 
 class CvWindow(LayerManagerInterface, Window):
     _writer: Optional[VideoWriter]
-    _frame_events: Dict[int, List[Callable[[], None]]]
+    _frame_events: Dict[int, List[FrameEventCallable]]
 
     def __init__(
         self,
@@ -296,7 +311,7 @@ class CvWindow(LayerManagerInterface, Window):
         self._process_duration = 0.0
         self._shutdown = False
 
-        self._frame_events: Dict[int, List[Callable[[], None]]] = dict()
+        self._frame_events = dict()
 
     @staticmethod
     def namespace_to_dict(ns: Namespace) -> Dict[str, Any]:
@@ -370,11 +385,12 @@ class CvWindow(LayerManagerInterface, Window):
     def keycode(self):
         return self._keycode
 
-    def add_frame_event(self, index: int, callback: Callable[[], None]) -> None:
+    def add_frame_event(self, index: int, event: Callable[[], None], counter=1) -> None:
+        assert index >= 0
         if index in self._frame_events:
-            self._frame_events[index].append(callback)
+            self._frame_events[index].append(FrameEventCallable(event, counter))
         else:
-            self._frame_events[index] = [callback]
+            self._frame_events[index] = [FrameEventCallable(event, counter)]
 
     def clear_toast(self) -> None:
         self._toast_text = str()
