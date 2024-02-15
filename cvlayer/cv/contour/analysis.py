@@ -6,12 +6,12 @@ import cv2
 from numpy import logical_and, zeros
 from numpy.typing import NDArray
 
-from cvlayer.typing import PointF, RectI, SizeF
+from cvlayer.typing import PointF, RectI, SizeI
 
 
 class RotatedRect(NamedTuple):
     center: PointF
-    size: SizeF
+    size: SizeI
     rotation: float
 
 
@@ -23,17 +23,18 @@ def min_area_rect(points: NDArray) -> RotatedRect:
 
 
 def box_points(box: RotatedRect) -> NDArray:
-    return cv2.boxPoints(box)
+    center, size, rotation = box
+    return cv2.boxPoints((center, size, rotation))
 
 
 def bitwise_intersection_contours(
     width: int, height: int, contour1: NDArray, contour2: NDArray
 ) -> NDArray:
-    blank1 = zeros(shape=(height, width))
-    blank2 = zeros(shape=(height, width))
+    blank1 = zeros((height, width))
+    blank2 = zeros((height, width))
 
-    mask1 = cv2.drawContours(blank1, [contour1], 0, 1)  # noqa
-    mask2 = cv2.drawContours(blank2, [contour2], 1, 1)  # noqa
+    mask1 = cv2.drawContours(blank1, [contour1], 0, [1])
+    mask2 = cv2.drawContours(blank2, [contour2], 1, [1])
 
     return logical_and(mask1, mask2)
 

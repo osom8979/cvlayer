@@ -36,7 +36,7 @@ def convert_scale_abs(
     src: NDArray,
     alpha=1.0,
     beta=0.0,
-) -> NDArray[uint8]:
+) -> NDArray:
     return cv2.convertScaleAbs(src, None, alpha, beta)
 
 
@@ -73,7 +73,7 @@ class CvlColor:
         src: NDArray,
         alpha=1.0,
         beta=0.0,
-    ) -> NDArray:
+    ):
         return convert_scale_abs(src, alpha, beta)
 
     @staticmethod

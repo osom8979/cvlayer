@@ -52,7 +52,7 @@ def pyr_down(
     border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
     _border = normalize_border_type(border)
-    return cv2.pyrDown(src, None, dsize, _border)
+    return cv2.pyrDown(src, None, dsize if dsize else tuple(), _border)
 
 
 def pyr_up(
@@ -61,7 +61,7 @@ def pyr_up(
     border=DEFAULT_BORDER_TYPE,
 ) -> NDArray:
     _border = normalize_border_type(border)
-    return cv2.pyrUp(src, None, dsize, _border)
+    return cv2.pyrUp(src, None, dsize if dsize else tuple(), _border)
 
 
 class CvlPyramid:

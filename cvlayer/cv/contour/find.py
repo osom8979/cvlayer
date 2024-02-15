@@ -34,7 +34,7 @@ def find_contours(
             raise ValueError("Only single-channel is supported")
 
     contours, hierarchy = cv2.findContours(image, _mode, _method)
-    return FindContoursResult(contours, hierarchy)
+    return FindContoursResult(contours, hierarchy)  # type: ignore[arg-type]
 
 
 def find_largest_contour_index(contours: Iterable[NDArray], oriented=False) -> int:

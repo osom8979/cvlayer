@@ -66,6 +66,8 @@ def default_threshold(
 
 
 class BackgroundSubtractor:
+    _fgmask: NDArray
+
     def __init__(
         self,
         method: BackgroundSubtractorMethod,

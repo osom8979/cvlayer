@@ -14,7 +14,7 @@ from typing import (
 
 import cv2
 from numpy import abs as np_abs
-from numpy import float32
+from numpy import float32, ndarray
 from numpy import sqrt as np_sqrt
 from numpy import zeros_like
 from numpy.typing import NDArray
@@ -86,7 +86,9 @@ def mean(
 
 
 def channel_mean_abs_diff(src: NDArray) -> NDArray[float32]:
-    b, g, r = cv2.split(float32(src))
+    m = float32(src)
+    assert isinstance(m, ndarray)
+    b, g, r = cv2.split(m)
     bg = np_abs(b - g)
     gr = np_abs(g - r)
     rb = np_abs(r - b)
@@ -94,7 +96,9 @@ def channel_mean_abs_diff(src: NDArray) -> NDArray[float32]:
 
 
 def channel_l1_diff(src: NDArray) -> NDArray[float32]:
-    b, g, r = cv2.split(float32(src))
+    m = float32(src)
+    assert isinstance(m, ndarray)
+    b, g, r = cv2.split(m)
     bg = np_abs(b - g)
     gr = np_abs(g - r)
     rb = np_abs(r - b)
@@ -102,7 +106,9 @@ def channel_l1_diff(src: NDArray) -> NDArray[float32]:
 
 
 def channel_l2_diff(src: NDArray) -> NDArray[float32]:
-    b, g, r = cv2.split(float32(src))
+    m = float32(src)
+    assert isinstance(m, ndarray)
+    b, g, r = cv2.split(m)
     bg = (b - g) ** 2
     gr = (g - r) ** 2
     rb = (r - b) ** 2

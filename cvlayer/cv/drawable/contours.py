@@ -42,7 +42,7 @@ def draw_contours(
         _line,
         hierarchy,
         max_level,
-        offset,
+        offset if offset else tuple(),
     )
 
 

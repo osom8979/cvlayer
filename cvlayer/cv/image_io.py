@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from functools import reduce
 from typing import Final, Optional, Sequence
 
 import cv2
@@ -298,7 +297,10 @@ def image_read(filename: str, flags: Optional[int] = None) -> NDArray:
 
 
 def imread_modes_as_flags(modes: Sequence[ImReadModes]) -> int:
-    return reduce(lambda x, y: x | y, map(lambda m: m.value, modes), initial=0)
+    result = 0
+    for m in modes:
+        result |= int(m.value)
+    return result
 
 
 def image_read_with_modes(filename: str, modes: Sequence[ImReadModes]) -> NDArray:

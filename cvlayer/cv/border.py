@@ -30,7 +30,7 @@ def copy_make_border(
         # To disable this feature and always do extrapolation, as if src was not a ROI,
         # use `borderType | BORDER_ISOLATED`.
         _border_type |= cv2.BORDER_ISOLATED
-    _value = normalize_color(value) if value is not None else None
+    _value = normalize_color(value) if value is not None else tuple()
     return cv2.copyMakeBorder(src, top, bottom, left, right, _border_type, None, _value)
 
 

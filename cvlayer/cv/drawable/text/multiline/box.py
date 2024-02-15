@@ -79,6 +79,8 @@ def draw_multiline_text_box_coord(
 
     alpha = background_alpha
     beta = 1.0 - background_alpha
+
+    mixed: NDArray
     if alpha >= 1:
         mixed = box_area
     elif beta >= 1:
