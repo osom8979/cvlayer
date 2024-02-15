@@ -524,7 +524,7 @@ class LayerParameter(Generic[_ParameterValueType]):
         self._frozen = True
         return self
 
-    def build_keydown(self, value: int, callback: Callable[[], bool]):
+    def build_keydown(self, value: int, callback: Callable[[], Optional[bool]]):
         if self._frozen:
             return self
 
@@ -533,7 +533,7 @@ class LayerParameter(Generic[_ParameterValueType]):
         def _keydown(keycode: int):
             if keycode == value:
                 try:
-                    return callback()
+                    return bool(callback())
                 except:  # noqa
                     pass
             return False
