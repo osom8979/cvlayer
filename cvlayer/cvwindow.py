@@ -8,7 +8,7 @@ from io import StringIO
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger
 from math import isclose
 from os import W_OK, access, getcwd, mkdir, path
-from typing import Any, Dict, Final, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Final, List, Optional, Sequence, Union
 
 from numpy import float32, float64, full, uint8, zeros_like
 from numpy.typing import NDArray
@@ -137,6 +137,7 @@ def analyze_frame_as_text(frame: NDArray, roi: Optional[RectI] = None) -> str:
 
 class CvWindow(LayerManagerInterface, Window):
     _writer: Optional[VideoWriter]
+    _frame_events: Dict[int, List[Callable[[], None]]]
 
     def __init__(
         self,
@@ -295,6 +296,8 @@ class CvWindow(LayerManagerInterface, Window):
         self._process_duration = 0.0
         self._shutdown = False
 
+        self._frame_events: Dict[int, List[Callable[[], None]]] = dict()
+
     @staticmethod
     def namespace_to_dict(ns: Namespace) -> Dict[str, Any]:
         return {k: v for k, v in get_public_instance_attributes(ns)}
@@ -366,6 +369,12 @@ class CvWindow(LayerManagerInterface, Window):
     @property
     def keycode(self):
         return self._keycode
+
+    def add_frame_event(self, index: int, callback: Callable[[], None]) -> None:
+        if index in self._frame_events:
+            self._frame_events[index].append(callback)
+        else:
+            self._frame_events[index] = [callback]
 
     def clear_toast(self) -> None:
         self._toast_text = str()
@@ -906,6 +915,11 @@ class CvWindow(LayerManagerInterface, Window):
 
         if self._play:
             self._original_frame = self.read_next_frame()
+
+        events = self._frame_events.get(self._capture.pos)
+        if events is not None:
+            for event in events:
+                event()
 
         result_frame = self.do_process(self._original_frame)
         select_frame = self._select_preview_source(result_frame)
