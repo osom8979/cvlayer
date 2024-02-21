@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from math import atan2, degrees
-from typing import overload
+from typing import Literal, overload
 
+from cvlayer.cv.types.shape import PointT
 from cvlayer.math.constant import DOUBLE_PI, PI
-from cvlayer.typing import PointT
 
 
-def get_sign_value(value) -> int:
-    return 1 if value >= 0 else -1
+def get_sign(value) -> Literal[-1, 1]:
+    return -1 if value < 0 else 1
 
 
 # fmt: off
@@ -41,7 +41,7 @@ def normalize_signed_degrees_360(angle):
     # [IMPORTANT] Reasons for recalculating with 'get_sign_value':
     # `-180 // 360 = -1`
     # `-180 % 360 = 180`
-    sign = get_sign_value(angle)
+    sign = get_sign(angle)
 
     number_of_rotations = abs(angle) // 360
     total_rotation_angle = number_of_rotations * 360
@@ -50,6 +50,20 @@ def normalize_signed_degrees_360(angle):
     result = angle - total_rotation_angle_with_sign
     assert -360 < result < 360
     return result
+
+
+def normalize_signed_degrees_180(angle: float) -> float:
+    next_angle = normalize_signed_degrees_360(angle)
+    assert -360 < next_angle < 360
+
+    if -360 < next_angle <= -180:
+        return next_angle + 360
+    elif -180 < next_angle <= 180:
+        return next_angle
+    elif 180 < next_angle < 360:
+        return next_angle - 360
+    else:
+        assert False, "Inaccessible section"
 
 
 def radians_angle(x: float, y: float) -> float:
@@ -116,3 +130,35 @@ def clockwise_degrees_point3(a: PointT, b: PointT, c: PointT) -> float:
     result = degrees(clockwise_radians_point3(a, b, c))
     assert 0 <= result < 360
     return result
+
+
+def normalize_point(point: PointT, center: PointT) -> PointT:
+    """
+    Move the center coordinate to the origin coordinate.
+    """
+
+    px, py = point
+    cx, cy = center
+    return px - cx, py - cy
+
+
+def measure_angle_diff(
+    point0: PointT,
+    center0: PointT,
+    point1: PointT,
+    center1: PointT,
+) -> float:
+    a = normalize_point(point0, center0)
+    c = normalize_point(point1, center1)
+    return degrees_point3(a, (0.0, 0.0), c)
+
+
+def close_to_pivot(angle: float, pivot: float, delta: float) -> bool:
+    """
+    Make sure the angle presented is close to the pivot angle.
+    """
+
+    if delta < 0:
+        raise ValueError("The 'delta' value must be greater than or equal to 0")
+
+    return abs(angle - pivot) <= abs(delta)

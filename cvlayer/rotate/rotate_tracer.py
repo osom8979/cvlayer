@@ -4,54 +4,17 @@ from typing import Final, Optional, Tuple
 
 from cvlayer.cv.types.shape import PointT, PolygonT
 from cvlayer.geometry.find_nearset_point import find_nearest_point
-from cvlayer.math.angle import degrees_point3, normalize_signed_degrees_360
+from cvlayer.math.angle import (
+    close_to_pivot,
+    measure_angle_diff,
+    normalize_signed_degrees_180,
+)
 
 DEFAULT_MAX_MISSING_COUNT: Final[int] = 10
 DEFAULT_MAX_STABLE_COUNT: Final[int] = 10
 DEFAULT_STABLE_DEGREES_DELTA: Final[float] = 3.0
 DEFAULT_MAX_ABNORMAL_COUNT: Final[int] = 10
 DEFAULT_ABNORMAL_DEGREES_DELTA: Final[float] = 20.0
-
-
-def normalize_point(pivot: PointT, center: PointT) -> PointT:
-    x1, y1 = pivot
-    x2, y2 = center
-    return x2 - x1, y2 - y1
-
-
-def calc_degrees(
-    prev_point0: PointT,
-    prev_center: PointT,
-    next_point0: PointT,
-    next_center: PointT,
-) -> float:
-    n0 = normalize_point(prev_point0, prev_center)
-    n1 = normalize_point(next_point0, next_center)
-    return degrees_point3(n0, (0.0, 0.0), n1)
-
-
-def normalize_signed_degrees_180(angle: float) -> float:
-    next_angle = normalize_signed_degrees_360(angle)
-    assert -360 < next_angle < 360
-
-    if -360 < next_angle <= -180:
-        return next_angle + 360
-    elif -180 < next_angle <= 180:
-        return next_angle
-    elif 180 < next_angle < 360:
-        return next_angle - 360
-    else:
-        assert False, "Inaccessible section"
-
-
-def in_degrees(angle: float, pivot: float, delta: float) -> bool:
-    assert 0 <= angle < 360
-    assert 0 <= pivot < 360
-    assert 0 <= delta
-    compare_angle = angle + delta
-    min_degrees = pivot - delta + delta
-    max_degrees = pivot + delta + delta
-    return min_degrees <= compare_angle <= max_degrees
 
 
 class RotateTracer:
@@ -96,7 +59,7 @@ class RotateTracer:
 
     @property
     def has_first_polygon(self) -> bool:
-        return self._first_polygon is not None
+        return self._first_point0 is not None
 
     @property
     def overflow_missing_count(self) -> bool:
@@ -197,7 +160,7 @@ class RotateTracer:
 
         next_point0 = find_nearest_point(current_point0, *polygon)
         next_center = center
-        next_degrees = calc_degrees(
+        next_degrees = measure_angle_diff(
             first_point0,
             first_center,
             next_point0,
@@ -207,7 +170,7 @@ class RotateTracer:
         assert 0 <= next_degrees < 360
         assert 0 <= self._current_rotate < 360
         assert 0 <= self.abnormal_degrees_delta
-        if not in_degrees(
+        if not close_to_pivot(
             angle=next_degrees,
             pivot=self._current_rotate,
             delta=self.abnormal_degrees_delta,
@@ -231,7 +194,7 @@ class RotateTracer:
         assert 0 <= next_degrees < 360
         assert 0 <= self._stable_current_degrees < 360
         assert 0 <= self.stable_degrees_delta
-        if in_degrees(
+        if close_to_pivot(
             angle=next_degrees,
             pivot=self._stable_current_degrees,
             delta=self.stable_degrees_delta,
