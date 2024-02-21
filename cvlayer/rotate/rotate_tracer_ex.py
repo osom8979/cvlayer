@@ -17,7 +17,7 @@ DEFAULT_MAX_ABNORMAL_COUNT: Final[int] = 10
 DEFAULT_ABNORMAL_DEGREES_DELTA: Final[float] = 20.0
 
 
-class RotateTracer:
+class RotateTracerEx:
     _first_polygon: Optional[PolygonT]
     _first_center: Optional[PointT]
     _first_point0: Optional[PointT]
