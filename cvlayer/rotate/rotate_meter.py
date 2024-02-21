@@ -71,6 +71,14 @@ class RotateMeter:
         assert 0 <= result < 360
         return result
 
+    @property
+    def signed_angle(self) -> float:
+        angle = self.angle
+        assert 0 <= angle < 360
+        result = angle if angle <= 180 else angle - 360
+        assert -180 < result <= 180
+        return result
+
     def clear_first(self) -> None:
         self.first_center = None
         self.first_point = None
