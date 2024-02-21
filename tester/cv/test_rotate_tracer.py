@@ -2,7 +2,7 @@
 
 from unittest import TestCase, main
 
-from cvlayer.cv.rotate_tracer import normalize_signed_degrees_180
+from cvlayer.rotate.rotate_tracer import normalize_signed_degrees_180
 
 
 class RotateTracerTestCase(TestCase):

@@ -3,7 +3,7 @@
 from math import atan2, degrees
 from typing import overload
 
-from cvlayer.math.constant import DOUBLE_PI
+from cvlayer.math.constant import DOUBLE_PI, PI
 from cvlayer.typing import PointT
 
 
@@ -38,17 +38,24 @@ def normalize_signed_degrees_360(angle):
     Used when sign information must be maintained.
     """
 
-    # [WARNING] Reasons for recalculating with get_sign_value:
+    # [IMPORTANT] Reasons for recalculating with 'get_sign_value':
     # `-180 // 360 = -1`
     # `-180 % 360 = 180`
-    _sign = get_sign_value(angle)
-    result = angle - (abs(angle) // 360 * 360 * _sign)
+    sign = get_sign_value(angle)
+
+    number_of_rotations = abs(angle) // 360
+    total_rotation_angle = number_of_rotations * 360
+    total_rotation_angle_with_sign = total_rotation_angle * sign
+
+    result = angle - total_rotation_angle_with_sign
     assert -360 < result < 360
     return result
 
 
 def radians_angle(x: float, y: float) -> float:
-    theta = atan2(y, x)
+    theta = atan2(y, x)  # Return the arc tangent of y/x in radians
+    assert -PI <= theta <= PI
+
     result = theta if theta >= 0 else DOUBLE_PI + theta
     assert 0 <= result < DOUBLE_PI
     return result
@@ -94,7 +101,9 @@ def radians_point3(a: PointT, b: PointT, c: PointT) -> float:
 
 
 def degrees_point3(a: PointT, b: PointT, c: PointT) -> float:
-    return degrees(radians_point3(a, b, c))
+    result = degrees(radians_point3(a, b, c))
+    assert 0 <= result < 360
+    return result
 
 
 def clockwise_radians_point3(a: PointT, b: PointT, c: PointT) -> float:
@@ -104,4 +113,6 @@ def clockwise_radians_point3(a: PointT, b: PointT, c: PointT) -> float:
 
 
 def clockwise_degrees_point3(a: PointT, b: PointT, c: PointT) -> float:
-    return degrees(clockwise_radians_point3(a, b, c))
+    result = degrees(clockwise_radians_point3(a, b, c))
+    assert 0 <= result < 360
+    return result
