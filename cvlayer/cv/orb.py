@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from typing import Any, Final, Tuple
+from typing import Final, Sequence, Tuple
 
 import cv2
 from numpy.typing import NDArray
@@ -62,7 +62,10 @@ class Orb:
 
         assert hasattr(self._orb, "detectAndCompute")
 
-    def detect_and_compute(self, image: NDArray) -> Tuple[Any, Any]:
+    def detect_and_compute(
+        self,
+        image: NDArray,
+    ) -> Tuple[Sequence[cv2.KeyPoint], NDArray]:
         return self._orb.detectAndCompute(image, None)
 
 
