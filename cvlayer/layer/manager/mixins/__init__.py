@@ -7,6 +7,7 @@ from cvlayer.layer.manager.mixins.contours import CvmContours
 from cvlayer.layer.manager.mixins.cvt_color import CvmCvtColor
 from cvlayer.layer.manager.mixins.filter import CvmFilter
 from cvlayer.layer.manager.mixins.histogram import CvmHistogram
+from cvlayer.layer.manager.mixins.hough_lines import CvmHoughLines
 from cvlayer.layer.manager.mixins.kmeans import CvmKmeans
 from cvlayer.layer.manager.mixins.mean_std_dev import CvmMeanStdDev
 from cvlayer.layer.manager.mixins.morphology import CvmMorphology
@@ -26,6 +27,7 @@ class CvMixin(
     CvmContours,
     CvmCvtColor,
     CvmHistogram,
+    CvmHoughLines,
     CvmKmeans,
     CvmMeanStdDev,
     CvmMorphology,

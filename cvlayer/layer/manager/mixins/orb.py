@@ -18,11 +18,14 @@ from cvlayer.cv.orb import (
     Orb,
     OrbScoreType,
 )
+from cvlayer.cv.types.draw_matches import DrawMatches, normalize_draw_matches
 from cvlayer.layer.manager.mixins._base import LayerManagerMixinBase
 
 
 def _orb_cacher(_old, _new):
     assert isinstance(_new, tuple)
+    assert len(_new) == 9
+
     n_features = _new[0]
     scale_factor = _new[1]
     n_levels = _new[2]
@@ -32,6 +35,7 @@ def _orb_cacher(_old, _new):
     score_type = _new[6]
     patch_size = _new[7]
     fast_threshold = _new[8]
+
     return Orb(
         n_features,
         scale_factor,
@@ -58,6 +62,7 @@ class CvmOrb(LayerManagerMixinBase):
         score_type=DEFAULT_SCORE_TYPE,
         patch_size=DEFAULT_PATCH_SIZE,
         fast_threshold=DEFAULT_FAST_THRESHOLD,
+        draw_flags=DrawMatches.DEFAULT,
         frame: Optional[NDArray] = None,
     ):
         with self.layer(name) as layer:
@@ -70,15 +75,20 @@ class CvmOrb(LayerManagerMixinBase):
             st = layer.param("score_type").build_enum(score_type).value
             ps = layer.param("patch_size").build_uint(patch_size).value
             ft = layer.param("fast_threshold").build_uint(fast_threshold).value
+            df = layer.param("draw_flags").build_enum(draw_flags).value
             orb_param = layer.param("orb").build_readonly(tuple(), cacher=_orb_cacher)
             if orb_param.value != (nf, sf, nl, et, fl, wk, st, ps, ft):
                 orb_param.value = (nf, sf, nl, et, fl, wk, st, ps, ft)
             orb = orb_param.cache
             src = frame if frame is not None else layer.prev_frame
-            result = orb.detect_and_compute(src)
-            layer.frame = draw_keypoints(src, result[0])
-            layer.data = result
-        return result
+            keypoints, descriptors = orb.detect_and_compute(src)
+            layer.frame = draw_keypoints(
+                src,
+                keypoints,
+                normalize_draw_matches(df),
+            )
+            layer.data = keypoints, descriptors
+        return keypoints, descriptors
 
     def cvm_orb_harris_score(
         self,
@@ -91,6 +101,7 @@ class CvmOrb(LayerManagerMixinBase):
         wta_k=DEFAULT_WTA_K,
         patch_size=DEFAULT_PATCH_SIZE,
         fast_threshold=DEFAULT_FAST_THRESHOLD,
+        draw_flags=DrawMatches.DEFAULT,
         frame: Optional[NDArray] = None,
     ):
         return self.cvm_orb(
@@ -104,6 +115,7 @@ class CvmOrb(LayerManagerMixinBase):
             score_type=OrbScoreType.HARRIS_SCORE,
             patch_size=patch_size,
             fast_threshold=fast_threshold,
+            draw_flags=draw_flags,
             frame=frame,
         )
 
@@ -118,6 +130,7 @@ class CvmOrb(LayerManagerMixinBase):
         wta_k=DEFAULT_WTA_K,
         patch_size=DEFAULT_PATCH_SIZE,
         fast_threshold=DEFAULT_FAST_THRESHOLD,
+        draw_flags=DrawMatches.DEFAULT,
         frame: Optional[NDArray] = None,
     ):
         return self.cvm_orb(
@@ -131,5 +144,6 @@ class CvmOrb(LayerManagerMixinBase):
             score_type=OrbScoreType.FAST_SCORE,
             patch_size=patch_size,
             fast_threshold=fast_threshold,
+            draw_flags=draw_flags,
             frame=frame,
         )
