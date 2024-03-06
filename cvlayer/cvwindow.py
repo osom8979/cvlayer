@@ -180,6 +180,8 @@ class CvWindow(LayerManagerInterface, Window):
         writer_fourcc=FOURCC_MP4V,
         logger: Optional[Union[Logger, str]] = DEFAULT_LOGGER_NAME,
         logging_step=1,
+        snapshot_base: Optional[str] = None,
+        snapshot_ext: Optional[str] = None,
         help_offset: Optional[PointI] = None,
         help_anchor: Optional[PointF] = None,
         plot_size: Optional[SizeI] = None,
@@ -213,6 +215,8 @@ class CvWindow(LayerManagerInterface, Window):
         self._show_manual = show_manual
         self._show_toast = show_toast
         self._verbose = verbose
+        self._snapshot_base = snapshot_base if snapshot_base else getcwd()
+        self._snapshot_ext = snapshot_ext if snapshot_ext else ".png"
         self._help_offset = help_offset if help_offset else DEFAULT_HELP_OFFSET
         self._help_anchor = help_anchor if help_anchor else DEFAULT_HELP_ANCHOR
         self._plot_size = plot_size if plot_size else DEFAULT_PLOT_SIZE
@@ -637,15 +641,19 @@ class CvWindow(LayerManagerInterface, Window):
         popup_state = "Show" if self._show_manual else "Hide"
         self.logger.info(f"{popup_state} man page")
 
-    def snapshot(self, directory: Optional[str] = None, ext=".png") -> None:
+    def snapshot(
+        self,
+        directory: Optional[str] = None,
+        image_extension: Optional[str] = None,
+    ) -> None:
         if directory:
             base = directory
         else:
-            if self._output:
-                if path.isdir(self._output):
-                    base = self._output
+            if self._snapshot_base:
+                if path.isdir(self._snapshot_base):
+                    base = self._snapshot_base
                 else:
-                    base = path.dirname(self._output)
+                    base = path.dirname(self._snapshot_base)
             else:
                 base = getcwd()
 
@@ -662,6 +670,7 @@ class CvWindow(LayerManagerInterface, Window):
             self.logger.debug(f"Make directory: '{prefix}'")
 
         self.logger.debug(f"Saving all layer snapshots as '{prefix}' directory ...")
+        ext = image_extension if image_extension else self._snapshot_ext
 
         for index, layer in enumerate(self._manager.values()):
             assert isinstance(layer, LayerBase)
