@@ -3,7 +3,7 @@
 from enum import Enum, unique
 from math import atan
 from math import degrees as math_degrees
-from math import pi, tan
+from math import cos, pi, sin, sqrt, tan
 
 
 class ParallelError(Exception):
@@ -85,6 +85,12 @@ class GeneralForm:
         b = -1
         c = -m * x1 + y1
         return cls(a, b, c)
+
+    @classmethod
+    def from_distance_polar(cls, distance, radians):
+        x = distance * cos(radians)
+        y = distance * sin(radians)
+        return cls.from_coord_polar(x, y, radians + pi / 2)
 
     @classmethod
     def from_polar(cls, p1, radians):
@@ -178,33 +184,57 @@ class GeneralForm:
     def create_vertical_form(self, x3, y3):
         return type(self).from_coord_polar(x3, y3, self.vertical_radians)
 
-    def _drawable_left_top(self, canvas_width, canvas_height):
-        y = self.calc_y(0)
-        if 0 <= y <= canvas_height:
-            return 0, y
+    def _get_drawable_left(self, canvas_left):
+        if self.b == 0:
+            return None
+        return canvas_left, self.calc_y(canvas_left)
 
-        x = self.calc_x(0)
-        if 0 <= x <= canvas_width:
-            return x, 0
+    def _get_drawable_top(self, canvas_top):
+        if self.a == 0:
+            return None
+        return self.calc_x(canvas_top), canvas_top
 
-        raise IndexError("Out of canvas range error")
+    def _get_drawable_right(self, canvas_right):
+        if self.b == 0:
+            return None
+        return canvas_right, self.calc_y(canvas_right)
 
-    def _drawable_right_bottom(self, canvas_width, canvas_height):
-        y = self.calc_y(canvas_width)
-        if 0 <= y <= canvas_height:
-            return canvas_width, y
+    def _get_drawable_bottom(self, canvas_bottom):
+        if self.a == 0:
+            return None
+        return self.calc_x(canvas_bottom), canvas_bottom
 
-        x = self.calc_x(canvas_height)
-        if 0 <= x <= canvas_width:
-            return x, canvas_height
+    def get_drawable_points(self, canvas_roi):
+        canvas_left, canvas_top, canvas_right, canvas_bottom = canvas_roi
 
-        raise IndexError("Out of canvas range error")
+        left = self._get_drawable_left(canvas_left)
+        top = self._get_drawable_top(canvas_top)
+        right = self._get_drawable_right(canvas_right)
+        bottom = self._get_drawable_bottom(canvas_bottom)
 
-    def drawable_two_points(self, canvas_width, canvas_height):
-        return (
-            self._drawable_left_top(canvas_width, canvas_height),
-            self._drawable_right_bottom(canvas_width, canvas_height),
-        )
+        points = set()
+        if left is not None and canvas_top <= left[1] <= canvas_bottom:
+            points.add(left)
+        if top is not None and canvas_left <= top[0] <= canvas_right:
+            points.add(top)
+        if right is not None and canvas_top <= right[1] <= canvas_bottom:
+            points.add(right)
+        if bottom is not None and canvas_left <= bottom[0] <= canvas_right:
+            points.add(bottom)
+
+        if not points:
+            raise IndexError("Out of canvas range error")
+
+        assert len(points) in (1, 2)
+
+        if len(points) == 1:
+            p0 = points.pop()
+            return p0, p0
+        else:
+            assert len(points) == 2
+            p1 = points.pop()
+            p2 = points.pop()
+            return p1, p2
 
     def intersection(self, other: "GeneralForm"):
         """
@@ -232,3 +262,12 @@ class GeneralForm:
             raise ParallelError("Two straight lines are parallel or coincident")
 
         return x_numerator / x_denominator, y_numerator / y_denominator
+
+    def distance_to_coord_point(self, x, y):
+        """
+        d = |ax + by + c| / sqrt(a^2 + b^2)
+        """
+        return abs(x * self.a + y * self.b + self.c) / sqrt(self.a**2 + self.b**2)
+
+    def distance_to_point(self, point):
+        return self.distance_to_coord_point(point[0], point[1])
