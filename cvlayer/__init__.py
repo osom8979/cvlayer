@@ -5,7 +5,7 @@ from cvlayer.cvwindow import CvWindow
 from cvlayer.layer.manager.cvmanager import CvManager
 from cvlayer.layer.manager.mixins import CvMixin
 
-__version__ = "0.27.0"
+__version__ = "0.28.0"
 __all__ = [
     "__version__",
     "CvLayer",
