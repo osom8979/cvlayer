@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum, unique
-from math import atan
+from math import atan, cos
 from math import degrees as math_degrees
-from math import cos, pi, sin, sqrt, tan
+from math import pi, sin, sqrt, tan
 
 
 class ParallelError(Exception):
