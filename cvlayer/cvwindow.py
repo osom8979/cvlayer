@@ -995,4 +995,5 @@ class CvWindow(LayerManagerInterface, Window):
             except BaseException as e:
                 self.logger.exception(e)
             finally:
-                self.destroy()
+                if not self._headless:
+                    self.destroy()
