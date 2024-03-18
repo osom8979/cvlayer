@@ -6,7 +6,7 @@ from cvlayer.cv.types.shape import PointT
 from cvlayer.math.angle import degrees_point3
 
 
-class RotateMeter:
+class Protractor:
     def __init__(
         self,
         first_center: Optional[PointT] = None,

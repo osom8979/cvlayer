@@ -4,7 +4,7 @@ from collections import deque
 from typing import Deque, Optional
 
 from cvlayer.cv.types.shape import PointT
-from cvlayer.rotate.rotate_meter import RotateMeter
+from cvlayer.rotate.protractor import Protractor
 
 
 class HistoryItem:
@@ -21,30 +21,45 @@ class RotateAccumulator:
     _initial: Optional[HistoryItem]
 
     def __init__(self, history: Optional[int] = None):
-        self._meter = RotateMeter()
+        self._protractor = Protractor()
         self._history = deque(maxlen=history)
         self._initial = None
         self._accumulated_angle = 0.0
         self._current_angle = 0.0
 
     @property
-    def meter(self):
-        return self._meter
-
-    @property
-    def history(self):
-        return self._history
+    def protractor(self):
+        return self._protractor
 
     @property
     def initial(self):
         return self._initial
 
     @property
-    def current_angle(self):
+    def angle(self):
         return self._current_angle
 
+    @property
+    def history(self):
+        return self._history
+
+    @property
+    def max(self):
+        return self._history.maxlen
+
+    @property
+    def latest(self):
+        return self._history[-1]
+
+    @property
+    def empty(self):
+        return len(self._history) == 0
+
+    def __len__(self):
+        return self._history.__len__()
+
     def clear(self) -> None:
-        self._meter.clear()
+        self._protractor.clear()
         self._history.clear()
         self._initial = None
         self._accumulated_angle = 0.0
@@ -54,15 +69,15 @@ class RotateAccumulator:
         if self._initial is None:
             self._initial = HistoryItem(center, point, 0.0)
 
-        if not self._meter.has_first:
-            self._meter.set_first(center, point)
+        if not self._protractor.has_first:
+            self._protractor.set_first(center, point)
 
-        self._meter.set_second(center, point)
+        self._protractor.set_second(center, point)
 
         if self._history.maxlen and self._history.maxlen <= len(self._history):
             self._history.popleft()
 
-        partial_angle = self._meter.signed_angle
+        partial_angle = self._protractor.signed_angle
         assert -180 < partial_angle <= 180
 
         self._current_angle = self._accumulated_angle + partial_angle
@@ -73,6 +88,6 @@ class RotateAccumulator:
         # so the 'first point' updates every 90 degrees.
         if partial_angle <= -90 or 90 <= partial_angle:
             self._accumulated_angle = self._current_angle
-            self._meter.set_first(center, point)
+            self._protractor.set_first(center, point)
 
         return self._current_angle

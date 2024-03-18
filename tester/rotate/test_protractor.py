@@ -2,10 +2,10 @@
 
 from unittest import TestCase, main
 
-from cvlayer.rotate.rotate_meter import RotateMeter
+from cvlayer.rotate.protractor import Protractor
 
 
-class RotateMeterTestCase(TestCase):
+class ProtractorTestCase(TestCase):
     @staticmethod
     def make_center_point(cx, cy, px, py, d):
         return (cx + d, cy + d), (px + d, py + d)
@@ -18,7 +18,7 @@ class RotateMeterTestCase(TestCase):
         #       |       #
         #  y2  270   y3 #
         #################
-        rm = RotateMeter()
+        rm = Protractor()
         rm.set_first(*self.make_center_point(0, 0, 1, 1, 4.5))
         rm.set_second(*self.make_center_point(0, 0, 1, 1, -9.0))
         self.assertEqual(0, rm.angle)
@@ -50,7 +50,7 @@ class RotateMeterTestCase(TestCase):
         #       |       #
         #  y1  270   y2 #
         #################
-        rm = RotateMeter()
+        rm = Protractor()
         rm.set_first(*self.make_center_point(0, 0, -1, 1, -9.0))
         rm.set_second(*self.make_center_point(0, 0, -1, 1, 10.5))
         self.assertEqual(0, rm.angle)
@@ -82,7 +82,7 @@ class RotateMeterTestCase(TestCase):
         #       |       #
         #  x   270   y1 #
         #################
-        rm = RotateMeter()
+        rm = Protractor()
         rm.set_first(*self.make_center_point(0, 0, -1, -1, -9.0))
         rm.set_second(*self.make_center_point(0, 0, -1, -1, 8.99))
         self.assertEqual(0, rm.angle)
@@ -114,7 +114,7 @@ class RotateMeterTestCase(TestCase):
         #       |       #
         #  y3  270   x  #
         #################
-        rm = RotateMeter()
+        rm = Protractor()
         rm.set_first(*self.make_center_point(0, 0, 1, -1, 0.2))
         rm.set_second(*self.make_center_point(0, 0, 1, -1, 99))
         self.assertEqual(0, rm.angle)
