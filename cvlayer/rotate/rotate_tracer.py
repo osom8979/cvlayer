@@ -16,7 +16,7 @@ class HistoryItem:
         self.signed_angle = signed_angle
 
 
-class RotateAccumulator:
+class RotateTracer:
     _history: Deque[HistoryItem]
     _initial: Optional[HistoryItem]
 
