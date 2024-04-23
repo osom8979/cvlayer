@@ -33,7 +33,7 @@ DATETIME_TO_DIRECTORY_STRFTIME_FORMAT = "%Y-%m-%d"  # e.g. '2022-02-14'
 DATETIME_TO_FILENAME_STRFTIME_FORMAT = "%H_%M_%S.%f"  # e.g. '14_28_19.286335'
 
 
-def parse_dirname_and_filename(time: datetime) -> Tuple[str, str]:
-    directory = time.strftime(DATETIME_TO_DIRECTORY_STRFTIME_FORMAT)
-    filename = time.strftime(DATETIME_TO_FILENAME_STRFTIME_FORMAT)
+def parse_dirname_and_filename(date_time: datetime) -> Tuple[str, str]:
+    directory = date_time.strftime(DATETIME_TO_DIRECTORY_STRFTIME_FORMAT)
+    filename = date_time.strftime(DATETIME_TO_FILENAME_STRFTIME_FORMAT)
     return directory, filename
