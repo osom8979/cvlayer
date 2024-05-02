@@ -107,7 +107,10 @@ def find_contours_filter_area_largest(
 
     largest_contour: Optional[NDArray[int32]] = None
     largest_area = 0.0
-    areas = map(lambda c: contour_area(c, area_oriented), contours)
+
+    # [IMPORTANT]
+    # 'map object' is not an iterator in 'zip'. So convert it to 'list'.
+    areas = list(map(lambda c: contour_area(c, area_oriented), contours))
 
     for contour, area in zip(contours, areas):
         assert isinstance(contour, ndarray)
