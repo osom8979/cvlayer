@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from typing import NamedTuple
+from math import floor
 
 import cv2
+from cv2.typing import MatLike
 from numpy import logical_and, zeros
 from numpy.typing import NDArray
 
@@ -19,7 +21,7 @@ def min_area_rect(points: NDArray) -> RotatedRect:
     center, size, rotation = cv2.minAreaRect(points)
     cx, cy = center
     w, h = size
-    return RotatedRect((cx, cy), (w, h), rotation)
+    return RotatedRect((cx, cy), (floor(w), floor(h)), rotation)
 
 
 def box_points(box: RotatedRect) -> NDArray:
@@ -28,7 +30,7 @@ def box_points(box: RotatedRect) -> NDArray:
 
 
 def bitwise_intersection_contours(
-    width: int, height: int, contour1: NDArray, contour2: NDArray
+    width: int, height: int, contour1: MatLike, contour2: MatLike
 ) -> NDArray:
     blank1 = zeros((height, width))
     blank2 = zeros((height, width))
