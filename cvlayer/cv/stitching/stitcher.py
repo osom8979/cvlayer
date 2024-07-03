@@ -9,10 +9,45 @@ from numpy.typing import NDArray
 
 from cvlayer.cv.stitching.parts import StitcherPart
 from cvlayer.cv.stitching.props import StitcherProps
+from cvlayer.cv.stitching.types import BLEND_FEATHER, BLEND_MULTIBAND
 
 
 class StitchError(Exception):
-    pass
+    def __init__(self, status: int, message: str):
+        super().__init__(message)
+        self.status = status
+
+
+class StitchOk(StitchError):
+    def __init__(self, message: Optional[str] = None):
+        super().__init__(
+            cv2.Stitcher_OK,
+            message if message else "Stitch successful",
+        )
+
+
+class NeedMoreImagesError(StitchError):
+    def __init__(self, message: Optional[str] = None):
+        super().__init__(
+            cv2.Stitcher_ERR_NEED_MORE_IMGS,
+            message if message else "Need more images",
+        )
+
+
+class HomographyEstimateError(StitchError):
+    def __init__(self, message: Optional[str] = None):
+        super().__init__(
+            cv2.Stitcher_ERR_HOMOGRAPHY_EST_FAIL,
+            message if message else "Homography estimate fail",
+        )
+
+
+class CameraParamsAdjustError(StitchError):
+    def __init__(self, message: Optional[str] = None):
+        super().__init__(
+            cv2.Stitcher_ERR_CAMERA_PARAMS_ADJUST_FAIL,
+            message if message else "Camera params adjust fail",
+        )
 
 
 class Stitcher:
@@ -58,11 +93,11 @@ class Stitcher:
         if status == cv2.Stitcher_OK:
             return self.result
         elif status == cv2.Stitcher_ERR_NEED_MORE_IMGS:
-            raise StitchError(status, "Need more images")
+            raise NeedMoreImagesError
         elif status == cv2.Stitcher_ERR_HOMOGRAPHY_EST_FAIL:
-            raise StitchError(status, "Homography estimate fail")
+            raise HomographyEstimateError
         elif status == cv2.Stitcher_ERR_CAMERA_PARAMS_ADJUST_FAIL:
-            raise StitchError(status, "Camera params adjust fail")
+            raise CameraParamsAdjustError
         else:
             assert False, "Inaccessible section"
 
@@ -71,13 +106,10 @@ class Stitcher:
         work_mega_pixel = self.props.work_mega_pixel
         seam_mega_pixel = self.props.seam_mega_pixel
         compose_mega_pixel = self.props.compose_mega_pixel
-        conf_thresh = self.props.conf_thresh
-        ba_refine_mask = self.props.ba_refine_mask
         wave_correct = self.props.wave_correct
-        warp_type = self.props.warp_key
         blend_type = self.props.blend_key
         blend_strength = self.props.blend_strength
-        finder = self.props.features_finder()
+        finder = self.props.create_features_finder()
 
         seam_work_aspect = 1
         full_img_sizes = []
@@ -138,7 +170,7 @@ class Stitcher:
         p = matcher.apply2(features)
         matcher.collectGarbage()
 
-        indices = cv2.detail.leaveBiggestComponent(features, p, conf_thresh)
+        indices = cv2.detail.leaveBiggestComponent(features, p, self.props.conf_thresh)
         img_subset = []
         img_names_subset = []
         full_img_sizes_subset = []
@@ -151,39 +183,20 @@ class Stitcher:
         full_img_sizes = full_img_sizes_subset
         num_images = len(img_names)
         if num_images < 2:
-            raise StitchError(cv2.Stitcher_ERR_NEED_MORE_IMGS, "Need more images")
+            raise NeedMoreImagesError
 
-        estimator = self.props.estimator()
+        estimator = self.props.create_estimator()
         b, cameras = estimator.apply(features, p, None)
         if not b:
-            raise StitchError(
-                cv2.Stitcher_ERR_HOMOGRAPHY_EST_FAIL,
-                "Homography estimation failed",
-            )
+            raise HomographyEstimateError
 
         for cam in cameras:
             cam.R = cam.R.astype(np.float32)
 
-        adjuster = self.props.bundle_adjuster()
-        adjuster.setConfThresh(conf_thresh)
-        refine_mask = np.zeros((3, 3), np.uint8)
-        if ba_refine_mask[0] == "x":
-            refine_mask[0, 0] = 1
-        if ba_refine_mask[1] == "x":
-            refine_mask[0, 1] = 1
-        if ba_refine_mask[2] == "x":
-            refine_mask[0, 2] = 1
-        if ba_refine_mask[3] == "x":
-            refine_mask[1, 1] = 1
-        if ba_refine_mask[4] == "x":
-            refine_mask[1, 2] = 1
-        adjuster.setRefinementMask(refine_mask)
+        adjuster = self.props.create_bundle_adjuster()
         b, cameras = adjuster.apply(features, p, cameras)
         if not b:
-            raise StitchError(
-                cv2.Stitcher_ERR_CAMERA_PARAMS_ADJUST_FAIL,
-                "Camera parameters adjusting failed",
-            )
+            raise CameraParamsAdjustError
 
         focals = []
         for cam in cameras:
@@ -218,7 +231,8 @@ class Stitcher:
             um = cv2.UMat(255 * np.ones((h, w), np.uint8))
             masks.append(um)
 
-        warper = cv2.PyRotationWarper(warp_type, warped_image_scale * seam_work_aspect)
+        warper_scale = warped_image_scale * seam_work_aspect
+        warper = cv2.PyRotationWarper(self.props.warp_key, warper_scale)
 
         for idx in range(0, num_images):
             K = cameras[idx].K().astype(np.float32)
@@ -246,30 +260,26 @@ class Stitcher:
         compensator = self.props.get_compensator()
         compensator.feed(corners=corners, images=images_warped, masks=masks_warped)
 
-        seam_finder = self.props.seam_find
+        seam_finder = self.props.seam_finder
         masks_warped = seam_finder.find(images_warped_f, corners, masks_warped)
         compose_scale = 1
         corners = []
         sizes = []
         blender = None
 
-        for idx, name in enumerate(img_names):
-            full_img = cv2.imread(name)
+        for idx, full_img in enumerate(self.images):
+            height = full_img.shape[0]
+            width = full_img.shape[1]
+            pixels = height * width
 
             if not is_compose_scale_set:
                 if compose_mega_pixel > 0:
-                    compose_scale = min(
-                        1.0,
-                        np.sqrt(
-                            compose_mega_pixel
-                            * 1e6
-                            / (full_img.shape[0] * full_img.shape[1])
-                        ),
-                    )
+                    compose_scale = min(1.0, np.sqrt(compose_mega_pixel * 1e6 / pixels))
                 is_compose_scale_set = True
                 compose_work_aspect = compose_scale / work_scale
                 warped_image_scale *= compose_work_aspect
-                warper = cv2.PyRotationWarper(warp_type, warped_image_scale)
+                warper = cv2.PyRotationWarper(self.props.warp_key, warped_image_scale)
+
                 for i in range(0, len(img_names)):
                     cameras[i].focal *= compose_work_aspect
                     cameras[i].ppx *= compose_work_aspect
@@ -282,6 +292,7 @@ class Stitcher:
                     roi = warper.warpRoi(sz, K, cameras[i].R)
                     corners.append(roi[0:2])
                     sizes.append(roi[2:4])
+
             if abs(compose_scale - 1) > 1e-1:
                 img = cv2.resize(
                     src=full_img,
@@ -292,6 +303,7 @@ class Stitcher:
                 )
             else:
                 img = full_img
+
             K = cameras[idx].K().astype(np.float32)
             corner, image_warped = warper.warp(
                 img, K, cameras[idx].R, cv2.INTER_LINEAR, cv2.BORDER_REFLECT
@@ -305,10 +317,8 @@ class Stitcher:
             dilated_mask = cv2.dilate(masks_warped[idx], None)
             seam_mask = cv2.resize(
                 dilated_mask,
-                (mask_warped.shape[1], mask_warped.shape[0]),
-                0,
-                0,
-                cv2.INTER_LINEAR_EXACT,
+                dsize=(mask_warped.shape[1], mask_warped.shape[0]),
+                interpolation=cv2.INTER_LINEAR_EXACT,
             )
             mask_warped = cv2.bitwise_and(seam_mask, mask_warped)
 
@@ -318,12 +328,12 @@ class Stitcher:
                 blend_width = np.sqrt(dst_sz[2] * dst_sz[3]) * blend_strength / 100
                 if blend_width < 1:
                     blender = cv2.detail.Blender.createDefault(cv2.detail.Blender_NO)
-                elif blend_type == "multiband":
+                elif blend_type == BLEND_MULTIBAND:
                     blender = cv2.detail.MultiBandBlender()
                     blender.setNumBands(
                         (np.log(blend_width) / np.log(2.0) - 1.0).astype(np.int32)
                     )
-                elif blend_type == "feather":
+                elif blend_type == BLEND_FEATHER:
                     blender = cv2.detail.FeatherBlender()
                     blender.setSharpness(1.0 / blend_width)
                 blender.prepare(dst_sz)

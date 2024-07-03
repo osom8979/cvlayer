@@ -108,6 +108,14 @@ def _wave_correct_map():
     return result
 
 
+@lru_cache
+def _timelapse_map():
+    result = OrderedDict()
+    result["AsIs"] = cv2.detail.Timelapser_AS_IS
+    result["Crop"] = cv2.detail.Timelapser_CROP
+    return result
+
+
 MATCHER_HOMOGRAPHY: Final[str] = "Homography"
 MATCHER_AFFINE: Final[str] = "Affine"
 
@@ -120,37 +128,33 @@ def _matcher_keys() -> Sequence[str]:
 @lru_cache
 def _warp_keys() -> Sequence[str]:
     return (
-        "Spherical",
-        "Plane",
-        "Affine",
-        "Cylindrical",
-        "Fisheye",
-        "Stereographic",
-        "CompressedPlaneA2B1",
-        "CompressedPlaneA1.5B1",
-        "CompressedPlanePortraitA2B1",
-        "CompressedPlanePortraitA1.5B1",
-        "PaniniA2B1",
-        "PaniniA1.5B1",
-        "PaniniPortraitA2B1",
-        "PaniniPortraitA1.5B1",
-        "Mercator",
-        "TransverseMercator",
+        "spherical",
+        "plane",
+        "affine",
+        "cylindrical",
+        "fisheye",
+        "stereographic",
+        "compressedPlaneA2B1",
+        "compressedPlaneA1.5B1",
+        "compressedPlanePortraitA2B1",
+        "compressedPlanePortraitA1.5B1",
+        "paniniA2B1",
+        "paniniA1.5B1",
+        "paniniPortraitA2B1",
+        "paniniPortraitA1.5B1",
+        "mercator",
+        "transverseMercator",
     )
+
+
+BLEND_MULTIBAND: Final[str] = "Multiband"
+BLEND_FEATHER: Final[str] = "Feather"
+BLEND_NO: Final[str] = "No"
 
 
 @lru_cache
 def _blend_keys() -> Sequence[str]:
-    return "Multiband", "Feather", "No"
-
-
-TIMELAPSE_AS_IS: Final[str] = "AsIs"
-TIMELAPSE_CROP: Final[str] = "Crop"
-
-
-@lru_cache
-def _timelapse_keys() -> Sequence[str]:
-    return TIMELAPSE_AS_IS, TIMELAPSE_CROP
+    return BLEND_MULTIBAND, BLEND_FEATHER, BLEND_NO
 
 
 STITCHER_MODE_MAP = _stitcher_mode_map().copy()
@@ -160,6 +164,7 @@ FEATURES_FINDER_MAP = _features_finder_map().copy()
 SEAM_FINDER_MAP = _seam_finder_map().copy()
 ESTIMATOR_MAP = _estimator_map().copy()
 WAVE_CORRECT_MAP = _wave_correct_map().copy()
+TIMELAPSE_MAP = _timelapse_map().copy()
 
 STITCHER_MODE_KEYS: Final[Sequence[str]] = tuple(STITCHER_MODE_MAP.keys())
 EXPOS_COMP_KEYS: Final[Sequence[str]] = tuple(EXPOSURE_COMPENSATOR_MAP.keys())
@@ -168,11 +173,11 @@ FEATURES_FINDER_KEYS: Final[Sequence[str]] = tuple(FEATURES_FINDER_MAP.keys())
 SEAM_FINDER_KEYS: Final[Sequence[str]] = tuple(SEAM_FINDER_MAP.keys())
 ESTIMATOR_KEYS: Final[Sequence[str]] = tuple(ESTIMATOR_MAP.keys())
 WAVE_CORRECT_KEYS: Final[Sequence[str]] = tuple(WAVE_CORRECT_MAP.keys())
+TIMELAPSE_KEYS: Final[Sequence[str]] = tuple(TIMELAPSE_MAP.keys())
 
 MATCHER_KEYS: Final[Sequence[str]] = _matcher_keys()
 WARP_KEYS: Final[Sequence[str]] = _warp_keys()
 BLEND_KEYS: Final[Sequence[str]] = _blend_keys()
-TIMELAPSE_KEYS: Final[Sequence[str]] = _timelapse_keys()
 
 DEFAULT_ORB_MATCH_CONF: Final[float] = 0.3
 DEFAULT_ETC_MATCH_CONF: Final[float] = 0.65
