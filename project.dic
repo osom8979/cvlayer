@@ -2,6 +2,7 @@
 # https://plugins.jetbrains.com/plugin/12089-dictionary
 
 absdiff
+akaze
 alow
 altkey
 amax
@@ -39,6 +40,7 @@ dtype
 exif's
 fgmask
 fireware
+focals
 framebytes
 freeratio
 gbrg
@@ -78,6 +80,7 @@ minval
 mjpg
 mosse
 msmf
+multiband
 mval
 nimd
 nocov
@@ -118,6 +121,7 @@ ushrt
 uynv
 uyvy
 vassilvitskii
+warper
 welsch
 winname
 xdpi
@@ -125,6 +129,7 @@ xiapi
 ximea
 xine
 xvid
+xxxxx
 ycbcr
 ycrcb
 ydpi
